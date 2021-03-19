@@ -138,8 +138,8 @@ const Timeline = function() {
         // height = {100}
         >
         {
-          events.map(ev=>(
-            <ChartRow height = {`${row_height}`} style = {{fill: "#f1a340"}}>
+          events.map((ev, i)=>(
+            <ChartRow height = {`${row_height}`} style = {{fill: "#f1a340"}} key = {i} >
               <Charts>
                 <EventChart
                   series = {ev}

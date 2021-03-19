@@ -1,5 +1,5 @@
 import React from 'react'; // we need this to make JSX compile
-import { useTheme } from "@material-ui/core/styles";
+import { useTheme, withStyles } from "@material-ui/core/styles";
 import {Heading} from 'evergreen-ui';
 type SelectorSectionProps = { 
     title: string, 
@@ -7,13 +7,18 @@ type SelectorSectionProps = {
 }
 
 
+
 export const SelectorSection = ({title, children}: SelectorSectionProps) => {
     const theme = useTheme();
-        
+    
+    
+
     const container = {
         borderBottom: `1px solid ${theme.palette.primary.main}`,
         // paddingBottom: '1em',
         height: "100%",
+
+        // display: 'flex',
     }
     const headerContainer = {
         borderBottom: `1px solid ${theme.palette.primary.main}`,

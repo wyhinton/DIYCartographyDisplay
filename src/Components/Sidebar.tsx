@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {Heading, Paragraph, Link, Strong, Small, Text, Icon, Pane, ArrowRightIcon} from 'evergreen-ui';
 import { useTheme } from "@material-ui/core/styles";
-
+import { useStoreActions, useStoreState } from "../hooks";
 function Sidebar(){
     const theme = useTheme();
 
@@ -41,9 +41,11 @@ function Sidebar(){
     const quoteStyle = {
         textStyle: "italic"
     }
+
     return(
         <Pane style = {container}>
             <Text>
+ 
                 <Link style = {linkStyle} >WAYS TO EXPEREINCE THIS 
                     <Icon icon = {ArrowRightIcon} size  = {9}/>
                 </Link>
@@ -52,7 +54,7 @@ function Sidebar(){
                 </Paragraph>
             </Text>
             <Text>
-                <Heading size = {700}> INTRO</Heading>
+                <Heading size = {700} color = {theme.palette.primary.main}> Intro</Heading>
                     <Paragraph style = {paragraph}>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, 
                         making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, 
                         making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure 
@@ -60,7 +62,7 @@ function Sidebar(){
             </Text>
             <Text>
             <Paragraph>
-                    <Strong size = {500} >
+                    <Strong size = {500} color = {theme.palette.primary.main}>
                         "Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Contrary to popular belief, Lorem Ipsum is not simply random text.
                     </Strong>
                 </Paragraph>

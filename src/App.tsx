@@ -1,13 +1,14 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useEffect, useState} from 'react';
 import './App.css';
-import {Button} from 'evergreen-ui';
 import Grid from '@material-ui/core/Grid';
 import Sidebar from './Components/Sidebar'
 import MapGallery from './Components/MapGallery';
 import Timeline from './Components/Timeline';
 import Category from './Components/Selectors/Category';
 import SelectorSection from './Components/SelectorSection';
+import GetSheetDone from 'get-sheet-done';
+import { useStoreActions, useStoreState } from "./hooks";
+import { isConstructorDeclaration } from 'typescript';
 
 
 const panel_width = "20%";
@@ -64,14 +65,22 @@ const mainContainer = {
   paddingBottom: "1em"
 }
 
+// const test_data = 
+// https://docs.google.com/spreadsheets/d/1-S8EkLYsknYoFWSynVeMQCi6Gf9PoV9A5ezzICXamJA/edit?usp=sharing
+    // https://docs.google.com/spreadsheets/d/e/2PACX-1vShkIFNo43AJw8tdtdq4vsa40okE7v4IJbbXUOuIsLpnCYZMaQnPH9k3_YFhm814s2oa9VrVkQbzPNa/pubhtml
 function App() {
-
-  // const 
+  const test_thunk = useStoreActions(actions => actions.map_data.fetch_map_data);
+  
+  useEffect(()=>{
+    test_thunk();
+  },[]);
+  
   return (
     <div>
         <Grid direction = "column" style = {mainGrid} >
           <Grid  container spacing = {0} item xs = {12} style = {topSection}>
             <Grid  container spacing = {0} direction = "row" style = {{height: "100%"}}>
+              
               {/* upper left */}
               {/* <Grid item xs = {12} xl = {3}style = {gridSect}> */}
               <Grid item xs = {2} style = {gridSect}>
@@ -102,7 +111,7 @@ function App() {
                 </Grid>
                 {/* right bottom */}
                 <Grid item xs = {12} style = {{height: "75%", backgroundColor: "black", overflow: "hidden"}}>
-                  <MapGallery title = "hello"/>
+                  <MapGallery/>
                 </Grid>
                 {/* right side */}
               </Grid>
