@@ -21,7 +21,8 @@ const section = {
 };
 
 const topSection = {
-  height: "75vh",
+  height: "60vh",
+  // height: "75vh",
   width: "100%",
   paddingTop: 0,
   // backgroundColor: "red"
@@ -110,7 +111,7 @@ function App() {
 
                 </Grid>
                 {/* right bottom */}
-                <Grid item xs = {12} style = {{height: "75%", backgroundColor: "black", overflow: "hidden"}}>
+                <Grid item xs = {12} style = {{height: "75%", overflow: "hidden"}}>
                   <MapGallery/>
                 </Grid>
                 {/* right side */}

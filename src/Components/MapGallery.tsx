@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
+import { useState, useEffect } from 'react';
 import {Heading, Paragraph} from 'evergreen-ui';
 import Gallery from 'react-grid-gallery';
 import { useTheme, withStyles } from "@material-ui/core/styles";
 import Backdrop from '@material-ui/core/Backdrop';
 import Grid from '@material-ui/core/Grid';
 import { useStoreActions, useStoreState } from "../hooks";
+import {Link} from 'evergreen-ui';
+
 
 const IMAGES =
 [
@@ -144,27 +145,6 @@ const IMAGES =
 
 ]
 
-// imageThumbnails = image => {
-//     const promise = new Promise(function(resolve, reject) {
-//       console.log("inside promise");
-//       let img = new Image();
-//       img.src = image.thumbnail;
-//       img.onload = () => {
-//         console.log(
-//           "imge src",
-//           img.src,
-//           "width ",
-//           img.width,
-//           "height",
-//           img.height
-//         );
-//         image.thumbnailHeight = img.height;
-//         image.thumbnailWidth = img.width;
-//         resolve("ok");
-//       };
-//     });
-//     return promise;
-//   };
 // https://codesandbox.io/s/react-grid-gallery-ztf4n?file=/src/index.js:358-880
 // https://codesandbox.io/s/r48lm1jopq
 type GalleryProps = { 
@@ -182,18 +162,24 @@ const LimitedBackdrop = withStyles({
 })(Backdrop);
 
 const MapGallery = () => {
-    const items = useStoreState(state=>state.map_data.maps);
-    const gallery_images = useStoreState(state=>state.map_data.gallery_images);
+    const gallery_images = useStoreState(state=>state.map_data.active_images);
     const [showLightbox, setShowLightBox] = useState(false);
-    const [images, setImages] = useState([] as any);
-
+    const filter_gallery = useStoreActions(actions=>actions.map_data.filter_gallery);
+    const set_filters = useStoreActions(actions=>actions.map_data.set_filters);
     const theme = useTheme();
-    
+    const linkStyle = {
+        fontSize: "8pt",
+        textDecoration: "none",
+    }
+
+    useEffect(() =>{
+
+    }, [gallery_images]);
     // useEffect(() )
 
 
     const containerStyle = {
-        border: `1px solid ${theme.palette.primary.main}`,
+        // border: `1px solid ${theme.palette.primary.main}`,
         overflow: "hidden",
         backgroundColor: "white",
     }
@@ -228,7 +214,10 @@ const MapGallery = () => {
 
     return(
     <div style = {containerStyle}>
-
+    <Link style = {linkStyle} onClick = {()=>{set_filters(["BUILT ENVIRONMENT"])}}>BUILT ENVIRONMENT</Link>
+    <Link style = {linkStyle} onClick = {()=>{set_filters(["POLITICAL ENVIRONMENT"])}}>POLITICAL ENVIRONMENT</Link>
+    <Link style = {linkStyle} onClick = {()=>{set_filters(["SOCIAL ENVIRONMENT"])}}>SOCIAL ENVIRONMENT</Link>
+    <Link style = {linkStyle} onClick = {()=>{set_filters(["ENVIRONMENTAL ENVIRONMENT"])}}>ENVIRONMENTAL ENVIRONMENT</Link>
         <div >
             <LimitedBackdrop open={showLightbox} onClick={()=>setShowLightBox(false)}>
             <div style = {backDropContainer}>
@@ -262,6 +251,7 @@ const MapGallery = () => {
             </LimitedBackdrop>
             <Gallery 
                 images = {(gallery_images[0] == undefined) ? IMAGES:gallery_images}
+                rowHeight = {100}
                 // images = {gallery_images[0].src??IMAGES}
                 // images = {IMAGES}
 

@@ -1,7 +1,9 @@
-import React, { useState } from "react";
-import ReactDOM from "react-dom";
 import {v4 as uuid} from 'uuid';
 import { useTheme } from "@material-ui/core/styles";
+import { useStoreActions, useStoreState } from "../hooks";
+import { useState, useEffect } from 'react';
+// https://codesandbox.io/s/react-timeseries-charts-axis-color-forked-060kt
+// https://codesandbox.io/s/l28vmvp2n9?from-embed
 
 import {
   ChartContainer,
@@ -11,38 +13,7 @@ import {
   Resizable,
 } from "react-timeseries-charts";
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
-// import type {TimeSeriesEvent} from "pondjs";
 
-const periods = [
-  {
-    since: "2015-03-08T09:00:00Z",
-    till: "2015-03-22T14:00:00Z",
-    title: "ANL Scheduled Maintenance"
-  },
-  {
-    since: "2015-04-01T03:30:00Z",
-    till: "2015-04-02T16:50:00Z",
-    title: "Whatever"
-  }
-];
-
-// interface 
-const events: TimeRangeEvent[] = periods.map(({ since, till, ...data }) => {
-  let range = new TimeRange(new Date(since), new Date(till));
-  return new TimeRangeEvent(range, data);
-});
-const series = new TimeSeries({
-    name: "test",
-    events: events,
-});
-
-const container = {
-    width: "100%", 
-    height: "100%",
-}
-
-
-// https://codesandbox.io/s/react-timeseries-charts-axis-color-forked-060kt
 
 function random_events(start: Date, end:Date, count: number) {
   // let start = new Date(start.)
@@ -78,13 +49,9 @@ function random_events(start: Date, end:Date, count: number) {
   return series
 }
 
-
-// const series = new TimeSeries({ events });
-
-
-//example
-// https://codesandbox.io/s/l28vmvp2n9?from-embed
 const Timeline = function() {
+  const active_filters = useStoreState(state=>state.map_data.filters);
+  const time_series = useStoreState(state=>state.map_data.timeline_series);
   const theme = useTheme();
   const row_height = 20;
   const start_date= new Date(1792,0,1);
@@ -96,24 +63,25 @@ const Timeline = function() {
     height: "80%",
     margin: 'auto',
     marginTop: '1em',
-    // paddingTop: '1em',
     borderTop: `1px solid ${theme.palette.primary.main}`,
-    // padding: "3em",
 }
+useEffect(()=>{
+  console.log("ACTIVE FILTERS CHANGE ")
+}, active_filters)
 
   let timerange = new TimeRange(start_date, end_date);
-  // let [timerange, setTimerange] = useState(series.timerange());
 
-  function outageEventStyleFunc(event: any, state: any) {
-
-    // const color = event.get("type") === "Planned" ? "#998ec3" : "#f1a340";
+  function eventStyles(filters: string[], state: any){
     let COLOR = "#998ec3";
+    // console.log(state);
     switch (state) {
       case "normal":
+        // console.log(state);
         return {
           fill: theme.palette.primary.main
         };
       case "hover":
+        console.log(state);
         return {
           fill: theme.palette.primary.light,
           opacity: 0.4
@@ -126,6 +94,7 @@ const Timeline = function() {
       //pass
     }
   }
+
   return (
     // <div style = {testChart}>
     <Resizable style = {testChart}>
@@ -138,40 +107,91 @@ const Timeline = function() {
         // height = {100}
         >
         {
-          events.map((ev, i)=>(
-            <ChartRow height = {`${row_height}`} style = {{fill: "#f1a340"}} key = {i} >
-              <Charts>
-                <EventChart
-                  series = {ev}
-                  size = {row_height}
-                  label = {(e: any)=>e.get("title")}
-                  // label = {(e: any)=>console.log(e)}
-                  // style =  {{fill: "#998ec3", opacity: 1.0}}
-                  style={outageEventStyleFunc}
-                ></EventChart>
-              </Charts>
-            </ChartRow>
-          ))
+            time_series.map(function(ev, i){
+              let my_style = {
+                fill: theme.palette.primary.main,
+                opacity: 0.4
+              }
+              
+              for (let event of ev.events()) { 
+                let real_key = Array.from(event.data().get(0).keys())[1]
+                const tags = Array.from(event.data().get(0).get(real_key))
+                console.log(tags)
+                console.log(active_filters[0])
+ 
+                if (tags.some(t=>t == active_filters[0])){
+                  console.log("had active filter");
+                } else {
+                  my_style.opacity = 0.1; 
+                  console.log("no active filter");
+                }
+              }
+              function style_func(s: any, e: any){
+                // my_still.fill, 
+                return my_style
+
+              }
+              // let ev_test = ev.events();
+              // console.log(ev_test);
+            return (
+              <ChartRow height = {`${row_height}`} style = {{fill: "#f1a340"}} key = {i} >
+                <Charts>
+                  <EventChart
+                    series = {ev}
+                    size = {row_height}
+                    label = {(e: any)=>e.get("title")}
+                    style={style_func}
+                    // style={my_style}
+                    // style={eventStyles}
+                  ></EventChart>
+                </Charts>
+              </ChartRow>
+              )
+            
+            // time_series.map((ev, i)=>(
+            //   <ChartRow height = {`${row_height}`} style = {{fill: "#f1a340"}} key = {i} >
+            //     <Charts>
+            //       <EventChart
+            //         series = {ev}
+            //         size = {row_height}
+            //         label = {(e: any)=>e.get("title")}
+
+            //         // label = {(e: any)=>console.log(e)}
+            //         // style =  {{fill: "#998ec3", opacity: 1.0}}
+            //         style={eventStyles(active_filters, ev)}
+            //       ></EventChart>
+            //     </Charts>
+            //   </ChartRow>
+            // ))
+          })
         }
-        {/* <ChartRow height="30">
-            <Charts>
-            <EventChart
-                series={series}
-                size={45}
-                // style={outageEventStyleFunc}
-                // style={testChart}
-                // label={e => e.get("title")}
-            />
-            </Charts>
-        </ChartRow> */}
+        
+       
         </ChartContainer>
     </Resizable>
     // </div>
   );
 };
 
+const arrayIncludesInObj = (arr: any[], key: string, valueToCheck: string): boolean => {
+  const has_tag = arr.some(value => value["title"] === valueToCheck);
+  return has_tag
+}
+
+
 export default Timeline
 
+function getAllFuncs(toCheck: any) {
+  var props: any[] = [];
+  var obj = toCheck;
+  do {
+      props = props.concat(Object.getOwnPropertyNames(obj));
+  } while (obj = Object.getPrototypeOf(obj));
+
+  return props.sort().filter(function(e, i, arr) { 
+     if (e!=arr[i+1] && typeof toCheck[e] == 'function') return true;
+  });
+}
 
 function randSplit(arr: TimeRangeEvent[], minimum: number, max: number): TimeRangeEvent[][] {
   if (minimum > arr.length || max <= minimum)
