@@ -9,14 +9,14 @@ function Sidebar(){
     const container = {
         height: "100%",
         width: "100%",
-        paddingRight: "2em",
+        // paddingRight: "2em",
         marginTop: "18px",
         paddingBottom: "1em",
         textAlign: "left" as const,
         display: "flex",
         flexDirection: "column" as const,
         justifyContent: "space-evenly",
-        borderTop: `1px solid ${theme.palette.primary.main}`,
+        // borderTop: `1px solid ${theme.palette.primary.main}`,
         color: theme.palette.primary.main,
     };
     const instructions_paragraph ={
@@ -44,7 +44,7 @@ function Sidebar(){
 
     return(
         <Pane style = {container}>
-            <Text>
+            {/* <Text>
  
                 <Link style = {linkStyle} >WAYS TO EXPEREINCE THIS 
                     <Icon icon = {ArrowRightIcon} size  = {9}/>
@@ -52,7 +52,7 @@ function Sidebar(){
                 <Paragraph style = {instructions_paragraph}>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, 
                     making it over 2000 years old. 
                 </Paragraph>
-            </Text>
+            </Text> */}
             <Text>
                 <Heading size = {700} color = {theme.palette.primary.main}> Intro</Heading>
                     <Paragraph style = {paragraph}>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, 

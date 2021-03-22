@@ -9,7 +9,7 @@ import SelectorSection from './Components/SelectorSection';
 import GetSheetDone from 'get-sheet-done';
 import { useStoreActions, useStoreState } from "./hooks";
 import { isConstructorDeclaration } from 'typescript';
-
+import Toolbar from './Components/Toolbar'
 
 const panel_width = "20%";
 
@@ -77,52 +77,21 @@ function App() {
   },[]);
   
   return (
-    <div>
-        <Grid direction = "column" style = {mainGrid} >
-          <Grid  container spacing = {0} item xs = {12} style = {topSection}>
-            <Grid  container spacing = {0} direction = "row" style = {{height: "100%"}}>
-              
-              {/* upper left */}
-              {/* <Grid item xs = {12} xl = {3}style = {gridSect}> */}
-              <Grid item xs = {2} style = {gridSect}>
-              {/* left side */}
-              <Sidebar/>
-              
+    <div style = {{padding: '1em'}}>
+    <Grid container spacing = {3}>
+          <Toolbar/>
+          <Grid container spacing = {3}>
+              <Grid item xs = {2}>
+                    <Sidebar/>
               </Grid>
-              {/* upper right */}
-              <Grid item xs = {10} style = {gridSect} container spacing = {0} direction = "row">
-                {/* right top */}
-                <Grid container spacing = {3} style = {{height: "25%", backgroundColor: "white", justifyContent: "space-between"}}>
-                  <Grid item xs = {3} style = {gridSect}>
-                    <SelectorSection title = "COURSE YEAR">
-                      <Category></Category>
-                    </SelectorSection>
-                  </Grid>
-                  <Grid item xs = {6} style = {gridSect}>
-                    <SelectorSection title = "TOPICS">
-                        <Category></Category>
-                      </SelectorSection>
-                  </Grid>
-                  <Grid item xs = {3} style = {gridSect}>
-                      <SelectorSection title = "THEMES">
-                        <Category></Category>
-                      </SelectorSection>
-                  </Grid>
-
-                </Grid>
-                {/* right bottom */}
-                <Grid item xs = {12} style = {{height: "75%", overflow: "hidden"}}>
-                  <MapGallery/>
-                </Grid>
-                {/* right side */}
+              <Grid item xs = {10}>
+                    <MapGallery/>
               </Grid>
-            </Grid>
-          
           </Grid>
-          <Grid item xs = {12} style = {{height: "25%"}}>
+          <Grid item xs = {12} style = {{height: "25%", padding: 0}}>
                 <Timeline/>
           </Grid>
-        </Grid>
+    </Grid>
     </div>
   );
 }

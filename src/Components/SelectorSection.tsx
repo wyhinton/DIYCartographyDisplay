@@ -14,6 +14,7 @@ export const SelectorSection = ({title, children}: SelectorSectionProps) => {
     
 
     const container = {
+        marginLeft: '3em',
         borderBottom: `1px solid ${theme.palette.primary.main}`,
         // paddingBottom: '1em',
         height: "100%",

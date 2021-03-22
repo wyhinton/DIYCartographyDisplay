@@ -1,4 +1,5 @@
 {
+  "compileOnSave": true,
   "compilerOptions": {
     "target": "es5",
     "lib": [
@@ -6,6 +7,7 @@
       "dom.iterable",
       "esnext"
     ],
+    "baseUrl": "src",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -22,10 +24,10 @@
     "typeRoots": [
       "./node_modules/@types/",
       "./extra_types/"
-    ],
-    // "types": ["react-grid-gallery"]
+    ]
   },
   "include": [
-    "src", "decs.d.ts"
+    "src",
+    "decs.d.ts"
   ]
 }
