@@ -1,66 +1,86 @@
 import Grid from '@material-ui/core/Grid';
 import SelectorSection from './SelectorSection';
-import Category from './Selectors/Category';
 import {Link, Paragraph, Text, Icon, ArrowRightIcon} from 'evergreen-ui';
 import { useTheme, withStyles } from "@material-ui/core/styles";
+import YearDiscipline from './Selectors/YearDiscipline';
+import Themes from './Selectors/Themes';
+import MapLens from './Selectors/MapLens';
 
 const Toolbar = () => {
     const theme = useTheme();
-    const gridSect = {
-        height: '100%',
-        // border: '1px solid black',
-    }
+    const toolbarContainer = {
+        height: '15%',
+        justifyContent: "space-between",
+    } as React.CSSProperties
+
+
     const instructions_paragraph ={
-        // : "left"
         color: theme.palette.primary.main,
         fontSize: "9pt",
         lineHeight: "12pt",
     };
-    const linkStyle = {
-        fontSize: "8pt",
-        textDecoration: "none",
-    }
+    const SelectorContainer = withStyles({
+        root: {
+            // padding: 0,
+            border: `1px solid ${theme.palette.primary.main}`, 
+            paddingLeft: '.5em',
+            paddingRight: '.1em',
+        }
+    })(Grid);
 
     return (
-        <Grid item xs = {12} style = {gridSect} container spacing = {3} direction = "row">
-            
-            <Grid container spacing = {0} style = {{height: "25%", backgroundColor: "white", justifyContent: "space-between"}}>
-                <Grid item xs = {2} style = {gridSect}>
-                    <div>
-
-   
-                    {/* <SelectorSection title = " f "> */}
-                        <Text>
-                        
-                        <Link style = {linkStyle} >WAYS TO EXPEREINCE THIS 
-                            <Icon icon = {ArrowRightIcon} size  = {9}/>
-                        </Link>
-                        <Paragraph style = {instructions_paragraph}>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, 
-                            making it over 2000 years old. 
-                        </Paragraph>
+        <Grid container spacing = {1} style = {toolbarContainer}>
+        {/* <Grid container spacing = {1} style = {{height: "15%", backgroundColor: "white", justifyContent: "space-between"}}> */}
+        {/* <Grid container spacing = {0} style = {{height: "25%", backgroundColor: "white", justifyContent: "space-between"}}> */}
+                <SelectorContainer item xs = {1}>
+                    <SelectorSection title = "SELECT & FILTER">
+                        <Text style = {instructions_paragraph}>
+                            <Paragraph size = {300} style = {instructions_paragraph}>
+                            Click on titles to view main categories. Click on rectangle blocks to filter by subcategories.
+                            </Paragraph>
                         </Text>
-                </div>
-                    {/* </SelectorSection> */}
-                </Grid>
-                <Grid item xs = {3} style = {gridSect}>
-                    <SelectorSection title = "COURSE YEAR">
-                    <Category></Category>
                     </SelectorSection>
-                </Grid>
-                <Grid item xs = {4} style = {gridSect}>
+                </SelectorContainer>
+
+                <SelectorContainer item xs = {4} >
+                    <SelectorSection title = "YEAR & DISCIPLINE">
+                        <YearDiscipline></YearDiscipline>
+                    </SelectorSection>
+                </SelectorContainer>
+                <SelectorContainer item xs = {4}>
                     <SelectorSection title = "TOPICS">
-                        <Category></Category>
+                        <MapLens></MapLens>
                     </SelectorSection>
-                </Grid>
-                <Grid item xs = {3} style = {gridSect}>
+                </SelectorContainer>
+                <SelectorContainer item xs = {2}>
                     <SelectorSection title = "THEMES">
-                        <Category></Category>
+                        <Themes></Themes>
                     </SelectorSection>
-                </Grid>
-            </Grid>
+                </SelectorContainer>
+
+  
         </Grid>
     )
 
 }
 
 export default Toolbar;
+
+
+            //     {/* <Grid item xs = {3} style = {gridSect}>
+            //         <div style = {{paddingRight: '2em'}}>
+
+   
+            //         {/* <SelectorSection title = " f "> */}
+            //         <Text>
+                        
+            //         <Link style = {linkStyle} >WAYS TO EXPEREINCE THIS 
+            //             <Icon icon = {ArrowRightIcon} size  = {9}/>
+            //         </Link>
+            //         <Paragraph style = {instructions_paragraph}>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, 
+            //             making it over 2000 years old. 
+            //         </Paragraph>
+            //         </Text>
+            // </div>
+            //     {/* </SelectorSection> */}
+            // </Grid> */}

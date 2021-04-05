@@ -1,19 +1,11 @@
 import { useState, useEffect } from 'react';
-import {Heading, Paragraph} from 'evergreen-ui';
 import Gallery from 'react-grid-gallery';
 import { useTheme, withStyles } from "@material-ui/core/styles";
 import Backdrop from '@material-ui/core/Backdrop';
 import Grid from '@material-ui/core/Grid';
 import { useStoreActions, useStoreState } from "../hooks";
-import {Link, Icon, CrossIcon} from 'evergreen-ui';
+import {Link, Icon, CrossIcon, Heading, Paragraph} from 'evergreen-ui';
 import '../css/GridGallery.css';
-import { Carousel } from 'react-responsive-carousel';
-// import type {PhotoInfo} from '@model/map_data';
-import type {PhotoInfo} from '../model/map_data';
-import ImageGallery from './ImageGallery';
-// import ImageGallery from 'react-image-gallery';
-// import "react-image-gallery/styles/css/image-gallery.css";
-// import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ReactSlick from 'react-slick';
@@ -195,7 +187,7 @@ const MapGallery = () => {
     const gallery_images = useStoreState(state=>state.map_data.active_images);
     const [showLightbox, setShowLightBox] = useState(false);
     const filter_gallery = useStoreActions(actions=>actions.map_data.filter_gallery);
-    const set_filters = useStoreActions(actions=>actions.map_data.set_filters);
+    // const set_filters = useStoreActions(actions=>actions.map_data.set_filters);
     const set_active_lightbox = useStoreActions(actions=>actions.map_data.set_active_lightbox);
     const active_lightbox = useStoreState(state=>state.map_data.active_lightbox);
 
@@ -246,7 +238,9 @@ const MapGallery = () => {
         width: '100%'
     }
     const textStyle = {
-        color: 'White'
+        color: 'White',
+        fontSize: '12pt',
+        lineHeight: '12pt',
     }
     const headingStyle = {
         color: 'white',
@@ -272,8 +266,8 @@ const MapGallery = () => {
     } as React.CSSProperties
 
     const galleryStyle = {
-        // height: '100px'
-        height: '100%'
+        height: '90vh'
+        // height: '100%'
     }
     const test_render_item = (item: any) =>{
         return (
@@ -283,7 +277,8 @@ const MapGallery = () => {
         )
     }
     const slick_props= {
-        adaptiveHeight: true, 
+        adaptiveHeight: false, 
+        // adaptiveHeight: true, 
         variableWidth: true,
         // centerMode: true, 
         slidesToShow: 1,
@@ -302,15 +297,15 @@ const MapGallery = () => {
                     <Grid container spacing = {3} style = {mainGrid}>
                  
                         <Grid item xs = {3}>
-                        <Heading size = {800} color = {'white'} >{active_lightbox.title}</Heading>
+                        <Heading size = {400} color = {'white'} >{active_lightbox.title}</Heading>
                             <Paragraph>
                                 {active_lightbox.author}
                             </Paragraph>
                             <Paragraph style = {textStyle}>
-                            {active_lightbox.description}
+                            {active_lightbox.description.replace("___", "")}
                             </Paragraph>
                             <Paragraph style = {textStyle}>
-                            Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure
+                            {/* Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure */}
                             </Paragraph>
                         </Grid>
                         <Grid item xs = {9} style = {galleryStyle}>
@@ -334,6 +329,7 @@ const MapGallery = () => {
                                                 isFluidWidth: true,
                                                 src: src.source,
                                                 // srcSet: src.srcSet,
+                                                // sizes: '(max-width: 480px) 100vw, (max-width: 1200px) 30vw, 360px'
                                                 sizes: '(max-width: 480px) 100vw, (max-width: 1200px) 30vw, 360px'
                                             },
                                             largeImage: {
@@ -341,7 +337,13 @@ const MapGallery = () => {
                                                 width: 1426,
                                                 height: 2000
                                             },
+                                            enlargedImageContainerDimensions: {
+                                                width: '50%',
+                                                height: '50%',
+                                            },
+                                            enlargedImagePosition: "over",
                                             lensStyle: { backgroundColor: 'rgba(0,0,0,.6)' }
+                                            // enlargedImagePortalId: ""
                                         }}
                                         // {...rimProps}
                                     />
@@ -358,12 +360,16 @@ const MapGallery = () => {
                 </div>
             </LimitedBackdrop>
         </div>
-        <div style = {{display: 'flex'}}>
+        <div>
+        <Heading>DIY CARTOGRAPHY: </Heading>
+        <Heading>MAPPING THE IMPACT OF URBAN DEVELOPMENT</Heading>
+        </div>
+        {/* <div style = {{display: 'flex'}}>
             <Link style = {linkStyle} onClick = {()=>{set_filters(["BUILT ENVIRONMENT"])}}>BUILT ENVIRONMENT</Link>
             <Link style = {linkStyle} onClick = {()=>{set_filters(["POLITICAL ENVIRONMENT"])}}>POLITICAL ENVIRONMENT</Link>
             <Link style = {linkStyle} onClick = {()=>{set_filters(["SOCIAL ENVIRONMENT"])}}>SOCIAL ENVIRONMENT</Link>
             <Link style = {linkStyle} onClick = {()=>{set_filters(["ENVIRONMENTAL ENVIRONMENT"])}}>ENVIRONMENTAL ENVIRONMENT</Link>
-        </div>
+        </div> */}
 
             {/* <div style = {{height: '100%', display: 'flex'}}> */}
             {/* <div style = {{overflow: 'scroll', height: "100%"}}> */}
@@ -372,9 +378,10 @@ const MapGallery = () => {
                 {/* <div style = {{height: '100%', paddingTop: '1em', width: "5000px"}}> */}
                 <div style = {{height: '100%', paddingTop: '1em', width: "100%"}}>
                     <Gallery 
+                        tagStyle = {{display: 'none'}}
                         renderItem = {test_render_item}
                         images = {(gallery_images[0] == undefined) ? IMAGES:gallery_images}
-                        rowHeight = {100}
+                        rowHeight = {75}
                         // images = {gallery_images[0].src??IMAGES}
                         // images = {IMAGES}
                         maxRows = {10}

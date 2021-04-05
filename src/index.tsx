@@ -9,14 +9,22 @@ import {StoreProvider} from 'easy-peasy';
 
 import store from './store';
 ReactDOM.render(
-  <React.StrictMode>
     <ThemeProvider theme = {theme} >
       <StoreProvider store = {store}>
       <App />
      </StoreProvider>
-    </ThemeProvider>
-  </React.StrictMode>,
+    </ThemeProvider>,
   document.getElementById('root')
 );
+// ReactDOM.render(
+//   <React.StrictMode>
+//     <ThemeProvider theme = {theme} >
+//       <StoreProvider store = {store}>
+//       <App />
+//      </StoreProvider>
+//     </ThemeProvider>
+//   </React.StrictMode>,
+//   document.getElementById('root')
+// );
 
 reportWebVitals();

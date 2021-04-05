@@ -10,27 +10,28 @@ type SelectorSectionProps = {
 
 export const SelectorSection = ({title, children}: SelectorSectionProps) => {
     const theme = useTheme();
-    
-    
 
     const container = {
-        marginLeft: '3em',
-        borderBottom: `1px solid ${theme.palette.primary.main}`,
-        // paddingBottom: '1em',
         height: "100%",
+        padding: 0,
+        paddingLeft: '.25em',
+        paddingReft: '.25em',
+    } as React.CSSProperties
 
-        // display: 'flex',
-    }
     const headerContainer = {
         borderBottom: `1px solid ${theme.palette.primary.main}`,
-        paddingBottom: '.1em'
-    }
+        paddingBottom: '.1em',
+        height: "20%",
+        display: "flex",
+        flexDirection: "column",
+        alignContent: "center",
+    } as React.CSSProperties
+
     const header = {
-        paddingLeft: '1em',
         color: theme.palette.primary.main,
-    }
-
-
+        marginTop: 0,
+        marginBottom: 'auto',
+    } as React.CSSProperties
 
     return (
     <div style = {container}>

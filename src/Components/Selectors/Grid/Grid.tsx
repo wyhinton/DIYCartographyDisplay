@@ -18,10 +18,9 @@ function create_elements(rows: number, cols: number){
     const arr = Array.from(Array(cols), (e,i)=>{
         return <div>
             { Array.from(Array(rows), (e,j)=>{
-                return <GridUnit key = {i+1*j} color = {theme.palette.primary.main}/>
+                return <GridUnit key = {i+1*j} color = {0}/>
             })}
         </div>
-        // <div style = {{backgroundColor: 'white'}}></div>
     })
     console.log(arr);
     const fin = arr.map((r,i)=>i)
