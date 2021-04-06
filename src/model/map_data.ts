@@ -1,7 +1,7 @@
 import { Action, action, thunk, Thunk, debug } from 'easy-peasy';
 import GetSheetDone from 'get-sheet-done';
 import { TimeSeries, TimeRangeEvent, TimeRange} from "pondjs";
-import { AuthorDisciplineFilter, TopicSubCategoryFilter, ThemeCategoryFilter, EventLevel} from './enums';
+import { AuthorDisciplineFilter, TopicSubCategoryFilter, ThemeCategoryFilter, EventLevel, GalleryFilterType} from './enums';
 
 export interface GalleryImage{
   src: string,
@@ -130,11 +130,19 @@ export interface TimelineData{
   city: TimeSeries[],
 }
 
+
+
+type FilterOption =  AuthorDisciplineFilter | TopicSubCategoryFilter | ThemeCategoryFilter | null;
+export interface FilterObj{
+  filter_type: GalleryFilterType,
+  filter: FilterOption, 
+}
+
 export interface MapDataModel {
-  filter: AuthorDisciplineFilter | TopicSubCategoryFilter | ThemeCategoryFilter | null;
+  filter: FilterOption;
   // filters: string[];
   map_spreadsheet: MapRow[],
-  map_stats: MapStats,
+  map_stats: MapStats | undefined,
   event_spreadsheet: EventRow[],
   active_images: GalleryImage[];
   gallery_images: GalleryImage[];
@@ -142,17 +150,15 @@ export interface MapDataModel {
   loaded: boolean;
   active_lightbox: LightBoxContent;
   fetch_map_data: Thunk<MapDataModel>;
-  filter_gallery: Action<MapDataModel, string>;
-  filter_gallery_by_subtopic: Action<MapDataModel, TopicSubCategoryFilter>;
-  filter_gallery_by_theme: Action<MapDataModel, ThemeCategoryFilter>;
+  filter_gallery: Action<MapDataModel, FilterObj>;
   set_map_spreadsheet: Action<MapDataModel, MapRow[]>;
   set_map_stats: Action<MapDataModel, MapStats>;
   set_event_spreadsheet: Action<MapDataModel, EventRow[]>;
   set_gallery_images: Action<MapDataModel, GalleryImage[]>;
   set_active_images: Action<MapDataModel, GalleryImage[]>;
   set_timeline_series: Action<MapDataModel, TimelineData>;
-  set_active_filter: Action<MapDataModel, AuthorDisciplineFilter | TopicSubCategoryFilter | ThemeCategoryFilter | null>;
-  thunk_set_filter: Thunk<MapDataModel, AuthorDisciplineFilter | TopicSubCategoryFilter | ThemeCategoryFilter | null>;
+  set_active_filter: Action<MapDataModel, FilterOption>;
+  thunk_set_filter: Thunk<MapDataModel, FilterOption>;
   reset_gallery: Action<MapDataModel>;
   // thunk_set_filter: Thunk<MapDataModel, string[]>;
   set_active_lightbox: Action<MapDataModel, GalleryImage>;
@@ -265,27 +271,23 @@ const map_data: MapDataModel = {
   set_active_images: action((state, payload)=>{
     state.active_images = payload
   }),
-  filter_gallery: action((state, full_tag_name)=>{
-      const tag = get_tag(full_tag_name);
-      let test_set: any[] = []
-      // state.gallery_images.forEach(function(gi: GalleryImage){
-      //   if (arrayIncludesInObj(gi.tags, tag, tag)){
-      //     test_set.push(gi)
-      //   }
-      // })
-      state.active_images = test_set;
+  filter_gallery: action((state, filter_option)=>{
+    if (filter_option.filter_type === GalleryFilterType.TOPIC){
+      const with_subtopic = state.gallery_images.filter(gi=>gi.tags[0].subtopic == filter_option.filter)
+      state.active_images = with_subtopic;
+      state.filter = filter_option.filter;
+    }
+    if (filter_option.filter_type === GalleryFilterType.THEME){
+      const with_theme = state.gallery_images.filter(gi=>gi.tags[0].theme == filter_option.filter)
+      state.active_images = with_theme;
+      state.filter = filter_option.filter;
+    }
+    if (filter_option.filter_type === GalleryFilterType.DISCIPLINE){
+      const with_discipline = state.gallery_images.filter(gi=>gi.tags[0].discipline == filter_option.filter)
+      state.active_images = with_discipline;
+      state.filter = filter_option.filter;
+    }
   }),
-  filter_gallery_by_subtopic: action((state, subtopic)=>{
-    const to_set = state.gallery_images.filter(gi=>gi.tags[0].subtopic == subtopic)
-    console.log(debug(to_set));
-    state.active_images = to_set;
-  }),
-  filter_gallery_by_theme: action((state, theme)=>{
-    const with_theme = state.gallery_images.filter(gi=>gi.tags[0].theme == theme)
-    // console.log(debug(to_set));
-    state.active_images = with_theme;
-  }),
-  
   set_timeline_series: action((state, timeline_series)=>{
      state.timeline_series =  timeline_series
   }),
@@ -293,23 +295,31 @@ const map_data: MapDataModel = {
     if (filter == null){
       actions.reset_gallery();
     } 
+    
     let cat_options = Object.values(TopicSubCategoryFilter);
     if (cat_options.includes(filter as TopicSubCategoryFilter)){
       console.log("CONTAINED IN SUB CAT FILTERS!");
-      actions.filter_gallery_by_subtopic(filter as TopicSubCategoryFilter);
+      actions.filter_gallery({
+        filter_type: GalleryFilterType.TOPIC,
+        filter: filter,
+      })
     }
 
     let theme_options = Object.values(ThemeCategoryFilter);
     if (theme_options.includes(filter as ThemeCategoryFilter)){
-      console.log("CONTAINED THEME CATEGORY FILTER");
+      actions.filter_gallery({
+        filter_type: GalleryFilterType.THEME,
+        filter: filter,
+      })
     } 
 
     let author_options = Object.values(AuthorDisciplineFilter);
     if (author_options.includes(filter as AuthorDisciplineFilter)){
-      console.log("AUTHOR OPTIONS THEME CATEGORY FILTER");
+      actions.filter_gallery({
+        filter_type: GalleryFilterType.DISCIPLINE,
+        filter: filter,
+      })
     } 
-
-    
     
   }),
   reset_gallery: action((state)=>{
@@ -317,7 +327,6 @@ const map_data: MapDataModel = {
   }),
   set_active_filter: action((state, active_filter)=>{
     state.filter = active_filter
-    // console.log(`ACTIVE FILTERS ARE ${debug(state.filter)}`)
   }),
   set_active_lightbox: action((state, item)=>{
     console.log(item); 
@@ -346,7 +355,6 @@ const map_data: MapDataModel = {
   })  
 }
 
-//thunk_set_filter((actions, filters: AUTHORDISCIPLINE | TAG| THEME))
 const arrayIncludesInObj = (arr: any[], key: string, valueToCheck: string): boolean => {
   const has_tag = arr.some(value => value["title"] === valueToCheck);
   return has_tag
@@ -398,19 +406,26 @@ function generate_map_stats(map_rows: MapRow[]): MapStats{
 function generate_year_discpline_stats(map_rows: MapRow[]): YearDisciplineStats{
   const year_groups = groupBy(map_rows, "year");
   const yg_keys = Object.keys(year_groups);
+  const max_unit_count = 21;
 
-  const test_set = yg_keys.map(k=>{
+  const year_group = yg_keys.map((k: any, i: number )=>{
     const year_breakdown = groupBy(year_groups[k], "discipline");
     let cats = Object.keys(year_breakdown);
     let final_data: any = {};
+    // console.log(year_groups[yg_keys[k]].length); 
+    // let year_group_lenght = year_group[].length;
     cats.forEach(c=>{
-      final_data[c] = year_breakdown[c].length
+      console.log(year_groups[k]);
+      console.log(year_breakdown[c]);
+      console.log(year_groups[k].length);
+      console.log(year_groups[k].length);
+      final_data[c] = Math.round((year_breakdown[c].length/year_groups[yg_keys[i]].length)*max_unit_count);
     });
     return final_data
   })
   const final_data: any = {};
-
-  test_set.forEach((s, ind)=>{
+  console.log(year_group);
+  year_group.forEach((s, ind)=>{
       console.log(s);
       final_data[yg_keys[ind]] = s    
   })
@@ -446,7 +461,7 @@ function generate_topic_stats(map_rows: MapRow[]): TagStats {
 }
 
 function generate_theme_stats(map_rows: MapRow[]): any{
-  const num_theme_blocks = 45
+  const num_theme_blocks = 25
   //max number of blocks is 45
   const theme_groups = groupBy(map_rows, "theme");
   const theme_keys = Object.keys(theme_groups);

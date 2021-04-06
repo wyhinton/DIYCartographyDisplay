@@ -10,39 +10,44 @@ type SelectorParentProps = {
 }
 
 
-
-
 const SelectorParent = ({children}: SelectorParentProps) => {
     const theme = useTheme();
     const padding_amount = '.1em';
     const clusterContainer = {
         height: '76%',
         padding: 0,
+        // display: 'flex',
     } as React.CSSProperties
     
     const selectorGroup = {
-        paddingTop: '.25em',
+        // paddingTop: '.25em',
+        display: 'flex',
         paddingLeft: '.25em',
+        paddingRight: '.25em',
         height: "100%",
         borderLeft: `1px dashed ${theme.palette.primary.main}`, 
         borderRight: `1px dashed ${theme.palette.primary.main}`, 
     } as React.CSSProperties
 
     const noSiblings = {
-        paddingTop: '.25em',
+        display: 'flex',
+        // paddingTop: '.25em',
+        paddingRight: '.25em',
         paddingLeft: '.25em',
         height: "100%",
     } as React.CSSProperties
 
     const selectorGroupFirst = {
-        paddingTop: '.25em',
+        // paddingTop: '.25em',
+        display: 'flex',
         paddingLeft: 0,
         height: "100%",
         borderRight: `1px dashed ${theme.palette.primary.main}`, 
     } as React.CSSProperties
 
     const selectorGroupLast = {
-        paddingTop: '.25em',
+        display: 'flex',
+        // paddingTop: '.25em',
         paddingLeft: '.25em',
         height: "100%",
         borderLeft: `1px dashed ${theme.palette.primary.main}`, 

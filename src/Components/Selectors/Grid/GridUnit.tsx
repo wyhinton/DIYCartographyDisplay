@@ -14,6 +14,9 @@ export const GridUnit = ({ color}: UnitProps) => {
     // }, [color])
     const [hover, setHover] = useState(false);
     const match_color = (ind: number) =>{
+        if (ind == -1){
+            return blue[100]
+        }
         if (ind == 0){
             return theme.palette.primary.main
         };
@@ -33,7 +36,6 @@ export const GridUnit = ({ color}: UnitProps) => {
         }
     }
     let col_keys = Object.keys(theme.palette.primary);
-    console.log("🚀 ~ file: GridUnit.tsx ~ line 16 ~ GridUnit ~ col_keys", col_keys)
     
     // let bg_color = theme.palette.primary[]
     const boxStyle = {
@@ -44,7 +46,8 @@ export const GridUnit = ({ color}: UnitProps) => {
         // backgroundColor: hover?'black':theme.palette.primary.main,
         backgroundColor: match_color(color),
         marginTop: 'auto',
-        marginBottom: 'auto',
+        marginBottom: '3px',
+        // marginBottom: 'auto',
         marginRight: '3px'
         // margin: '2px'
         // backgroundColor: hover?'black':color,

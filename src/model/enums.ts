@@ -29,6 +29,11 @@ export enum TopicSubCategoryFilter{
   SE_POPULATION = "POPULATION",
 }
 
+export enum GalleryFilterType{
+  TOPIC,
+  DISCIPLINE,
+  THEME,
+}
 export enum ClassYearFilter {
   
 }
