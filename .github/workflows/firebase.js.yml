@@ -10,13 +10,12 @@ on: push
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version: [14.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/f
 
     steps:
     - uses: actions/checkout@v2
@@ -25,12 +24,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
-    # - run: npm install -g yarn
-    # - name: yarn install, build and test
-    #   run: |
-    #     yarn install
-    #     yarn build
-      #     yarn build
     - name: Archive Build
       uses: actions/upload-artifact@v2
       with:
