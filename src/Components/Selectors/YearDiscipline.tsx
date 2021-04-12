@@ -8,6 +8,13 @@ import GridUnit from './Grid/GridUnit';
 import { useStoreState } from "../../hooks";
 import {AuthorDisciplineFilter} from '../../model/enums';
 
+
+function to_author_enum(discipline: string, year: string): AuthorDisciplineFilter{
+    const filter_string = discipline+"_"+year;
+    const filter_enum =  AuthorDisciplineFilter[filter_string as unknown as keyof typeof AuthorDisciplineFilter]
+    return filter_enum; 
+}
+
 const YearDiscipline = () => {
     const theme = useTheme();
     const year_data = useStoreState(state=>state.map_data?.map_stats?.year);
@@ -28,20 +35,25 @@ const YearDiscipline = () => {
     } as React.CSSProperties
     const rowContainer = {
         display: 'flex',
-        fontSize: '8pt'
+        fontSize: '8pt',
+        height: 20,
+        // paddingTop: 10,
+        marginTop: -4,
 
         // : 'center',
     } as React.CSSProperties
-    const make_year_chunks = (year_breakdown?: any) =>{
+
+    const make_year_chunks = (year: string, year_breakdown?: any) =>{
+        
         if (year_breakdown){
             return (
                 <div style = {chunksContainer}>
-                    <GridChunk base_color = {0} count = {year_breakdown.ARCHITECTURE} filter = {AuthorDisciplineFilter.ARCHITECTURE}/>
-                    <GridChunk base_color = {1} count = {year_breakdown.ARTDESIGN} filter = {AuthorDisciplineFilter.ARTDESIGN}/>
-                    <GridChunk base_color = {2} count = {year_breakdown.LANDSCAPE} filter = {AuthorDisciplineFilter.LANDSCAPE}/>
-                    <GridChunk base_color = {3} count = {year_breakdown.OTHER} filter = {AuthorDisciplineFilter.OTHER}/>
+                    <GridChunk base_color = {0} count = {year_breakdown.ARCHITECTURE} filter = {to_author_enum("ARCHITECTURE", year)}/>
+                    <GridChunk base_color = {1} count = {year_breakdown.ARCHITECTURE} filter = {to_author_enum("ARTDESIGN", year)}/>
+                    <GridChunk base_color = {2} count = {year_breakdown.ARCHITECTURE} filter = {to_author_enum("LANDSCAPE", year)}/>
+                    <GridChunk base_color = {3} count = {year_breakdown.ARCHITECTURE} filter = {to_author_enum("OTHER", year)}/>
                 </div>
-                )
+            )
         }
     }
     return (
@@ -59,7 +71,7 @@ const YearDiscipline = () => {
                     </Text>
                 </div>
                 <div style = {rowContainer}>
-                    <GridUnit color = {2}/>
+                    <GridUnit color = {2} />
                     <Paragraph style = {disciplineStyle}>ART + DESIGN</Paragraph>
                 </div>
                 <div style = {rowContainer}>
@@ -69,17 +81,17 @@ const YearDiscipline = () => {
             </SelectorGroup>
             <SelectorGroup title = {"2016"} size = {3}>
                 {
-                    make_year_chunks(year_data["2018"])
+                    make_year_chunks("2016", year_data["2016"])
                 }
             </SelectorGroup>
             <SelectorGroup title = {"2018"} size = {3}>
             {
-                    make_year_chunks(year_data["2018"])
+                    make_year_chunks( "2018", year_data["2018"])
                 }
             </SelectorGroup>
             <SelectorGroup title = {"2020"} size = {3}>
             {
-                    make_year_chunks(year_data["2020"])
+                    make_year_chunks("2020", year_data["2020"])
                 }
             </SelectorGroup>
         </SelectorParent>

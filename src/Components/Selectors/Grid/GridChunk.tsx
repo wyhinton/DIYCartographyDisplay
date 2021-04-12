@@ -61,7 +61,8 @@ const GridChunk = ({count, filter, base_color}: GridChunkProps) =>{
     if (is_active_filter) {
       return 4
     } else {
-      return is_hovered?base_color-1:base_color
+      return is_hovered?-1:base_color
+      // return is_hovered?base_color-1:base_color
     }
 }
   const [hovered, setHovered] = useState(false);
@@ -95,7 +96,7 @@ const GridChunk = ({count, filter, base_color}: GridChunkProps) =>{
                 {            
                   Array.from(Array(cur_col.count).keys()).map((c: any)=>{
                     console.log(cur_col.count);
-                    return (<GridUnit color = {set_row_color((filter === real_filter), hovered, base_color)}/>)
+                    return (<GridUnit color = {set_row_color((filter === real_filter), hovered, base_color)} is_active_filter = {filter === real_filter}/>)
                   })
                 }
                 </div>

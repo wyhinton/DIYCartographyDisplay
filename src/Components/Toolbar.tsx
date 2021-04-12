@@ -32,7 +32,7 @@ const Toolbar = () => {
         <Grid container spacing = {1} style = {toolbarContainer}>
         {/* <Grid container spacing = {1} style = {{height: "15%", backgroundColor: "white", justifyContent: "space-between"}}> */}
         {/* <Grid container spacing = {0} style = {{height: "25%", backgroundColor: "white", justifyContent: "space-between"}}> */}
-                <SelectorContainer item xs = {1}>
+                <SelectorContainer item xs = {12} sm = {12} md = {6} lg = {1}>
                     <SelectorSection title = "SELECT & FILTER">
                         <Text style = {instructions_paragraph}>
                             <Paragraph size = {300} style = {instructions_paragraph}>
@@ -42,17 +42,17 @@ const Toolbar = () => {
                     </SelectorSection>
                 </SelectorContainer>
 
-                <SelectorContainer item xs = {4} >
+                <SelectorContainer item xs = {12} sm = {12} md = {6} lg ={4}>
                     <SelectorSection title = "YEAR & DISCIPLINE">
                         <YearDiscipline></YearDiscipline>
                     </SelectorSection>
                 </SelectorContainer>
-                <SelectorContainer item xs = {4}>
+                <SelectorContainer item xs = {12} sm = {12} md = {6} lg = {3}>
                     <SelectorSection title = "TOPICS">
                         <MapLens></MapLens>
                     </SelectorSection>
                 </SelectorContainer>
-                <SelectorContainer item xs = {2}>
+                <SelectorContainer item xs = {12} sm = {12} md = {6} lg = {3}>
                     <SelectorSection title = "THEMES">
                         <Themes></Themes>
                     </SelectorSection>

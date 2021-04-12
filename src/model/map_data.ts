@@ -213,7 +213,10 @@ const map_data: MapDataModel = {
     //get maps sheet
     let test_2018 = get_map_sheet(DOC_KEY, 3);
     let test_2020 = get_map_sheet(DOC_KEY, 4);
-    let map_sheets = [test_2018, test_2020];
+    let test_2016 = get_map_sheet(DOC_KEY, 5);
+    // console.log(test_2016);
+    // let map_sheets = [test_2020, test_2016];
+    let map_sheets = [test_2018, test_2020, test_2016];
 
     Promise.all(map_sheets).then((sheet_data: (void | MapRow[])[])=>{
       let gallery_image_responses: ImagePromise[] = [];
@@ -222,13 +225,13 @@ const map_data: MapDataModel = {
       sheet_data.forEach((sheet_payload: void | MapRow[]) => {
         if (Array.isArray(sheet_payload)){
           let succesful_map_rows = sheet_payload as Array<MapRow>
-          console.log("got array");
-          console.log(succesful_map_rows);
-          let unsized_gallery_images = map_rows_to_images(map_data.maps);
+          let unsized_gallery_images = map_rows_to_images(succesful_map_rows);
           let image_responses: ImagePromise[] = unsized_gallery_images.map((gi: GalleryImage)=>get_image(gi));
           gallery_image_responses.push(...image_responses);
           all_unsized_images.push(...unsized_gallery_images);
           map_data.maps.push(...sheet_payload);
+        } else {
+          console.error("did not get map row array")
         }
       })
       Promise.all(gallery_image_responses).then((res: HTMLImageElement[])=>{
@@ -264,28 +267,40 @@ const map_data: MapDataModel = {
     state.event_spreadsheet = event_rows
   }),
   set_gallery_images: action((state, payload)=>{
-    console.log("GOT SET GALLERY IMAGES")
-    console.log(payload);
     state.gallery_images = payload
   }),
   set_active_images: action((state, payload)=>{
     state.active_images = payload
   }),
   filter_gallery: action((state, filter_option)=>{
-    if (filter_option.filter_type === GalleryFilterType.TOPIC){
-      const with_subtopic = state.gallery_images.filter(gi=>gi.tags[0].subtopic == filter_option.filter)
-      state.active_images = with_subtopic;
-      state.filter = filter_option.filter;
+    if (filter_option.filter === state.filter){
+      state.filter = null;
+      state.active_images = state.gallery_images;
+    } else {
+      if (filter_option.filter_type === GalleryFilterType.TOPIC){
+        const with_subtopic = state.gallery_images.filter(gi=>gi.tags[0].subtopic == filter_option.filter)
+        state.active_images = with_subtopic;
+        state.filter = filter_option.filter;
+      }
+      if (filter_option.filter_type === GalleryFilterType.THEME){
+        const with_theme = state.gallery_images.filter(gi=>gi.tags[0].theme == filter_option.filter)
+        state.active_images = with_theme;
+        state.filter = filter_option.filter;
+      }
+      if (filter_option.filter_type === GalleryFilterType.DISCIPLINE){
+        let split =  filter_option.filter?.split("_");
+        if (split){
+          let discipline = split[0];
+          let year = split[1];
+          console.log(year, discipline);
+          // const with_discipline_and_year = state.gallery_images.filter(gi=>gi.tags[0].discipline)
+          const with_discipline_and_year = state.gallery_images.filter(gi=>gi.tags[0].discipline === discipline  && gi.tags[0].year === year)
+          // const with_discipline_and_year = state.gallery_images.filter(gi=>gi.tags[0].year === year)
+          state.active_images = with_discipline_and_year;
+          console.log(debug(with_discipline_and_year));
+          state.filter = filter_option.filter;
+        }
     }
-    if (filter_option.filter_type === GalleryFilterType.THEME){
-      const with_theme = state.gallery_images.filter(gi=>gi.tags[0].theme == filter_option.filter)
-      state.active_images = with_theme;
-      state.filter = filter_option.filter;
-    }
-    if (filter_option.filter_type === GalleryFilterType.DISCIPLINE){
-      const with_discipline = state.gallery_images.filter(gi=>gi.tags[0].discipline == filter_option.filter)
-      state.active_images = with_discipline;
-      state.filter = filter_option.filter;
     }
   }),
   set_timeline_series: action((state, timeline_series)=>{
@@ -298,7 +313,6 @@ const map_data: MapDataModel = {
     
     let cat_options = Object.values(TopicSubCategoryFilter);
     if (cat_options.includes(filter as TopicSubCategoryFilter)){
-      console.log("CONTAINED IN SUB CAT FILTERS!");
       actions.filter_gallery({
         filter_type: GalleryFilterType.TOPIC,
         filter: filter,
@@ -329,10 +343,7 @@ const map_data: MapDataModel = {
     state.filter = active_filter
   }),
   set_active_lightbox: action((state, item)=>{
-    console.log(item); 
     let source_row  =  state.map_spreadsheet.filter(r=>r.photo1 === item.src)[0];
-
-    console.log("🚀 ~ file: map_data.ts ~ line 192 ~ set_active_lightbox:action ~ source_row", debug(source_row))
     let photo_sources: PhotoInfo[] = [];
     let photos = Object.keys(source_row).forEach(function(k: string){
       
@@ -364,8 +375,6 @@ const getKeyValue = <T extends object, U extends keyof T>(key: U) => (obj: T) =>
 
 function get_tag(category: string): string{
   let tag = "";
-  console.log(category);
-  console.log(category == "POLITICAL ENVIRONMENT")
   if (category == "BUILT ENVIRONMENT"){
     tag = "BE";
   } 
@@ -378,7 +387,6 @@ function get_tag(category: string): string{
   if (category == "ENVIRONMENTAL ENVIRONMENT"){
     tag = "EE"
   } 
-  console.log(tag)
   return tag
 }
 // const is_in_enum(the_enum: any, val: any): bool{
@@ -387,16 +395,13 @@ function get_tag(category: string): string{
 // }
 function generate_map_stats(map_rows: MapRow[]): MapStats{
   const yd = generate_year_discpline_stats(map_rows)
-  console.log(yd);
   const td = generate_topic_stats(map_rows)
-  console.log(td);
   const theme_stats = generate_theme_stats(map_rows)
   const map_stats: MapStats = {
     year: yd,
     tag: td,
     theme: theme_stats,
   }
-  console.log(map_stats);
   return map_stats
   // year: YearGroup,
   // tag: TagStats,
@@ -406,19 +411,17 @@ function generate_map_stats(map_rows: MapRow[]): MapStats{
 function generate_year_discpline_stats(map_rows: MapRow[]): YearDisciplineStats{
   const year_groups = groupBy(map_rows, "year");
   const yg_keys = Object.keys(year_groups);
-  const max_unit_count = 21;
+  const max_unit_count = 10;
 
   const year_group = yg_keys.map((k: any, i: number )=>{
     const year_breakdown = groupBy(year_groups[k], "discipline");
     let cats = Object.keys(year_breakdown);
     let final_data: any = {};
-    // console.log(year_groups[yg_keys[k]].length); 
-    // let year_group_lenght = year_group[].length;
     cats.forEach(c=>{
-      console.log(year_groups[k]);
-      console.log(year_breakdown[c]);
-      console.log(year_groups[k].length);
-      console.log(year_groups[k].length);
+      // console.log(year_groups[k]);
+      // console.log(year_breakdown[c]);
+      // console.log(year_groups[k].length);
+      // console.log(year_groups[k].length);
       final_data[c] = Math.round((year_breakdown[c].length/year_groups[yg_keys[i]].length)*max_unit_count);
     });
     return final_data
@@ -426,10 +429,8 @@ function generate_year_discpline_stats(map_rows: MapRow[]): YearDisciplineStats{
   const final_data: any = {};
   console.log(year_group);
   year_group.forEach((s, ind)=>{
-      console.log(s);
       final_data[yg_keys[ind]] = s    
   })
-  console.log(final_data);
   let fomratted_data = final_data as YearDisciplineStats;
   return fomratted_data
 }
@@ -440,7 +441,6 @@ function generate_topic_stats(map_rows: MapRow[]): TagStats {
   let empty_cont: any = {}
   let keys = Object.keys(topic_groups);
   keys.forEach(k=>{
-    // console.log(topic_groups[k].length);
     const topic_group_count = topic_groups[k].length;
     const sub_groups = groupBy(topic_groups[k], "subtopic");
     const cat_percent = topic_groups[k].length/map_rows.length;
@@ -471,7 +471,6 @@ function generate_theme_stats(map_rows: MapRow[]): any{
     empty_theme_data[k] = Math.round((theme_groups[k].length/map_rows.length)*num_theme_blocks)
     // empty_theme_data[k] = theme_groups[k].length/map_rows.length
   })
-  console.log(empty_theme_data);
   return empty_theme_data as ThemeStats
 }
 
@@ -486,9 +485,6 @@ function make_time_series(rows: EventRow[]): TimelineData{
   Object.keys(categorized_events).forEach(key => {
     const value = categorized_events[key];
     const series = event_row_to_series(value);
-    console.log("🚀 ~ file: map_data.ts ~ line 277 ~ Object.keys ~ series", series)
-    const sorted_events = series.sort();
-    // console.log("🚀 ~ file: map_data.ts ~ line 279 ~ Object.keys ~ sorted_events", sorted_events)
     categorized_events[key] = series;
     
   });
@@ -504,10 +500,8 @@ function event_row_to_series(rows: EventRow[]): TimeSeries[]{
       title: ev.title,
       tags: ev.tags.split(',').map(t=>t.trim()),
     }
-    // console.log(data);
     const time_range_event = new TimeRangeEvent(time_range, [data]);
 
-    // console.log(getAllFuncs(time_range_event));
     all_events.push(time_range_event);
     const time_series =  new TimeSeries({
       name: "test",
@@ -515,7 +509,6 @@ function event_row_to_series(rows: EventRow[]): TimeSeries[]{
     })
     return time_series
   })
-  console.log(all_events);
   try{
     let test_sect = group_events_to_rows(all_events);
     return test_sect
@@ -537,7 +530,6 @@ function group_events_to_rows(events: TimeRangeEvent[]): TimeSeries[] {
         
         if (array.every((e3)=>{
           if (ev2 == e3){
-            console.log("FOUND SELF");
             return true
           }
           if (date_range_overlaps(e3.begin(), e3.end(), ev2.begin(), ev2.end())){
@@ -547,14 +539,9 @@ function group_events_to_rows(events: TimeRangeEvent[]): TimeSeries[] {
           }
         })){
           test_obj[row_count].push(ev2)
-          console.log("CAN PUSH!!!");
-          console.log("splicing ind", ind);
-          console.log(cur_row);
         } else {
           row_count = row_count + 1;
           test_obj[ind] = [ev2]
-          console.log(cur_row);
-          console.log("CANT PUSH!!!");
         }
       })
       const sorted_events= Object.keys(test_obj).map(k=>{
@@ -567,7 +554,6 @@ function group_events_to_rows(events: TimeRangeEvent[]): TimeSeries[] {
           events: test_obj[k],
           })
       ))
-      console.log(row_arrays);
       return row_arrays
 }
 
@@ -594,7 +580,6 @@ function map_rows_to_images(rows: MapRow[]): GalleryImage[]{
           year: map_row.year,
         }]
   }))
-    console.log(unsized_gallery_images);
     return unsized_gallery_images
 }
 
@@ -614,7 +599,6 @@ function type_event_rows(rows: any[]): EventRow[]{
     const end_date = new Date(rows[ind]["end"]);
     rows[ind]["start"] = start_date;
     rows[ind]["end"] = end_date;
-    console.log(rows[ind]["category"])
   })
   return rows
 }
@@ -624,25 +608,16 @@ function type_map_rows(rows: any[]): MapRow[]{
     const discipline_string: string = rows[ind]["discipline"];
     const type_cat: AuthorDisciplineFilter  = AuthorDisciplineFilter[discipline_string as unknown as keyof typeof AuthorDisciplineFilter];
     rows[ind]["discipline"] = type_cat;
-    console.log(rows[ind]["catedisciplinegory"])
+    // console.log(rows[ind]["catedisciplinegory"])
   })
   return rows
 }
 
 function get_image(image: GalleryImage): Promise<HTMLImageElement>{
   const promise = new Promise<HTMLImageElement>(function(resolve, reject) {
-    console.log("inside promise");
     let img = new Image();
     img.src = image.thumbnail;
     img.onload = () => {
-      console.log(
-        "imge src",
-        img.src,
-        "width ",
-        img.width,
-        "height",
-        img.height
-      );
       image.thumbnailHeight = img.height;
       image.thumbnailWidth = img.width;
       resolve(img);
@@ -655,10 +630,8 @@ function get_sheet <T>(key: string, sheet_num: number): Promise<LabeledCols<T>>{
   const promise = new Promise<LabeledCols<T>>(function(resolve, reject) {
     GetSheetDone.labeledCols(key, sheet_num).then((sheet: any) => {
         resolve(sheet)
-         console.log(sheet)
        }).catch((err: any )=> {
-         console.log(`Error fetching DOC_KEY ${key}, sheet number ${sheet_num}`);
-         console.error(err);
+         console.error(`Error fetching DOC_KEY ${key}, sheet number ${sheet_num}`);
     });
   });
   return promise
@@ -668,16 +641,6 @@ function get_map_sheet(key: string, sheet_index: number): Promise<void | MapRow[
 // function get_map_sheet(key: string, sheet_index: number): Promise<LabeledCols<MapRow[]>>{
   var to_get =  get_sheet<MapRow>(key, sheet_index).then((map_sheet: LabeledCols<MapRow>)=>{
     const typed_map_rows = type_map_rows(map_sheet.data);
-    // let unsized_gallery_images = map_rows_to_images(typed_map_rows);
-    // let image_responses: ImagePromise[] = unsized_gallery_images.map((gi: GalleryImage)=>get_image(gi));
-    
-    // Promise.all(image_responses).then((res: HTMLImageElement[])=>{
-    //   let sized_gallery_images = unsized_gallery_images.map(function(def_img: GalleryImage, i){
-    //       def_img['thumbnailWidth'] =  res[i].width * .05;
-    //       def_img['thumbnailHeight'] =  res[i].height * .05;
-    //       return def_img
-    //   })
-    // })
    return typed_map_rows
   }).
   catch((err: any)=>{

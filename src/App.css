@@ -28,14 +28,7 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+
 body
 {
 overflow-x: hidden;
@@ -43,4 +36,8 @@ padding:0px;
 margin:0px;
 width:100%;
 height:100%;
+}
+
+.ReactGridGallery_tile-viewport:hover{
+  outline: 1px solid #739eae
 }

@@ -24,10 +24,10 @@ function App() {
     <Grid container spacing = {0}>
           <Toolbar/>
           <Grid container spacing = {0} style = {{paddingTop: '2em'}}>
-              <Grid item xs = {3}>
+              <Grid item md = {12} lg = {3}>
                     <Sidebar/>
               </Grid>
-              <Grid item xs = {9}>
+              <Grid item md = {12} lg = {9}>
                     <MapGallery/>
               </Grid>
           </Grid>

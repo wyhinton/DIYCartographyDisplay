@@ -9,9 +9,11 @@ import '../css/GridGallery.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ReactSlick from 'react-slick';
-import ReactImageMagnify from 'react-image-magnify';
+// import ReactImageMagnify from 'react-image-magnify';
 import "../css/SlickSlide.css";
 import { Scrollbars } from 'react-custom-scrollbars';
+import {GlassMagnifier} from 'react-image-magnifiers';
+
 
 const IMAGES =
 [
@@ -200,21 +202,13 @@ const MapGallery = () => {
     useEffect(() =>{
 
     }, [gallery_images, active_lightbox]);
-    // useEffect(() )
 
 
     const containerStyle = {
-        // border: `1px solid ${theme.palette.primary.main}`,
-        // overflow: "hidden",
         backgroundColor: "white",
         height: '100%',
         margin: 'auto',
-        // paddingLeft: '2em',
-        // paddingTop: '2em',
-        // display: 'flex', 
-
         flexDirection: 'column',
-        // position: 'relative',
     }  as React.CSSProperties
     // const galleryStyle = {
     //     height: '100%',
@@ -277,7 +271,7 @@ const MapGallery = () => {
         )
     }
     const slick_props= {
-        adaptiveHeight: false, 
+        // adaptiveHeight: false, 
         // adaptiveHeight: true, 
         variableWidth: true,
         // centerMode: true, 
@@ -322,38 +316,17 @@ const MapGallery = () => {
                         >
                             {active_lightbox.images.map((src: any, index) => (
                                 <div key={index} style = {slickSlide}>
-                                    <ReactImageMagnify
-                                        {...{
-                                            smallImage: {
-                                                alt: 'Wristwatch by Versace',
-                                                isFluidWidth: true,
-                                                src: src.source,
-                                                // srcSet: src.srcSet,
-                                                // sizes: '(max-width: 480px) 100vw, (max-width: 1200px) 30vw, 360px'
-                                                sizes: '(max-width: 480px) 100vw, (max-width: 1200px) 30vw, 360px'
-                                            },
-                                            largeImage: {
-                                                src: src.source,
-                                                width: 1426,
-                                                height: 2000
-                                            },
-                                            enlargedImageContainerDimensions: {
-                                                width: '50%',
-                                                height: '50%',
-                                            },
-                                            enlargedImagePosition: "over",
-                                            lensStyle: { backgroundColor: 'rgba(0,0,0,.6)' }
-                                            // enlargedImagePortalId: ""
-                                        }}
-                                        // {...rimProps}
+                                    <GlassMagnifier
+                                        imageSrc = {src.source}
+                                        allowOverflow = {true}
+                                        magnifierSize = {"40%"}
+                                        
                                     />
+                                
                                 </div>
                             ))}
                         </ReactSlick>
-                        {/* <ImageGallery 
-                        showThumbnails = {false} 
-                        items={active_lightbox.images.map(i=>({original: i.source}))} 
-                        /> */}
+
                         </Grid>
                     </Grid>
         
@@ -371,21 +344,17 @@ const MapGallery = () => {
             <Link style = {linkStyle} onClick = {()=>{set_filters(["ENVIRONMENTAL ENVIRONMENT"])}}>ENVIRONMENTAL ENVIRONMENT</Link>
         </div> */}
 
-            {/* <div style = {{height: '100%', display: 'flex'}}> */}
-            {/* <div style = {{overflow: 'scroll', height: "100%"}}> */}
             <div style = {{overflow: 'hidden', height: "100%"}}>
             <Scrollbars style={{ width: "100%", height: 300 }}>
-                {/* <div style = {{height: '100%', paddingTop: '1em', width: "5000px"}}> */}
                 <div style = {{height: '100%', paddingTop: '1em', width: "100%"}}>
                     <Gallery 
                         tagStyle = {{display: 'none'}}
                         renderItem = {test_render_item}
                         images = {(gallery_images[0] == undefined) ? IMAGES:gallery_images}
                         rowHeight = {75}
-                        // images = {gallery_images[0].src??IMAGES}
-                        // images = {IMAGES}
                         maxRows = {10}
                         enableLightbox = {false}
+                        enableImageSelection = {false}
                         onClickThumbnail = {
                             get_lightbox_tb_2
                         }

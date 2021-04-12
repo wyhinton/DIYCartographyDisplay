@@ -3,12 +3,14 @@ import { useTheme } from "@material-ui/core/styles";
 import blue from '@material-ui/core/colors/blue';
 type UnitProps = { 
     color: number, 
+    is_active_filter?: boolean,
 }
 
 
-export const GridUnit = ({ color}: UnitProps) => {
+export const GridUnit = ({ color, is_active_filter}: UnitProps) => {
     const theme = useTheme();
     const size = 12; 
+    // const outline = is_active_filter??"";
     // useEffect(()=>{
 
     // }, [color])
@@ -38,23 +40,44 @@ export const GridUnit = ({ color}: UnitProps) => {
     let col_keys = Object.keys(theme.palette.primary);
     
     // let bg_color = theme.palette.primary[]
-    const boxStyle = {
-        width: `${size}px`, 
-        height: `${size}px`,
-        // margin: theme.spacing(.2),
-        // backgroundColor: hover? theme.palette.primary.dark:match_color(color),
-        // backgroundColor: hover?'black':theme.palette.primary.main,
-        backgroundColor: match_color(color),
-        marginTop: 'auto',
-        marginBottom: '3px',
-        // marginBottom: 'auto',
-        marginRight: '3px'
-        // margin: '2px'
-        // backgroundColor: hover?'black':color,
-    } as React.CSSProperties;
-    // const set_hover()
+    // const boxStyle = {
+    //     width: `${size}px`, 
+    //     height: `${size}px`,
+    //     backgroundColor: match_color(color),
+    //     marginTop: 'auto',
+    //     marginBottom: '3px',
+    //     marginRight: '3px'
+    // } as React.CSSProperties;
+    const boxStyle = (is_active_filter?: boolean) => {
+        if (is_active_filter){
+            console.log("GOT ACTIVE FILTER~~");
+            return {
+            width: `${size}px`, 
+            height: `${size}px`,
+            backgroundColor: match_color(color),
+            marginTop: 'auto',
+            marginBottom: '3px',
+            marginRight: '3px',
+            outline: '1px solid #ffcb06'
+            } as React.CSSProperties;
+
+        } else {
+            return {
+            width: `${size}px`, 
+            height: `${size}px`,
+            backgroundColor: match_color(color),
+            marginTop: 'auto',
+            marginBottom: '3px',
+            marginRight: '3px',
+        } as React.CSSProperties;
+        }
+
+    } 
+    // if (is_active_filter){
+    //     boxStyle.outline = "1px solid white",
+    // }
     return (
-    <div style = {boxStyle} onMouseEnter={()=>setHover(true)} onMouseLeave = {()=>setHover(false)}>
+    <div style = {boxStyle(is_active_filter)} onMouseEnter={()=>setHover(true)} onMouseLeave = {()=>setHover(false)}>
         
     </div> 
     )
