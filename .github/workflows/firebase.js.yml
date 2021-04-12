@@ -18,6 +18,10 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/f
 
     steps:
+    - name : machine ls $GITHUB_EVENT_PATH
+      run : "ls -la $GITHUB_EVENT_PATH"
+    - name : machine ls $GITHUB_WORKSPACE
+      run : "ls -la $GITHUB_WORKSPACE"
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
