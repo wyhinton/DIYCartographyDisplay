@@ -5,17 +5,18 @@ import React from 'react';
 import type {SelectorGroupProps} from './SelectorGroup';
 // import '../../../css/SelectorParent.css';
 type SelectorParentProps = { 
+    columns?: number,
     children?: JSX.Element|JSX.Element[],
     // children?: (title: string) => React.ReactElement[]
 }
 
 
-const SelectorParent = ({children}: SelectorParentProps) => {
+const SelectorParent = ({children, columns}: SelectorParentProps) => {
     const theme = useTheme();
-    const padding_amount = '.1em';
     const clusterContainer = {
         height: '76%',
         padding: 0,
+        columns: columns ?? 12,
         // display: 'flex',
     } as React.CSSProperties
     
@@ -69,7 +70,7 @@ const SelectorParent = ({children}: SelectorParentProps) => {
     }
 
     return (
-        <Grid container spacing = {0} direction = "row" style = {clusterContainer}>
+        <Grid container spacing = {0} direction = "row" style = {clusterContainer} >
             {children ? React.Children.map<React.ReactNode, React.ReactNode>(children, (child, index) => {
                 if (React.isValidElement(child)) {
                     return (<Grid style ={group_style(index, children)} item xs = {child.props.size}>{child}</Grid>)

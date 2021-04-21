@@ -1,7 +1,7 @@
 import {Heading, Paragraph, Link, Strong, Small, Text, Icon, Pane, ArrowRightIcon} from 'evergreen-ui';
 import { useTheme } from "@material-ui/core/styles";
 import type {EventRow} from '../../model/map_data';
-import  {EventLevel} from '../../model/enums';
+import  {EventLevel, EventType} from '../../model/enums';
 import {useEffect} from 'react';
 
 type EventInfoDisplayProps = {
@@ -48,6 +48,7 @@ function EventInfoDisplay({info}: EventInfoDisplayProps){
         title: "",
         info: "",
         tags: "",
+        type: EventType.DATE,
         category: EventLevel.national,
     }
     const data = info ?? default_val;

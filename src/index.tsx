@@ -16,15 +16,5 @@ ReactDOM.render(
     </ThemeProvider>,
   document.getElementById('root')
 );
-// ReactDOM.render(
-//   <React.StrictMode>
-//     <ThemeProvider theme = {theme} >
-//       <StoreProvider store = {store}>
-//       <App />
-//      </StoreProvider>
-//     </ThemeProvider>
-//   </React.StrictMode>,
-//   document.getElementById('root')
-// );
 
 reportWebVitals();

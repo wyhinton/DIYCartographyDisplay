@@ -44,7 +44,7 @@ const MapLens = () => {
 
     return (
        <>
-        <SelectorParent>
+        <SelectorParent columns = {5}>
             <SelectorGroup title = {"Built"} size = {2}>
               <GridRow active_filter = {active_filter} filter = {TopicSubCategoryFilter.BE_ENERGY} count = {tag_stats.BE?.ENERGY} icon = {<LightbulbIcon color = {theme.palette.primary.main} size = {12}/>}></GridRow>
               <GridRow active_filter = {active_filter} filter = {TopicSubCategoryFilter.BE_HOUSING} count = {tag_stats.BE?.HOUSING} icon = {<Apartment color = {"primary"} style ={{fontSize: "12pt"}}/>}></GridRow>

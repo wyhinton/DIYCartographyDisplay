@@ -1,3 +1,10 @@
+@import url();
+
+@font-face{
+  font-family: 'Audimat';
+  src: url('fonts/Audimat-Mono.ttf.woff') format("woff")
+}
+
 .App {
   text-align: center;
 }
@@ -10,6 +17,12 @@
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .title-padding{
+    display: none
   }
 }
 
@@ -28,14 +41,14 @@
   color: #61dafb;
 }
 
+#root{
+  height: 100%;
+}
 
-body
-{
-overflow-x: hidden;
-padding:0px;
-margin:0px;
-width:100%;
-height:100%;
+html, body {
+  margin: 0;
+  height: 100%;
+  padding: 1em;
 }
 
 .ReactGridGallery_tile-viewport:hover{

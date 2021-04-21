@@ -24,6 +24,10 @@ export enum EventLevel{
   city = "city",
 }
 
+export enum EventType{
+  DATE = "DATE",
+  RANGE = "RANGE",
+}
 export enum TopicSubCategoryFilter{
   BE_HOUSING = "HOUSING",
   BE_TRANSPORTATION = "TRANSPORTATION",

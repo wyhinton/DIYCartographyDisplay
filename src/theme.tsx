@@ -13,8 +13,12 @@ export const theme = createMuiTheme({
     overrides:{
         MuiGrid:{
             root:{
-                margin: '0px'
+                margin: '0px',
+                // display: 'flex',
             }
         }
+    },
+    typography: {
+        fontFamily: "Audimat",
     }
 })

@@ -13,9 +13,8 @@ export const SelectorSection = ({title, children}: SelectorSectionProps) => {
 
     const container = {
         height: "100%",
-        padding: 0,
         paddingLeft: '.25em',
-        paddingReft: '.25em',
+        paddingRight: '.25em',
     } as React.CSSProperties
 
     const headerContainer = {
@@ -31,6 +30,7 @@ export const SelectorSection = ({title, children}: SelectorSectionProps) => {
         color: theme.palette.primary.main,
         marginTop: 0,
         marginBottom: 'auto',
+        fontFamily: theme.typography.fontFamily,
     } as React.CSSProperties
 
     return (

@@ -11,16 +11,13 @@ import {AuthorDisciplineFilter, TopicSubCategoryFilter, ThemeCategoryFilter} fro
 // https://codesandbox.io/s/react-timeseries-charts-axis-color-forked-060kt
 // https://codesandbox.io/s/l28vmvp2n9?from-embed
 
-import {
-  ChartContainer,
-  ChartRow,
-  Charts,
-  EventChart,
-  Resizable,
-  YAxis,
-} from "react-timeseries-charts";
+import ChartContainer from  "./TimeSeries/components/ChartContainer";
+import Charts from  "./TimeSeries/components/Charts";
+import Resizable from  "./TimeSeries/components/Resizable";
+import ChartRow from  "./TimeSeries/components/ChartRow";
+import EventChart from  "./TimeSeries/components/EventChart";
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
-import { isExternalModuleNameRelative } from "typescript";
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 interface Seperator{
   pos: number, 
@@ -34,14 +31,16 @@ const Timeline = function() {
   const [eventInfo, setEventInfo] = useState<EventRow | undefined>(undefined);
   const [selectedEvent, setSelectedEvent] = useState<TimeSeries | undefined>(undefined);
   const theme = useTheme();
-  const row_height = 13;
+  const row_height = 50;
   const start_date= new Date(1792,0,1);
   const end_date = new Date(2020,0,1)
-
+  const is_sm = useMediaQuery(theme.breakpoints.up("sm"));
+  
   const timelineSection = {
     height: '100px', 
     width: '100%',
     borderTop: `1px solid ${theme.palette.primary.main}`,
+    display: is_sm?"inline-flex":"none",
   }
 
   const testChart = {
@@ -79,6 +78,17 @@ const Timeline = function() {
     color: theme.palette.primary.main,
   } as React.CSSProperties
 
+  const timeAxis = {
+    axis: {
+      stroke: theme.palette.primary.main,
+    }
+  }
+
+  const timelineDates = {
+    justifyContent: "space-around",
+    display: "flex",
+  } as React.CSSProperties
+
   // useEffect(()=>{
   //   console.log("ACTIVE FILTERS CHANGE ")
   // }, active_filter)
@@ -90,25 +100,27 @@ const Timeline = function() {
       let test = series.map(function(ev, i){
         let base_style = {
           fill: theme.palette.primary.main,
-          opacity: 0.4
+          opacity: 1.0
         }
         
-        // for (let event of ev.events()) { 
-        //   let real_key = Array.from(event.data().get(0).keys())[1]
-        //   const tags = Array.from(event.data().get(0).get(real_key))
-        //   console.log(tags)
-        //   console.log(active_filter[0])
-  
-        //   if (tags.some(t=>t == active_filter[0])){
-        //     console.log("had active filter");
-        //   } else {
-        //     base_style.opacity = 0.1; 
-        //     console.log("no active filter");
-        //   }
         // }
-        function style_func(s: any, e: any){
-          // my_still.fill, 
-          
+        function style_func(s: any, state: any){
+          // my_still.fill, '
+          console.log(state);
+          if (state == "hover"){
+            console.log("got hover");
+            return {
+              fill:theme.palette.primary.light,
+              opacity: 1.0
+            }
+
+          } 
+          if (state == "selected"){
+            return {
+              fill:theme.palette.primary.dark,
+              opacity: 1.0
+            }
+          } 
           return base_style
   
         }
@@ -130,7 +142,10 @@ const Timeline = function() {
         // console.log(ev_test);
       return (
   
-        <ChartRow height = {`${row_height}`} style = {{fill: "#f1a340"}} key = {i} axisMargin = {1}>
+        <ChartRow 
+        height = {`${row_height}`} 
+        style = {{fill: "#f1a340"}} key = {i} axisMargin = {1}
+        >
           <Charts>
             <EventChart
               series = {ev}
@@ -140,9 +155,6 @@ const Timeline = function() {
               textOffsetY  = {-5}
               // label = {(e: any)=>e.data().frist().get("title")}
               style={style_func}
-  
-              // style={my_style}
-              // style={eventStyles}
             ></EventChart>
           </Charts>
         </ChartRow>
@@ -151,6 +163,8 @@ const Timeline = function() {
     })
     return test
   }
+
+  
 
   return (
     <Grid container spacing = {0} style = {timelineSection}>
@@ -163,6 +177,7 @@ const Timeline = function() {
         <EventInfoDisplay info = {eventInfo}></EventInfoDisplay>
       </Grid>
         <Grid item xs = {9}>
+
           <div style = {{position: 'relative'}}>
           <div style = {linesContainer}>
             { 
@@ -189,6 +204,9 @@ const Timeline = function() {
               timeRange={timerange}
               enablePanZoom={false}
               width = {1000}
+              showGrid = {true}
+              timeAxisStyle = {timeAxis}
+              timeAxisTickCount = {5}
               >
               { make_series(time_series.national, theme, active_filter, row_height )}
 

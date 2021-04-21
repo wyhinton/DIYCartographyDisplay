@@ -1,7 +1,7 @@
 import { Action, action, thunk, Thunk, debug } from 'easy-peasy';
 import GetSheetDone from 'get-sheet-done';
 import { TimeSeries, TimeRangeEvent, TimeRange} from "pondjs";
-import { AuthorDisciplineFilter, TopicSubCategoryFilter, ThemeCategoryFilter, EventLevel, GalleryFilterType} from './enums';
+import { AuthorDisciplineFilter, TopicSubCategoryFilter, ThemeCategoryFilter, EventLevel, GalleryFilterType, EventType} from './enums';
 
 export interface GalleryImage{
   src: string,
@@ -112,6 +112,7 @@ export interface EventRow{
   info: string,
   tags: string,
   category: EventLevel, 
+  type: EventType,
 }
 
 export interface ExternalData{
@@ -121,6 +122,7 @@ export interface ExternalData{
 
 export interface EventData{
   title: string,
+  event_type: EventType,
   tags: string[]
 }
 
@@ -140,7 +142,6 @@ export interface FilterObj{
 
 export interface MapDataModel {
   filter: FilterOption;
-  // filters: string[];
   map_spreadsheet: MapRow[],
   map_stats: MapStats | undefined,
   event_spreadsheet: EventRow[],
@@ -160,8 +161,8 @@ export interface MapDataModel {
   set_active_filter: Action<MapDataModel, FilterOption>;
   thunk_set_filter: Thunk<MapDataModel, FilterOption>;
   reset_gallery: Action<MapDataModel>;
-  // thunk_set_filter: Thunk<MapDataModel, string[]>;
   set_active_lightbox: Action<MapDataModel, GalleryImage>;
+  set_loaded: Action<MapDataModel, boolean>;
 }
 
 type ImagePromise = Promise<HTMLImageElement>;
@@ -214,8 +215,6 @@ const map_data: MapDataModel = {
     let test_2018 = get_map_sheet(DOC_KEY, 3);
     let test_2020 = get_map_sheet(DOC_KEY, 4);
     let test_2016 = get_map_sheet(DOC_KEY, 5);
-    // console.log(test_2016);
-    // let map_sheets = [test_2020, test_2016];
     let map_sheets = [test_2018, test_2020, test_2016];
 
     Promise.all(map_sheets).then((sheet_data: (void | MapRow[])[])=>{
@@ -246,6 +245,7 @@ const map_data: MapDataModel = {
       const map_stats= generate_map_stats(map_data.maps);
       actions.set_map_stats(map_stats);
       actions.set_map_spreadsheet(map_data.maps);
+      actions.set_loaded(true);
     });
 
     get_sheet<EventRow>(DOC_KEY, 2).then((event_sheet: LabeledCols<EventRow>)=>{
@@ -256,6 +256,7 @@ const map_data: MapDataModel = {
     }).catch((err: any)=>{
       console.error(`Error fetching DOC_KEY ${DOC_KEY}`);
     })
+
   }),
   set_map_spreadsheet: action((state, map_rows)=>{
     state.map_spreadsheet = map_rows
@@ -278,12 +279,12 @@ const map_data: MapDataModel = {
       state.active_images = state.gallery_images;
     } else {
       if (filter_option.filter_type === GalleryFilterType.TOPIC){
-        const with_subtopic = state.gallery_images.filter(gi=>gi.tags[0].subtopic == filter_option.filter)
+        const with_subtopic = state.gallery_images.filter(gi=>gi.tags[0].subtopic === filter_option.filter)
         state.active_images = with_subtopic;
         state.filter = filter_option.filter;
       }
       if (filter_option.filter_type === GalleryFilterType.THEME){
-        const with_theme = state.gallery_images.filter(gi=>gi.tags[0].theme == filter_option.filter)
+        const with_theme = state.gallery_images.filter(gi=>gi.tags[0].theme === filter_option.filter)
         state.active_images = with_theme;
         state.filter = filter_option.filter;
       }
@@ -345,7 +346,7 @@ const map_data: MapDataModel = {
   set_active_lightbox: action((state, item)=>{
     let source_row  =  state.map_spreadsheet.filter(r=>r.photo1 === item.src)[0];
     let photo_sources: PhotoInfo[] = [];
-    let photos = Object.keys(source_row).forEach(function(k: string){
+    Object.keys(source_row).forEach(function(k: string){
       
         if (k.startsWith('photo')){
           const key = k as keyof typeof source_row;
@@ -363,36 +364,12 @@ const map_data: MapDataModel = {
       author: source_row.author,
     }
     state.active_lightbox = info
-  })  
+  }),
+  set_loaded: action((state, is_loaded)=>{
+    state.loaded = is_loaded
+  }),
 }
 
-const arrayIncludesInObj = (arr: any[], key: string, valueToCheck: string): boolean => {
-  const has_tag = arr.some(value => value["title"] === valueToCheck);
-  return has_tag
-}
-const getKeyValue = <T extends object, U extends keyof T>(key: U) => (obj: T) =>
-      obj[key];
-
-function get_tag(category: string): string{
-  let tag = "";
-  if (category == "BUILT ENVIRONMENT"){
-    tag = "BE";
-  } 
-  if (category == "POLITICAL ENVIRONMENT"){
-    tag = "PE"
-  } 
-  if (category == "SOCIAL ENVIRONMENT"){
-    tag = "SE"
-  } 
-  if (category == "ENVIRONMENTAL ENVIRONMENT"){
-    tag = "EE"
-  } 
-  return tag
-}
-// const is_in_enum(the_enum: any, val: any): bool{
-//   const enum_values: string[] = Object.values(the_enum);
-//   return enum_values.contains(val);
-// }
 function generate_map_stats(map_rows: MapRow[]): MapStats{
   const yd = generate_year_discpline_stats(map_rows)
   const td = generate_topic_stats(map_rows)
@@ -474,11 +451,7 @@ function generate_theme_stats(map_rows: MapRow[]): any{
   return empty_theme_data as ThemeStats
 }
 
-function make_tags(tag_data: string): Tag[]{
-    let split_tag_values = tag_data.split(',');
-    let tags = split_tag_values.map(tag=>({value: tag.trim(), title: tag.trim()}));
-    return tags
-}
+
 
 function make_time_series(rows: EventRow[]): TimelineData{
   const categorized_events = groupBy(rows, "category");
@@ -493,43 +466,60 @@ function make_time_series(rows: EventRow[]): TimelineData{
 }
 
 function event_row_to_series(rows: EventRow[]): TimeSeries[]{
-  const all_events:  TimeRangeEvent[] = [];
-  const timeline_series = rows.map(function(ev: EventRow){
-    const time_range = new TimeRange(ev.start, ev.end);
-    const data: EventData = {
-      title: ev.title,
-      tags: ev.tags.split(',').map(t=>t.trim()),
+  // const all_events:  TimeRangeEvent[] = [];
+  let all_series: TimeSeries[] = [];
+  let all_events: TimeRangeEvent[] = [];
+  rows.forEach((event_row: EventRow)=>{
+    if (event_row.type === EventType.DATE){
+      console.log("GOT DATE TYPE");
+      const time_range = new TimeRange(event_row.start, event_row.end);
+      const data: EventData = {
+        title: event_row.title,
+        event_type: event_row.type,
+        tags: event_row.tags.split(',').map(t=>t.trim()),
+      }
+      const time_range_event = new TimeRangeEvent(time_range, [data]);
+      all_events.push(time_range_event);
+      // all
+      // all_events.push(time_range_event);
+      // const time_series =  new TimeSeries({
+      //   name: "test",
+      //   events: [time_range_event]
+      // })
+      // all_series.push(time_series);
+      // return time_series
     }
-    const time_range_event = new TimeRangeEvent(time_range, [data]);
 
-    all_events.push(time_range_event);
-    const time_series =  new TimeSeries({
-      name: "test",
-      events: [time_range_event]
-    })
-    return time_series
-  })
-  try{
-    let test_sect = group_events_to_rows(all_events);
-    return test_sect
-  } catch (error){
-    console.error(`error grouping events into rows ${error}`)
-  }
-
-  return timeline_series
-  return timeline_series
+    if (event_row.type === EventType.RANGE){
+      console.log("GOT RANGE TYPE");
+      const time_range = new TimeRange(event_row.start, event_row.end);
+      const data: EventData = {
+        title: event_row.title,
+        event_type: event_row.type,
+        tags: event_row.tags.split(',').map(t=>t.trim()),
+      }
+      const time_range_event = new TimeRangeEvent(time_range, [data]);
+      all_events.push(time_range_event);
+      // all_events.push(time_range_event);
+      // const time_series =  new TimeSeries({
+      //   name: "test",
+      //   events: [time_range_event]
+      // })
+      // all_series.push(time_series);
+      // return time_series
+    }
+  });
+  return group_events_to_rows(all_events)
 }
 
 function group_events_to_rows(events: TimeRangeEvent[]): TimeSeries[] {
-  // let all_rows : TimeRangeEvent[][] = [];
   let test_obj: any = {};
   test_obj[0] = [];
-      var cur_row: TimeRangeEvent[] = [];
       (events as TimeRangeEvent[]).forEach((ev2: TimeRangeEvent, ind: number, array: TimeRangeEvent[])=>{
         let row_count = 0;
         
         if (array.every((e3)=>{
-          if (ev2 == e3){
+          if (ev2 === e3){
             return true
           }
           if (date_range_overlaps(e3.begin(), e3.end(), ev2.begin(), ev2.end())){
@@ -546,6 +536,7 @@ function group_events_to_rows(events: TimeRangeEvent[]): TimeSeries[] {
       })
       const sorted_events= Object.keys(test_obj).map(k=>{
         test_obj[k] = test_obj[k].sort((a: any,b: any)=>a.begin()-b.begin());
+      
       })
       const row_arrays = Object.keys(sorted_events).map(k=>(
         
@@ -593,8 +584,12 @@ function groupBy(arr: any[], property: any) {
 function type_event_rows(rows: any[]): EventRow[]{
   rows.forEach((r: any, ind: number)=>{
     const cat_string: string = rows[ind]["category"];
+    const event_type_string: string = rows[ind]["type"];
     const type_cat: EventLevel  = EventLevel[cat_string as unknown as keyof typeof EventLevel];
+    const type_event: EventType  = EventType[event_type_string as unknown as keyof typeof EventType];
     rows[ind]["category"] = type_cat;
+    rows[ind]["type"] = type_event;
+
     const start_date = new Date(rows[ind]["start"]);
     const end_date = new Date(rows[ind]["end"]);
     rows[ind]["start"] = start_date;
@@ -641,9 +636,8 @@ function get_map_sheet(key: string, sheet_index: number): Promise<void | MapRow[
 // function get_map_sheet(key: string, sheet_index: number): Promise<LabeledCols<MapRow[]>>{
   var to_get =  get_sheet<MapRow>(key, sheet_index).then((map_sheet: LabeledCols<MapRow>)=>{
     const typed_map_rows = type_map_rows(map_sheet.data);
-   return typed_map_rows
-  }).
-  catch((err: any)=>{
+    return typed_map_rows
+  }).catch((err: any)=>{
     console.error(`Error fetching DOC_KEY ${key}`);
   })
 return to_get
@@ -657,7 +651,7 @@ function getAllFuncs(toCheck: any) {
   } while (obj = Object.getPrototypeOf(obj));
 
   return props.sort().filter(function(e, i, arr) { 
-     if (e!=arr[i+1] && typeof toCheck[e] == 'function') return true;
+     if (e!==arr[i+1] && typeof toCheck[e] == 'function') return true;
   });
 }
 

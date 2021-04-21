@@ -1,183 +1,30 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Gallery from 'react-grid-gallery';
 import { useTheme, withStyles } from "@material-ui/core/styles";
 import Backdrop from '@material-ui/core/Backdrop';
 import Grid from '@material-ui/core/Grid';
 import { useStoreActions, useStoreState } from "../hooks";
-import {Link, Icon, CrossIcon, Heading, Paragraph} from 'evergreen-ui';
+import {CrossIcon, Heading, Paragraph} from 'evergreen-ui';
 import '../css/GridGallery.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ReactSlick from 'react-slick';
-// import ReactImageMagnify from 'react-image-magnify';
 import "../css/SlickSlide.css";
 import { Scrollbars } from 'react-custom-scrollbars';
 import {GlassMagnifier} from 'react-image-magnifiers';
+import {thumbnailStyle} from 'react-grid-gallery';
 
 
-const IMAGES =
-[
-{
-        src: "https://c2.staticflickr.com/9/8817/28973449265_07e3aa5d2e_b.jpg",
-        thumbnail: "https://c2.staticflickr.com/9/8817/28973449265_07e3aa5d2e_n.jpg",
-        thumbnailWidth: 320,
-        thumbnailHeight: 174,
-        isSelected: false,
-        caption: "After Rain (Jeshu John - designerspics.com)"
-},
-{
-        src: "https://c2.staticflickr.com/9/8356/28897120681_3b2c0f43e0_b.jpg",
-        thumbnail: "https://c2.staticflickr.com/9/8356/28897120681_3b2c0f43e0_n.jpg",
-        thumbnailWidth: 320,
-        thumbnailHeight: 212,
-        tags: [{value: "Ocean", title: "Ocean"}, {value: "People", title: "People"}],
-        caption: "Boats (Jeshu John - designerspics.com)"
-},
 
-{
-        src: "https://c4.staticflickr.com/9/8887/28897124891_98c4fdd82b_b.jpg",
-        thumbnail: "https://c4.staticflickr.com/9/8887/28897124891_98c4fdd82b_n.jpg",
-        thumbnailWidth: 320,
-        thumbnailHeight: 212
-},
-{
-    src: "https://c2.staticflickr.com/9/8817/28973449265_07e3aa5d2e_b.jpg",
-    thumbnail: "https://c2.staticflickr.com/9/8817/28973449265_07e3aa5d2e_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 174,
-    isSelected: false,
-    caption: "After Rain (Jeshu John - designerspics.com)"
-},
-{
-    src: "https://c2.staticflickr.com/9/8356/28897120681_3b2c0f43e0_b.jpg",
-    thumbnail: "https://c2.staticflickr.com/9/8356/28897120681_3b2c0f43e0_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 212,
-    tags: [{value: "Ocean", title: "Ocean"}, {value: "People", title: "People"}],
-    caption: "Boats (Jeshu John - designerspics.com)"
-},
-
-{
-    src: "https://c4.staticflickr.com/9/8887/28897124891_98c4fdd82b_b.jpg",
-    thumbnail: "https://c4.staticflickr.com/9/8887/28897124891_98c4fdd82b_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 212
-},
-{
-    src: "https://c2.staticflickr.com/9/8817/28973449265_07e3aa5d2e_b.jpg",
-    thumbnail: "https://c2.staticflickr.com/9/8817/28973449265_07e3aa5d2e_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 174,
-    isSelected: false,
-    caption: "After Rain (Jeshu John - designerspics.com)"
-},
-{
-    src: "https://c2.staticflickr.com/9/8356/28897120681_3b2c0f43e0_b.jpg",
-    thumbnail: "https://c2.staticflickr.com/9/8356/28897120681_3b2c0f43e0_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 212,
-    tags: [{value: "Ocean", title: "Ocean"}, {value: "People", title: "People"}],
-    caption: "Boats (Jeshu John - designerspics.com)"
-},
-
-{
-    src: "https://c4.staticflickr.com/9/8887/28897124891_98c4fdd82b_b.jpg",
-    thumbnail: "https://c4.staticflickr.com/9/8887/28897124891_98c4fdd82b_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 212
-},
-{
-    src: "https://c2.staticflickr.com/9/8817/28973449265_07e3aa5d2e_b.jpg",
-    thumbnail: "https://c2.staticflickr.com/9/8817/28973449265_07e3aa5d2e_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 174,
-    isSelected: false,
-    caption: "After Rain (Jeshu John - designerspics.com)"
-},
-{
-    src: "https://c2.staticflickr.com/9/8356/28897120681_3b2c0f43e0_b.jpg",
-    thumbnail: "https://c2.staticflickr.com/9/8356/28897120681_3b2c0f43e0_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 212,
-    tags: [{value: "Ocean", title: "Ocean"}, {value: "People", title: "People"}],
-    caption: "Boats (Jeshu John - designerspics.com)"
-},
-
-{
-    src: "https://c4.staticflickr.com/9/8887/28897124891_98c4fdd82b_b.jpg",
-    thumbnail: "https://c4.staticflickr.com/9/8887/28897124891_98c4fdd82b_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 212
-},
-{
-    src: "https://c2.staticflickr.com/9/8817/28973449265_07e3aa5d2e_b.jpg",
-    thumbnail: "https://c2.staticflickr.com/9/8817/28973449265_07e3aa5d2e_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 174,
-    isSelected: false,
-    caption: "After Rain (Jeshu John - designerspics.com)"
-},
-{
-    src: "https://c2.staticflickr.com/9/8356/28897120681_3b2c0f43e0_b.jpg",
-    thumbnail: "https://c2.staticflickr.com/9/8356/28897120681_3b2c0f43e0_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 212,
-    tags: [{value: "Ocean", title: "Ocean"}, {value: "People", title: "People"}],
-    caption: "Boats (Jeshu John - designerspics.com)"
-},
-
-{
-    src: "https://c4.staticflickr.com/9/8887/28897124891_98c4fdd82b_b.jpg",
-    thumbnail: "https://c4.staticflickr.com/9/8887/28897124891_98c4fdd82b_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 212
-},
-{
-    src: "https://c2.staticflickr.com/9/8817/28973449265_07e3aa5d2e_b.jpg",
-    thumbnail: "https://c2.staticflickr.com/9/8817/28973449265_07e3aa5d2e_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 174,
-    isSelected: false,
-    caption: "After Rain (Jeshu John - designerspics.com)"
-},
-{
-    src: "https://c2.staticflickr.com/9/8356/28897120681_3b2c0f43e0_b.jpg",
-    thumbnail: "https://c2.staticflickr.com/9/8356/28897120681_3b2c0f43e0_n.jpg",
-    thumbnailWidth: 320,
-    thumbnailHeight: 212,
-    tags: [{value: "Ocean", title: "Ocean"}, {value: "People", title: "People"}],
-    caption: "Boats (Jeshu John - designerspics.com)"
-},
-
-
-]
-
-const images2 = [
-    {
-      original: 'https://picsum.photos/id/1018/1000/600/',
-      thumbnail: 'https://picsum.photos/id/1018/250/150/',
-    },
-    {
-      original: 'https://picsum.photos/id/1015/1000/600/',
-      thumbnail: 'https://picsum.photos/id/1015/250/150/',
-    },
-    {
-      original: 'https://picsum.photos/id/1019/1000/600/',
-      thumbnail: 'https://picsum.photos/id/1019/250/150/',
-    },
-  ];
-  
 // https://codesandbox.io/s/react-grid-gallery-ztf4n?file=/src/index.js:358-880
 // https://codesandbox.io/s/r48lm1jopq
-type GalleryProps = { 
-}
+
 
 const LimitedBackdrop = withStyles({
     root: {
       position: "absolute",
       zIndex: 1,
       boxSizing: "border-box",
-    //   zIndex: ,
       paddingLeft: '2em',
       paddingTop: '2em',
       opacity: .5,
@@ -185,24 +32,29 @@ const LimitedBackdrop = withStyles({
     }
 })(Backdrop);
 
+function getRandomNumber(min: number, max: number) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.random() * (max - min) + min; //The maximum is exclusive and the minimum is inclusive
+  }
+
 const MapGallery = () => {
-    const gallery_images = useStoreState(state=>state.map_data.active_images);
+    // var shuffleClassName = this.state.toggleActive ? "player-control-icon active" : "player-control-icon"
+    const gallery_images = useStoreState(state=>state.map_data?.active_images);
     const [showLightbox, setShowLightBox] = useState(false);
-    const filter_gallery = useStoreActions(actions=>actions.map_data.filter_gallery);
-    // const set_filters = useStoreActions(actions=>actions.map_data.set_filters);
     const set_active_lightbox = useStoreActions(actions=>actions.map_data.set_active_lightbox);
     const active_lightbox = useStoreState(state=>state.map_data.active_lightbox);
-
+    const data_loaded = useStoreState(state=>state.map_data.loaded);
     const theme = useTheme();
-    const linkStyle = {
-        fontSize: "8pt",
-        textDecoration: "none",
-    }
+    const [animation_finished, setAnimationFinished] = useState(false);
 
     useEffect(() =>{
 
     }, [gallery_images, active_lightbox]);
 
+    useEffect(()=>{
+        console.log("data loaded changd, val is", data_loaded);
+    }, [data_loaded]);
 
     const containerStyle = {
         backgroundColor: "white",
@@ -210,10 +62,6 @@ const MapGallery = () => {
         margin: 'auto',
         flexDirection: 'column',
     }  as React.CSSProperties
-    // const galleryStyle = {
-    //     height: '100%',
-    //     // display: 'flex',
-    // } as React.CSSProperties
 
     function get_lightbox_tb_2(this: any) {
         console.log(this.props);
@@ -228,9 +76,7 @@ const MapGallery = () => {
         spacing: 0,
         justify: 'space-around',
     };
-    const mapImage = {
-        width: '100%'
-    }
+
     const textStyle = {
         color: 'White',
         fontSize: '12pt',
@@ -277,6 +123,18 @@ const MapGallery = () => {
         // centerMode: true, 
         slidesToShow: 1,
         // adaptiveHeight: false, 
+    }
+    function thumbnail_style(props: any, z: any, q: any){
+        const duration = getRandomNumber(0.5, 4);
+        console.log(duration);
+
+        if (data_loaded){
+            return {
+                backgroundColor: "red",
+                animation: `fadein ${duration}s normal`,
+                animationIterationCound: 1,
+            }
+        }
     }
     return(
     <div style = {containerStyle}>
@@ -333,24 +191,17 @@ const MapGallery = () => {
                 </div>
             </LimitedBackdrop>
         </div>
-        <div>
-        <Heading>DIY CARTOGRAPHY: </Heading>
-        <Heading>MAPPING THE IMPACT OF URBAN DEVELOPMENT</Heading>
-        </div>
-        {/* <div style = {{display: 'flex'}}>
-            <Link style = {linkStyle} onClick = {()=>{set_filters(["BUILT ENVIRONMENT"])}}>BUILT ENVIRONMENT</Link>
-            <Link style = {linkStyle} onClick = {()=>{set_filters(["POLITICAL ENVIRONMENT"])}}>POLITICAL ENVIRONMENT</Link>
-            <Link style = {linkStyle} onClick = {()=>{set_filters(["SOCIAL ENVIRONMENT"])}}>SOCIAL ENVIRONMENT</Link>
-            <Link style = {linkStyle} onClick = {()=>{set_filters(["ENVIRONMENTAL ENVIRONMENT"])}}>ENVIRONMENTAL ENVIRONMENT</Link>
-        </div> */}
+
 
             <div style = {{overflow: 'hidden', height: "100%"}}>
-            <Scrollbars style={{ width: "100%", height: 300 }}>
-                <div style = {{height: '100%', paddingTop: '1em', width: "100%"}}>
+            <Scrollbars style={{ width: "100%", height: "100%", position: "fixed"}}>
+            {/* <Scrollbars style={{ width: "100%", height: "100%", position: "fixed"}}> */}
+                <div style = {{height: '100%', paddingTop: '0', width: "100%"}}>
                     <Gallery 
                         tagStyle = {{display: 'none'}}
                         renderItem = {test_render_item}
-                        images = {(gallery_images[0] == undefined) ? IMAGES:gallery_images}
+                        images = {(gallery_images)}
+                        customOverlay = {<div style = {{backgroundColor:"red"}}></div>}
                         rowHeight = {75}
                         maxRows = {10}
                         enableLightbox = {false}
@@ -358,7 +209,9 @@ const MapGallery = () => {
                         onClickThumbnail = {
                             get_lightbox_tb_2
                         }
-                    />
+                        tileViewportStyle = {thumbnail_style}
+                    >
+                    </Gallery>
                 </div>  
             </Scrollbars>
             </div>

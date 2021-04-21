@@ -15,19 +15,20 @@ export type SelectorGroupProps = {
 const SelectorGroup = ({title, children}: SelectorGroupProps) => {
     const theme = useTheme();
     const groupStyle = {
+        fontFamily: theme.typography.fontFamily,
         textDecoration: 'underline',
         color: theme.palette.primary.main,
     } as React.CSSProperties;
     const childContainer = {
         marginTop: (title !== null)?'.25em':0,
-        // height: 'fit-content',
-        // margin: 'auto',
     } as React.CSSProperties;
     
     const headerAndChild = {
         height: 'fit-content',
         marginTop: 'auto',
         marginBottom: 'auto',
+        fontFamily: theme.typography.fontFamily,
+        
     }
     return (
         <div style = {headerAndChild}>
