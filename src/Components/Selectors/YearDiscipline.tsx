@@ -22,6 +22,7 @@ const YearDiscipline = () => {
 
     const chunksContainer = {
         // position: 'relative',
+        // marginTop: ''
         display: 'flex',
         height: '51px',
 
@@ -31,6 +32,7 @@ const YearDiscipline = () => {
         color: theme.palette.primary.main,
         fontSize: '8pt',
         justifyContent: 'space-between',
+        fontFamily: theme.typography.fontFamily,
     
     } as React.CSSProperties
     const rowContainer = {
@@ -79,17 +81,38 @@ const YearDiscipline = () => {
                     <Paragraph style = {disciplineStyle}>OTHER</Paragraph>
                 </div>
             </SelectorGroup>
-            <SelectorGroup title = {"2016"} size = {3}>
+            <SelectorGroup title = {"2016"} size = {3} filters = {
+                [
+                AuthorDisciplineFilter.ARTDESIGN_2016,
+                AuthorDisciplineFilter.ARCHITECTURE_2016,
+                AuthorDisciplineFilter.OTHER_2016,
+                AuthorDisciplineFilter.LANDSCAPE_2016
+                ]    
+                }>
                 {
-                    make_year_chunks("2016", year_data["2016"])
+                make_year_chunks("2016", year_data["2016"])
                 }
             </SelectorGroup>
-            <SelectorGroup title = {"2018"} size = {3}>
+            <SelectorGroup title = {"2018"} size = {3}  filters = {
+                [
+                AuthorDisciplineFilter.ARTDESIGN_2018,
+                AuthorDisciplineFilter.ARCHITECTURE_2018,
+                AuthorDisciplineFilter.OTHER_2018,
+                AuthorDisciplineFilter.LANDSCAPE_2018,
+                ]    
+                }>
             {
                     make_year_chunks( "2018", year_data["2018"])
                 }
             </SelectorGroup>
-            <SelectorGroup title = {"2020"} size = {3}>
+            <SelectorGroup title = {"2020"} size = {3}  filters = {
+                [
+                AuthorDisciplineFilter.ARTDESIGN_2020,
+                AuthorDisciplineFilter.ARCHITECTURE_2020,
+                AuthorDisciplineFilter.OTHER_2020,
+                AuthorDisciplineFilter.LANDSCAPE_2020,
+                ]    
+                }>
             {
                     make_year_chunks("2020", year_data["2020"])
                 }

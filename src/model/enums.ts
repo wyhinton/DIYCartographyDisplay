@@ -3,7 +3,6 @@ export enum AuthorDisciplineFilter{
     ARCHITECTURE = "ARCHITECTURE",
     LANDSCAPE = "LANDSCAPE",
     OTHER = "OTHER",
-
     ARTDESIGN_2016 ="ARTDESIGN_2016",
     ARTDESIGN_2018 ="ARTDESIGN_2018",
     ARTDESIGN_2020 ="ARTDESIGN_2020",
@@ -22,6 +21,7 @@ export enum EventLevel{
   national = "national",
   state = "state", 
   city = "city",
+  
 }
 
 export enum EventType{

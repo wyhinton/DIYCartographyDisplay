@@ -10,11 +10,11 @@ type SelectorSectionProps = {
 
 export const SelectorSection = ({title, children}: SelectorSectionProps) => {
     const theme = useTheme();
-
     const container = {
         height: "100%",
         paddingLeft: '.25em',
         paddingRight: '.25em',
+        minHeight: '6rem',
     } as React.CSSProperties
 
     const headerContainer = {

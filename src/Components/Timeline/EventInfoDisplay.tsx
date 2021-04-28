@@ -10,15 +10,10 @@ type EventInfoDisplayProps = {
 
 function EventInfoDisplay({info}: EventInfoDisplayProps){
     const theme = useTheme();
-    // start: Date,
-    // end: Date,
-    // title: string,
-    // info: string,
-    // tags: string,
-    // category: EventLevel, 
     const infoContainer= {
         height: '85%',
         paddingTop: '1em',
+  
         // border: `1px solid ${theme.palette.primary.main}`,
     } as React.CSSProperties
     const infoBody= {
@@ -31,13 +26,14 @@ function EventInfoDisplay({info}: EventInfoDisplayProps){
         color: theme.palette.primary.main,
         fontSize: "9pt",
         lineHeight: "5pt",
-        // borderBottom: `1px solid ${theme.palette.primary.main}`,
+        fontFamily: theme.typography.fontFamily,
         textDecoration: "underline",
     } as React.CSSProperties
 
     const paragraph ={
         // : "left"
         color: theme.palette.primary.main,
+        fontFamily: theme.typography.fontFamily,
         fontSize: "9pt",
         lineHeight: "15pt",
     } as React.CSSProperties; 

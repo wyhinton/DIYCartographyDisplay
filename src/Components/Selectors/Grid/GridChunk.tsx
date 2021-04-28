@@ -29,7 +29,7 @@ function roundToStep(value: number, step:number) {
       };
       return col_data
     })
-    console.log(test_arrs);
+    // console.log(test_arrs);
     return test_arrs
   }
 
@@ -57,12 +57,18 @@ const GridChunk = ({count, filter, base_color}: GridChunkProps) =>{
 
   const real_filter = useStoreState(state=>state.map_data.filter);
   const set_filter = useStoreActions(actions=>actions.map_data.thunk_set_filter);
-  const set_row_color = (is_active_filter: boolean, is_hovered: boolean, base_color: number) => {
-    if (is_active_filter) {
+  const set_row_color = (cur_filter_val: TopicSubCategoryFilter | AuthorDisciplineFilter | ThemeCategoryFilter | null, is_hovered: boolean, base_color: number) => {
+    if (cur_filter_val === filter) {
       return 4
-    } else {
+    } 
+    if (cur_filter_val === null){
+      return base_color;
+    }
+    if (cur_filter_val !== null && cur_filter_val != filter){
+      return -2
+    }
+    else {
       return is_hovered?-1:base_color
-      // return is_hovered?base_color-1:base_color
     }
 }
   const [hovered, setHovered] = useState(false);
@@ -91,12 +97,11 @@ const GridChunk = ({count, filter, base_color}: GridChunkProps) =>{
               console.log(col_list);
               let cur_col: any = col_list[r];
               return (
-                // <div style = {adjust_width(rowContainer, col_list.length)}>
-                <div style = {rowContainer}>
+                <div style = {rowContainer} key = {r}>
                 {            
-                  Array.from(Array(cur_col.count).keys()).map((c: any)=>{
-                    console.log(cur_col.count);
-                    return (<GridUnit color = {set_row_color((filter === real_filter), hovered, base_color)} is_active_filter = {filter === real_filter}/>)
+                  Array.from(Array(cur_col.count).keys()).map((i: number, c: any)=>{
+                    // console.log(cur_col.count);
+                    return (<GridUnit color = {set_row_color(real_filter, hovered, base_color)} is_active_filter = {filter === real_filter} key = {i}/>)
                   })
                 }
                 </div>

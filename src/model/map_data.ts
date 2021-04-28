@@ -36,14 +36,6 @@ export interface LabeledCols<T>{
   updated: string, 
 }
 
-
-
-// export enum ClassYear{
-//   eighteen,
-//   sixteen,
-//   twenty, 
-// }
-
 export interface MapRow{
   title: string;
   info: string;
@@ -142,6 +134,7 @@ export interface FilterObj{
 
 export interface MapDataModel {
   filter: FilterOption;
+  multi_tag: FilterOption[],
   map_spreadsheet: MapRow[],
   map_stats: MapStats | undefined,
   event_spreadsheet: EventRow[],
@@ -163,6 +156,8 @@ export interface MapDataModel {
   reset_gallery: Action<MapDataModel>;
   set_active_lightbox: Action<MapDataModel, GalleryImage>;
   set_loaded: Action<MapDataModel, boolean>;
+  thunk_set_multi_filter: Thunk<MapDataModel, FilterOption[]>;
+  set_multi_filter: Action<MapDataModel, FilterOption[]>
 }
 
 type ImagePromise = Promise<HTMLImageElement>;
@@ -195,6 +190,7 @@ const map_data: MapDataModel = {
 
   active_images: [],
   filter: null,
+  multi_tag: [],
   gallery_images: [], 
   timeline_series: test_initial, 
   loaded: false, 
@@ -252,7 +248,9 @@ const map_data: MapDataModel = {
       const typed_event_rows = type_event_rows(event_sheet.data);
       actions.set_event_spreadsheet(typed_event_rows);
       const timeline_series = make_time_series(typed_event_rows);
+
       actions.set_timeline_series(timeline_series)
+      actions.set_loaded(true);
     }).catch((err: any)=>{
       console.error(`Error fetching DOC_KEY ${DOC_KEY}`);
     })
@@ -305,6 +303,7 @@ const map_data: MapDataModel = {
     }
   }),
   set_timeline_series: action((state, timeline_series)=>{
+    //  console.log(timeline_series);
      state.timeline_series =  timeline_series
   }),
   thunk_set_filter: thunk((actions, filter)=>{
@@ -368,6 +367,13 @@ const map_data: MapDataModel = {
   set_loaded: action((state, is_loaded)=>{
     state.loaded = is_loaded
   }),
+  thunk_set_multi_filter: thunk((actions, filters)=>{
+      console.log(filters)
+      actions.set_multi_filter(filters)
+  }),
+  set_multi_filter: action((state, filters)=>{
+      state.multi_tag = filters
+  })
 }
 
 function generate_map_stats(map_rows: MapRow[]): MapStats{
@@ -380,9 +386,6 @@ function generate_map_stats(map_rows: MapRow[]): MapStats{
     theme: theme_stats,
   }
   return map_stats
-  // year: YearGroup,
-  // tag: TagStats,
-  // theme: ThemeStats,
 }
 
 function generate_year_discpline_stats(map_rows: MapRow[]): YearDisciplineStats{
@@ -451,8 +454,6 @@ function generate_theme_stats(map_rows: MapRow[]): any{
   return empty_theme_data as ThemeStats
 }
 
-
-
 function make_time_series(rows: EventRow[]): TimelineData{
   const categorized_events = groupBy(rows, "category");
   Object.keys(categorized_events).forEach(key => {
@@ -479,6 +480,7 @@ function event_row_to_series(rows: EventRow[]): TimeSeries[]{
         tags: event_row.tags.split(',').map(t=>t.trim()),
       }
       const time_range_event = new TimeRangeEvent(time_range, [data]);
+      // console.log(time_range_event)
       all_events.push(time_range_event);
       // all
       // all_events.push(time_range_event);
@@ -539,12 +541,13 @@ function group_events_to_rows(events: TimeRangeEvent[]): TimeSeries[] {
       
       })
       const row_arrays = Object.keys(sorted_events).map(k=>(
-        
+        // console.log(test_obj[k])
         new TimeSeries({
           name: "test",
           events: test_obj[k],
           })
       ))
+      // console.log(row_arrays)
       return row_arrays
 }
 

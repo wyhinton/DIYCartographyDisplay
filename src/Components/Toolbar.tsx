@@ -25,6 +25,7 @@ const Toolbar = () => {
 
 
     const instructions_paragraph ={
+        fontFamily: theme.typography.fontFamily,
         color: theme.palette.primary.main,
         fontSize: "9pt",
         lineHeight: "12pt",

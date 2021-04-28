@@ -25,6 +25,7 @@ const SelectorParent = ({children, columns}: SelectorParentProps) => {
         display: 'flex',
         paddingLeft: '.25em',
         paddingRight: '.25em',
+        paddingTop: '.5em',
         height: "100%",
         borderLeft: `1px dashed ${theme.palette.primary.main}`, 
         borderRight: `1px dashed ${theme.palette.primary.main}`, 
@@ -32,6 +33,7 @@ const SelectorParent = ({children, columns}: SelectorParentProps) => {
 
     const noSiblings = {
         display: 'flex',
+        paddingTop: '.5em',
         // paddingTop: '.25em',
         paddingRight: '.25em',
         paddingLeft: '.25em',
@@ -39,6 +41,7 @@ const SelectorParent = ({children, columns}: SelectorParentProps) => {
     } as React.CSSProperties
 
     const selectorGroupFirst = {
+        paddingTop: '.5em',
         // paddingTop: '.25em',
         display: 'flex',
         paddingLeft: 0,
@@ -47,6 +50,7 @@ const SelectorParent = ({children, columns}: SelectorParentProps) => {
     } as React.CSSProperties
 
     const selectorGroupLast = {
+        paddingTop: '.5em',
         display: 'flex',
         // paddingTop: '.25em',
         paddingLeft: '.25em',
