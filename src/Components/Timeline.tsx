@@ -249,6 +249,7 @@ const Timeline = function() {
               }
 
             </div>
+            <Resizable>
             <ChartContainer
                 timeRange={timerange}
                 enablePanZoom={false}
@@ -264,6 +265,7 @@ const Timeline = function() {
 
                 { make_series(time_series.city, theme, active_filter, row_height )}
               </ChartContainer>
+              </Resizable>
 
         </div>
 

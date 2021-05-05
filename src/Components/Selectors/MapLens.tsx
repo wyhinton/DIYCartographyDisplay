@@ -4,7 +4,8 @@ import SelectorGroup from './Containers/SelectorGroup';
 import SelectorParent from './Containers/SelectorParent';
 import GridRow from './Grid/GridRow';
 import {useEffect} from 'react';
-import {TopicSubCategoryFilter} from '../../model/enums';
+import {TopicSubCategoryFilter, FilterGroup} from '../../model/enums';
+
 // import {}
 // https://material-ui.com/components/material-icons/
 
@@ -62,36 +63,36 @@ const social_filters= [
 const MapLens = () => {
     const theme = useTheme();
     const tag_stats = useStoreState(state=>state.map_data?.map_stats?.tag);
-    const active_filter = useStoreState(state=>state.map_data.filter);
+    const state_active_filters = useStoreState(state=>state.map_data.filter);
     // console.log(tag_stats);
 
     return (
        <>
         <SelectorParent columns = {5}>
-            <SelectorGroup title = {"Built"} size = {2} filters = {built_filters}>
-              <GridRow tooltip = {"Energy"} active_filter = {active_filter} filter = {TopicSubCategoryFilter.BE_ENERGY} count = {tag_stats.BE?.ENERGY} icon = {<LightbulbIcon color = {theme.palette.primary.main} size = {12} />}></GridRow>
-              <GridRow tooltip = {"Housing"} active_filter = {active_filter} filter = {TopicSubCategoryFilter.BE_HOUSING} count = {tag_stats.BE?.HOUSING} icon = {<Apartment color = {"primary"} style ={{fontSize: "12pt"}}/>}  ></GridRow>
-              <GridRow tooltip = {"Transportation"} active_filter = {active_filter} filter = {TopicSubCategoryFilter.BE_TRANSPORTATION} count = {tag_stats.BE?.TRANSPORTATION} icon = {<DirectionsBus fontSize = "small" color = {"primary"} style ={{fontSize: "12pt"}}/>}/>
+            <SelectorGroup title = {"Built"} size = {2} filter = {FilterGroup.BUILT_TOPIC}>
+              <GridRow tooltip = {"Energy"} state_active_filters = {state_active_filters} filter = {TopicSubCategoryFilter.BE_ENERGY} count = {tag_stats.BE?.ENERGY} icon = {<LightbulbIcon color = {theme.palette.primary.main} size = {12} />}></GridRow>
+              <GridRow tooltip = {"Housing"} state_active_filters = {state_active_filters} filter = {TopicSubCategoryFilter.BE_HOUSING} count = {tag_stats.BE?.HOUSING} icon = {<Apartment color = {"primary"} style ={{fontSize: "12pt"}}/>}  ></GridRow>
+              <GridRow tooltip = {"Transportation"} state_active_filters = {state_active_filters} filter = {TopicSubCategoryFilter.BE_TRANSPORTATION} count = {tag_stats.BE?.TRANSPORTATION} icon = {<DirectionsBus fontSize = "small" color = {"primary"} style ={{fontSize: "12pt"}}/>}/>
             </SelectorGroup>
-            <SelectorGroup title = {"Economic"} size = {3} filters = {economic_filters}>
-              <GridRow tooltip = {"Cost of Living"} active_filter = {active_filter}  filter = {TopicSubCategoryFilter.EE_COSTOFLIVING} count = {tag_stats.EE?.COSTOFLIVING} icon = {<HomeIcon color = {theme.palette.primary.main} size = {12}/>}></GridRow>
-              <GridRow tooltip = {"Housing Market"} active_filter = {active_filter}  filter = {TopicSubCategoryFilter.EE_HOUSINGMARKET} count = {tag_stats.EE?.HOUSINGMARKET} icon = {<ChartIcon color = {theme.palette.primary.main} size = {12}/>}></GridRow>
-              <GridRow tooltip = {"Commerce"} active_filter = {active_filter}  filter = {TopicSubCategoryFilter.EE_COMMERCE} count = {tag_stats.EE?.COMMERCE} icon = {<BriefcaseIcon color = {theme.palette.primary.main} size = {12}/>}/>
+            <SelectorGroup title = {"Economic"} size = {3} filter = {FilterGroup.ECONOMIC_TOPIC}>
+              <GridRow tooltip = {"Cost of Living"} state_active_filters = {state_active_filters}  filter = {TopicSubCategoryFilter.EE_COSTOFLIVING} count = {tag_stats.EE?.COSTOFLIVING} icon = {<HomeIcon color = {theme.palette.primary.main} size = {12}/>}></GridRow>
+              <GridRow tooltip = {"Housing Market"} state_active_filters = {state_active_filters}  filter = {TopicSubCategoryFilter.EE_HOUSINGMARKET} count = {tag_stats.EE?.HOUSINGMARKET} icon = {<ChartIcon color = {theme.palette.primary.main} size = {12}/>}></GridRow>
+              <GridRow tooltip = {"Commerce"} state_active_filters = {state_active_filters}  filter = {TopicSubCategoryFilter.EE_COMMERCE} count = {tag_stats.EE?.COMMERCE} icon = {<BriefcaseIcon color = {theme.palette.primary.main} size = {12}/>}/>
             </SelectorGroup>
-            <SelectorGroup title = {"Natural"} size = {2} filters = {natural_filters}>
-              <GridRow tooltip = {"Greenspace"} active_filter = {active_filter}  filter = {TopicSubCategoryFilter.NE_GREENSPACE} count = {tag_stats.NE?.GREENSPACE} icon = {<TreeIcon color = {theme.palette.primary.main} size = {12}/>}></GridRow>
-              <GridRow tooltip = {"Pollution"} active_filter = {active_filter}  filter = {TopicSubCategoryFilter.NE_POLLUTION} count = {tag_stats.NE?.POLLUTION} icon = {<ChartIcon color = {theme.palette.primary.main} size = {12}/>}></GridRow>
-              <GridRow tooltip = {"Hydrology"} active_filter = {active_filter}  filter = {TopicSubCategoryFilter.NE_WATER} count = {tag_stats.NE?.WATER} icon = {<Opacity color = {"primary"} style ={{fontSize: "12pt"}}/>}/>
+            <SelectorGroup title = {"Natural"} size = {2} filter = {FilterGroup.NATURAL_TOPIC}>
+              <GridRow tooltip = {"Greenspace"} state_active_filters = {state_active_filters}  filter = {TopicSubCategoryFilter.NE_GREENSPACE} count = {tag_stats.NE?.GREENSPACE} icon = {<TreeIcon color = {theme.palette.primary.main} size = {12}/>}></GridRow>
+              <GridRow tooltip = {"Pollution"} state_active_filters = {state_active_filters}  filter = {TopicSubCategoryFilter.NE_POLLUTION} count = {tag_stats.NE?.POLLUTION} icon = {<ChartIcon color = {theme.palette.primary.main} size = {12}/>}></GridRow>
+              <GridRow tooltip = {"Hydrology"} state_active_filters = {state_active_filters}  filter = {TopicSubCategoryFilter.NE_WATER} count = {tag_stats.NE?.WATER} icon = {<Opacity color = {"primary"} style ={{fontSize: "12pt"}}/>}/>
             </SelectorGroup>
-            <SelectorGroup title = {"Political"} size = {3} filters = {political_filters}>
-              <GridRow tooltip = {"Goverment"} active_filter = {active_filter}  filter = {TopicSubCategoryFilter.PE_GOVERMENT} count = {tag_stats.PE?.GOVERMENT} icon = {<AccountBalance color = {"primary"} style ={{fontSize: "12pt"}}/>}></GridRow>
-              <GridRow tooltip = {"Legislation"} active_filter = {active_filter}  filter = {TopicSubCategoryFilter.PE_LEGISLATION} count = {tag_stats.PE?.LEGISLATION} icon = {<Gavel color = {"primary"} style ={{fontSize: "12pt"}}/>}></GridRow>
-              <GridRow tooltip = {"Activism"} active_filter = {active_filter}  filter = {TopicSubCategoryFilter.PE_ACTIVISM} count = {tag_stats.PE?.ACTIVISM} icon = {<VolumeUp color = {"primary"} style ={{fontSize: "12pt"}}/>}/>
+            <SelectorGroup title = {"Political"} size = {3} filter = {FilterGroup.POLITICAL_TOPIC}>
+              <GridRow tooltip = {"Goverment"} state_active_filters = {state_active_filters}  filter = {TopicSubCategoryFilter.PE_GOVERMENT} count = {tag_stats.PE?.GOVERMENT} icon = {<AccountBalance color = {"primary"} style ={{fontSize: "12pt"}}/>}></GridRow>
+              <GridRow tooltip = {"Legislation"} state_active_filters = {state_active_filters}  filter = {TopicSubCategoryFilter.PE_LEGISLATION} count = {tag_stats.PE?.LEGISLATION} icon = {<Gavel color = {"primary"} style ={{fontSize: "12pt"}}/>}></GridRow>
+              <GridRow tooltip = {"Activism"} state_active_filters = {state_active_filters}  filter = {TopicSubCategoryFilter.PE_ACTIVISM} count = {tag_stats.PE?.ACTIVISM} icon = {<VolumeUp color = {"primary"} style ={{fontSize: "12pt"}}/>}/>
             </SelectorGroup>
-            <SelectorGroup title = {"Social"} size = {2} filters = {social_filters}>
-              <GridRow tooltip = {"Education"} active_filter = {active_filter} filter = {TopicSubCategoryFilter.SE_EDUCATION} count = {tag_stats.SE?.EDUCATION} icon = {<School color = {"primary"} style ={{fontSize: "12pt"}}/>}></GridRow>
-              <GridRow tooltip = {"Health"} active_filter = {active_filter} filter = {TopicSubCategoryFilter.SE_HEALTH} count = {tag_stats.SE?.HEALTH} icon = {<SymbolCrossIcon color = {theme.palette.primary.main} size = {12}/>}></GridRow>
-              <GridRow tooltip = {"Population"} active_filter = {active_filter} filter = {TopicSubCategoryFilter.SE_POPULATION} count = {tag_stats.SE?.POPULATION} icon = {<PeopleIcon color = {theme.palette.primary.main} size = {12}/>}/>
+            <SelectorGroup title = {"Social"} size = {2} filter = {FilterGroup.SOCIAL_TOPIC}>
+              <GridRow tooltip = {"Education"} state_active_filters = {state_active_filters} filter = {TopicSubCategoryFilter.SE_EDUCATION} count = {tag_stats.SE?.EDUCATION} icon = {<School color = {"primary"} style ={{fontSize: "12pt"}}/>}></GridRow>
+              <GridRow tooltip = {"Health"} state_active_filters = {state_active_filters} filter = {TopicSubCategoryFilter.SE_HEALTH} count = {tag_stats.SE?.HEALTH} icon = {<SymbolCrossIcon color = {theme.palette.primary.main} size = {12}/>}></GridRow>
+              <GridRow tooltip = {"Population"} state_active_filters = {state_active_filters} filter = {TopicSubCategoryFilter.SE_POPULATION} count = {tag_stats.SE?.POPULATION} icon = {<PeopleIcon color = {theme.palette.primary.main} size = {12}/>}/>
             </SelectorGroup>
         </SelectorParent>
       </>

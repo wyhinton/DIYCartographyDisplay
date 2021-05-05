@@ -6,7 +6,7 @@ import SelectorParent from './Containers/SelectorParent';
 import GridChunk from './Grid/GridChunk';
 import GridUnit from './Grid/GridUnit';
 import { useStoreState } from "../../hooks";
-import {AuthorDisciplineFilter} from '../../model/enums';
+import {AuthorDisciplineFilter, FilterGroup} from '../../model/enums';
 
 
 function to_author_enum(discipline: string, year: string): AuthorDisciplineFilter{
@@ -61,7 +61,7 @@ const YearDiscipline = () => {
     return (
        <>
         <SelectorParent>
-            <SelectorGroup title = {null} size = {3}>
+            <SelectorGroup title = {null} size = {3} filter = {FilterGroup.NONE}>
                 <div style = {rowContainer}>
                     <GridUnit color = {0}/>
                     <Paragraph style = {disciplineStyle}>ARCHITECTURE</Paragraph>
@@ -81,38 +81,17 @@ const YearDiscipline = () => {
                     <Paragraph style = {disciplineStyle}>OTHER</Paragraph>
                 </div>
             </SelectorGroup>
-            <SelectorGroup title = {"2016"} size = {3} filters = {
-                [
-                AuthorDisciplineFilter.ARTDESIGN_2016,
-                AuthorDisciplineFilter.ARCHITECTURE_2016,
-                AuthorDisciplineFilter.OTHER_2016,
-                AuthorDisciplineFilter.LANDSCAPE_2016
-                ]    
-                }>
+            <SelectorGroup title = {"2016"} size = {3} filter = {FilterGroup.STUDENTS_2016}>
                 {
                 make_year_chunks("2016", year_data["2016"])
                 }
             </SelectorGroup>
-            <SelectorGroup title = {"2018"} size = {3}  filters = {
-                [
-                AuthorDisciplineFilter.ARTDESIGN_2018,
-                AuthorDisciplineFilter.ARCHITECTURE_2018,
-                AuthorDisciplineFilter.OTHER_2018,
-                AuthorDisciplineFilter.LANDSCAPE_2018,
-                ]    
-                }>
+            <SelectorGroup title = {"2018"} size = {3}  filter = {FilterGroup.STUDENTS_2018}>
             {
                     make_year_chunks( "2018", year_data["2018"])
                 }
             </SelectorGroup>
-            <SelectorGroup title = {"2020"} size = {3}  filters = {
-                [
-                AuthorDisciplineFilter.ARTDESIGN_2020,
-                AuthorDisciplineFilter.ARCHITECTURE_2020,
-                AuthorDisciplineFilter.OTHER_2020,
-                AuthorDisciplineFilter.LANDSCAPE_2020,
-                ]    
-                }>
+            <SelectorGroup title = {"2020"} size = {3}  filter = {FilterGroup.STUDENTS_2020}>
             {
                     make_year_chunks("2020", year_data["2020"])
                 }

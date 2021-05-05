@@ -5,7 +5,7 @@ import SelectorGroup from './Containers/SelectorGroup';
 import SelectorParent from './Containers/SelectorParent';
 import { useStoreActions, useStoreState } from "../../hooks";
 import GridChunk from './Grid/GridChunk';
-import {AuthorDisciplineFilter, TopicSubCategoryFilter, ThemeCategoryFilter} from '../../model/enums';
+import {AuthorDisciplineFilter, TopicSubCategoryFilter, ThemeCategoryFilter, FilterGroup} from '../../model/enums';
 
 interface GridChunkProps{
   count: number,
@@ -23,13 +23,13 @@ const Themes = () => {
     return (
        <>
         <SelectorParent>
-            <SelectorGroup title = {"Equity"} size = {4}>
+            <SelectorGroup title = {"Equity"} size = {4} filter = {FilterGroup.NONE}>
               <GridChunk count = {theme_stats.EQUITY} filter = {ThemeCategoryFilter.EQUITY} base_color = {0}/>
             </SelectorGroup>
-            <SelectorGroup title = {"Access"} size = {4}>
+            <SelectorGroup title = {"Access"} size = {4} filter = {FilterGroup.NONE}>
               <GridChunk count = {theme_stats.ACCESS} filter = {ThemeCategoryFilter.ACCESS}  base_color = {0}/>
             </SelectorGroup>
-            <SelectorGroup title = {"Diversity"} size = {4}>
+            <SelectorGroup title = {"Diversity"} size = {4} filter = {FilterGroup.NONE}>
               <GridChunk count = {theme_stats.DIVERSITY} filter = {ThemeCategoryFilter.DIVERSITY}  base_color = {0}/>
             </SelectorGroup>
         </SelectorParent>

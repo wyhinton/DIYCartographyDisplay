@@ -4,9 +4,12 @@ import GridUnit from './GridUnit';
 import { useStoreActions, useStoreState } from "../../../hooks";
 import {useState, useEffect} from 'react';
 import {AuthorDisciplineFilter, TopicSubCategoryFilter, ThemeCategoryFilter} from '../../../model/enums';
+import {FilterOption} from '../../../model/types'
+import { FilterSharp } from '@material-ui/icons';
 interface GridChunkProps{
   count: number,
-  filter: TopicSubCategoryFilter | AuthorDisciplineFilter | ThemeCategoryFilter | null,
+  filter: FilterOption,
+  // filter: FilterOption,
   base_color: number,
 }
 
@@ -55,25 +58,26 @@ const GridChunk = ({count, filter, base_color}: GridChunkProps) =>{
     // bottom: 0,
   } as React.CSSProperties
 
-  const real_filter = useStoreState(state=>state.map_data.filter);
+  const cur_state_filters = useStoreState(state=>state.map_data.filter);
   const set_filter = useStoreActions(actions=>actions.map_data.thunk_set_filter);
-  const set_row_color = (cur_filter_val: TopicSubCategoryFilter | AuthorDisciplineFilter | ThemeCategoryFilter | null, is_hovered: boolean, base_color: number) => {
-    if (cur_filter_val === filter) {
+  const set_row_color = (cur_filters: FilterOption[], is_hovered: boolean, base_color: number) => {
+    if (cur_filters.some(f=>f===filter)) {
+    // if (cur_filter_val === filter) {
       return 4
     } 
-    if (cur_filter_val === null){
+    if (cur_filters.some(f=>f===null)){
       return base_color;
     }
-    if (cur_filter_val !== null && cur_filter_val != filter){
-      return -2
-    }
+    // if (cur_filters !== null && cur_filters != filter){
+    //   return -2
+    // }
     else {
       return is_hovered?-1:base_color
     }
 }
   const [hovered, setHovered] = useState(false);
     useEffect(()=>{
-    }, [real_filter])
+    }, [cur_state_filters])
 
     useEffect(()=>{
     }, [hovered])
@@ -89,6 +93,7 @@ const GridChunk = ({count, filter, base_color}: GridChunkProps) =>{
       return (  
         <div style = {chunkContainer} 
         onMouseUp = {()=>set_filter(filter)}
+        // onMouseUp = {()=>set_filter(filter)}
         onMouseEnter = {()=>setHovered(!hovered)}
         onMouseLeave ={()=>setHovered(!hovered)}
         >
@@ -101,7 +106,7 @@ const GridChunk = ({count, filter, base_color}: GridChunkProps) =>{
                 {            
                   Array.from(Array(cur_col.count).keys()).map((i: number, c: any)=>{
                     // console.log(cur_col.count);
-                    return (<GridUnit color = {set_row_color(real_filter, hovered, base_color)} is_active_filter = {filter === real_filter} key = {i}/>)
+                    return (<GridUnit color = {set_row_color(cur_state_filters, hovered, base_color)} is_active_filter = {cur_state_filters.some(f=>f===filter)} key = {i}/>)
                   })
                 }
                 </div>

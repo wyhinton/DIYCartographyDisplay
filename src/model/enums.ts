@@ -21,7 +21,21 @@ export enum EventLevel{
   national = "national",
   state = "state", 
   city = "city",
-  
+}
+
+export enum FilterGroup{
+  STUDENTS_2016 = "STUDENTS_2016",
+  STUDENTS_2018  = "STUDENTS_2018",
+  STUDENTS_2020  = "STUDENTS_2020",
+  BUILT_TOPIC = "BUILT_TOPIC",
+  ECONOMIC_TOPIC = "ECONOMIC_TOPIC",
+  NATURAL_TOPIC ="NATURAL_TOPIC",
+  POLITICAL_TOPIC = "POLITICAL_TOPIC",
+  SOCIAL_TOPIC = "SOCIAL_TOPIC",
+  EQUITY_THEME = "EQUITY_THEME",
+  ACCESS_THEME = "ACCESS_THEME",
+  DIVERISTY_THEME = "DIVERISTY_THEME",
+  NONE = "NONE",
 }
 
 export enum EventType{
@@ -50,6 +64,9 @@ export enum GalleryFilterType{
   TOPIC,
   DISCIPLINE,
   THEME,
+  FILTERGROUP,
+  FILTERGROUP_TOPIC,
+  FILTERGROUP_YEAR,
 }
 export enum ClassYearFilter {
   

@@ -39,7 +39,7 @@ function App() {
           <Grid item md = {12} lg = {12}>
           <Toolbar/>
           </Grid>
-          <Grid container spacing = {0} style = {{paddingTop: '1em', paddingBottom: '1em'}}>
+          <Grid container spacing = {0} style = {{paddingTop: '1em', paddingBottom: '4em'}}>
    
               <Grid item md = {12} lg = {12}>
                   <Title/>

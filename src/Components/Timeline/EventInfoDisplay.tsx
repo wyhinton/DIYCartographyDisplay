@@ -44,7 +44,7 @@ function EventInfoDisplay({info}: EventInfoDisplayProps){
         title: "",
         info: "",
         tags: "",
-        type: EventType.DATE,
+        // type: EventType.DATE,
         category: EventLevel.national,
     }
     const data = info ?? default_val;

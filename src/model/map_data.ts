@@ -1,7 +1,8 @@
 import { Action, action, thunk, Thunk, debug } from 'easy-peasy';
 import GetSheetDone from 'get-sheet-done';
 import { TimeSeries, TimeRangeEvent, TimeRange} from "pondjs";
-import { AuthorDisciplineFilter, TopicSubCategoryFilter, ThemeCategoryFilter, EventLevel, GalleryFilterType, EventType} from './enums';
+import {AuthorDisciplineFilter, TopicSubCategoryFilter, ThemeCategoryFilter, EventLevel, GalleryFilterType, EventType, FilterGroup} from './enums';
+import type {FilterOption} from './types'
 
 export interface GalleryImage{
   src: string,
@@ -11,12 +12,7 @@ export interface GalleryImage{
   thumbnailWidth: number,
   thumbnailHeight: number,
   tags: MapMetada[],
-  // tags: Tag[],
 }
-// discipline: map_row.discipline,
-// subtopic: map_row.subtopic,
-// theme: map_row.theme,
-// year: map_row.year,
 
 export interface MapMetada{
   discipline: AuthorDisciplineFilter,
@@ -25,6 +21,10 @@ export interface MapMetada{
   year: any,
 } 
 
+export interface YearSection{
+  years: string[],
+  discipline: string[]
+}
 export interface Tag{
   value: string, 
   title: string, 
@@ -43,6 +43,12 @@ export interface MapRow{
   tags: string;
   discipline: string, 
   theme: string,
+  // series0101: string,
+  // series0102: string,
+  // series0201: string,
+  // series0202: string,
+  // series0301: string,
+  // series0302: string,
   photo1: string;
   photo2: string;
   photo3: string;
@@ -52,6 +58,10 @@ export interface MapRow{
   year: string;
   subtopic: string;
 }
+
+// export interface Student{
+//   maps: 
+// }
 
 export interface YearDisciplineStats{
   sixteen: YearGroup,
@@ -63,7 +73,6 @@ export interface MapStats{
   tag: any,
   theme: any,
 }
-
 
 export interface TagStats{
   BE: any,
@@ -104,7 +113,7 @@ export interface EventRow{
   info: string,
   tags: string,
   category: EventLevel, 
-  type: EventType,
+  // type: EventType,
 }
 
 export interface ExternalData{
@@ -114,7 +123,7 @@ export interface ExternalData{
 
 export interface EventData{
   title: string,
-  event_type: EventType,
+  // event_type: EventType,
   tags: string[]
 }
 
@@ -124,16 +133,13 @@ export interface TimelineData{
   city: TimeSeries[],
 }
 
-
-
-type FilterOption =  AuthorDisciplineFilter | TopicSubCategoryFilter | ThemeCategoryFilter | null;
 export interface FilterObj{
   filter_type: GalleryFilterType,
   filter: FilterOption, 
 }
 
 export interface MapDataModel {
-  filter: FilterOption;
+  filter: FilterOption[];
   multi_tag: FilterOption[],
   map_spreadsheet: MapRow[],
   map_stats: MapStats | undefined,
@@ -151,7 +157,7 @@ export interface MapDataModel {
   set_gallery_images: Action<MapDataModel, GalleryImage[]>;
   set_active_images: Action<MapDataModel, GalleryImage[]>;
   set_timeline_series: Action<MapDataModel, TimelineData>;
-  set_active_filter: Action<MapDataModel, FilterOption>;
+  set_active_filter: Action<MapDataModel, FilterOption[]>;
   thunk_set_filter: Thunk<MapDataModel, FilterOption>;
   reset_gallery: Action<MapDataModel>;
   set_active_lightbox: Action<MapDataModel, GalleryImage>;
@@ -160,6 +166,7 @@ export interface MapDataModel {
   set_multi_filter: Action<MapDataModel, FilterOption[]>
 }
 
+//______________________
 type ImagePromise = Promise<HTMLImageElement>;
 
 const empty_nat: TimeSeries[] = [];
@@ -186,10 +193,11 @@ const init_map_stats: MapStats = {
   theme: {},
 }
 
-const map_data: MapDataModel = {
+// const resize_thumbnail =(gi: GalleryImage, )
 
+const map_data: MapDataModel = {
   active_images: [],
-  filter: null,
+  filter: [],
   multi_tag: [],
   gallery_images: [], 
   timeline_series: test_initial, 
@@ -235,10 +243,13 @@ const map_data: MapDataModel = {
             def_img['thumbnailHeight'] =  res[i].height * .05;
             return def_img
         })
+        // console.log(sized_gallery_images);
         actions.set_gallery_images(sized_gallery_images)
+        console.log(sized_gallery_images);
         actions.set_active_images(sized_gallery_images)
       })
       const map_stats= generate_map_stats(map_data.maps);
+      // console.log(map_stats);
       actions.set_map_stats(map_stats);
       actions.set_map_spreadsheet(map_data.maps);
       actions.set_loaded(true);
@@ -246,9 +257,9 @@ const map_data: MapDataModel = {
 
     get_sheet<EventRow>(DOC_KEY, 2).then((event_sheet: LabeledCols<EventRow>)=>{
       const typed_event_rows = type_event_rows(event_sheet.data);
-      actions.set_event_spreadsheet(typed_event_rows);
       const timeline_series = make_time_series(typed_event_rows);
-
+      
+      actions.set_event_spreadsheet(typed_event_rows);
       actions.set_timeline_series(timeline_series)
       actions.set_loaded(true);
     }).catch((err: any)=>{
@@ -269,49 +280,123 @@ const map_data: MapDataModel = {
     state.gallery_images = payload
   }),
   set_active_images: action((state, payload)=>{
+    console.log(debug(payload))
     state.active_images = payload
   }),
   filter_gallery: action((state, filter_option)=>{
-    if (filter_option.filter === state.filter){
-      state.filter = null;
-      state.active_images = state.gallery_images;
-    } else {
-      if (filter_option.filter_type === GalleryFilterType.TOPIC){
-        const with_subtopic = state.gallery_images.filter(gi=>gi.tags[0].subtopic === filter_option.filter)
-        state.active_images = with_subtopic;
-        state.filter = filter_option.filter;
-      }
-      if (filter_option.filter_type === GalleryFilterType.THEME){
-        const with_theme = state.gallery_images.filter(gi=>gi.tags[0].theme === filter_option.filter)
-        state.active_images = with_theme;
-        state.filter = filter_option.filter;
-      }
-      if (filter_option.filter_type === GalleryFilterType.DISCIPLINE){
-        let split =  filter_option.filter?.split("_");
-        if (split){
-          let discipline = split[0];
-          let year = split[1];
-          console.log(year, discipline);
-          // const with_discipline_and_year = state.gallery_images.filter(gi=>gi.tags[0].discipline)
-          const with_discipline_and_year = state.gallery_images.filter(gi=>gi.tags[0].discipline === discipline  && gi.tags[0].year === year)
-          // const with_discipline_and_year = state.gallery_images.filter(gi=>gi.tags[0].year === year)
-          state.active_images = with_discipline_and_year;
-          console.log(debug(with_discipline_and_year));
-          state.filter = filter_option.filter;
+    // filter_option.forEach((f: FilterObj)=>{
+      // if (filter_option.filter.some(f=>f === FilterGroup.ACCESS_THEME)){
+      //   state.active_images = state.gallery_images.filter(im=>im.tags[0].theme === "ACCESS")
+      // }
+      console.log(debug(state.gallery_images));
+      if (filter_option.filter !== null){
+        if (filter_option.filter_type === GalleryFilterType.FILTERGROUP){
+          // const filters = 
+          const filters = filter_group_to_set(filter_option.filter as FilterGroup)
+          state.filter = filters;
+
+          if (filter_option.filter === FilterGroup.STUDENTS_2016 || FilterGroup.STUDENTS_2018 || FilterGroup.STUDENTS_2020){
+            const sets = get_year_discipline(filters as AuthorDisciplineFilter[])
+            console.log(sets)
+            state.active_images = state.gallery_images.filter(gi=>gi.tags[0].year = sets.years[0] && sets.discipline.includes(gi.tags[0].discipline))
+            console.log(debug(state.gallery_images))
+          }
+          if (filter_option.filter == FilterGroup.BUILT_TOPIC || FilterGroup.NATURAL_TOPIC || FilterGroup.POLITICAL_TOPIC || FilterGroup.ECONOMIC_TOPIC || FilterGroup.SOCIAL_TOPIC){
+            state.active_images = state.gallery_images.filter(gi=>filters.includes(gi.tags[0].subtopic))
+          }
+   
+
+
+          // state.active_images = state.gallery_images.filter(gi=>)
+          console.log(filters)
         }
-    }
-    }
+      }
+
+    // })
+    // if filter_option.filter[0] == null{}
+    // filter_option.filter.forEach((f: FilterOption)=>{
+    //     if (f !== null ){
+    //       console.log(f.split("_"));
+    //     }
+    //     // if (filter_option.filter_type === GalleryFilterType.DISCIPLINE){
+
+    //     // let split =  f.split("_");
+    //     // if (split){
+    //     //   let discipline = split[0];
+    //     //   let year = split[1];
+    //     //   console.log(year, discipline);
+    //     //   const with_discipline_and_year = state.gallery_images.filter(gi=>gi.tags[0].discipline === discipline  && gi.tags[0].year === year)
+    //     //   state.active_images = with_discipline_and_year;
+    //     //   console.log(debug(with_discipline_and_year));
+    //     //   state.filter = filter_option.filter;
+    //     // }
+    //     // }
+    // })
+
+    // if (filter_option.filter === state.filter){
+    //   state.filter = null;
+    //   state.active_images = state.gallery_images;
+    // } else {
+    //   if (filter_option.filter_type === GalleryFilterType.TOPIC){
+    //     const with_subtopic = state.gallery_images.filter(gi=>gi.tags[0].subtopic === filter_option.filter)
+    //     state.active_images = with_subtopic;
+    //     state.filter = filter_option.filter;
+    //   }
+    //   if (filter_option.filter_type === GalleryFilterType.THEME){
+    //     const with_theme = state.gallery_images.filter(gi=>gi.tags[0].theme === filter_option.filter)
+    //     state.active_images = with_theme;
+    //     state.filter = filter_option.filter;
+    //   }
+    //   if (filter_option.filter_type === GalleryFilterType.DISCIPLINE){
+    //     let split =  filter_option.filter?.split("_");
+    //     if (split){
+    //       let discipline = split[0];
+    //       let year = split[1];
+    //       console.log(year, discipline);
+    //       const with_discipline_and_year = state.gallery_images.filter(gi=>gi.tags[0].discipline === discipline  && gi.tags[0].year === year)
+    //       state.active_images = with_discipline_and_year;
+    //       console.log(debug(with_discipline_and_year));
+    //       state.filter = filter_option.filter;
+    //     }
+    // }
+    // }
   }),
   set_timeline_series: action((state, timeline_series)=>{
     //  console.log(timeline_series);
      state.timeline_series =  timeline_series
   }),
   thunk_set_filter: thunk((actions, filter)=>{
-    if (filter == null){
-      actions.reset_gallery();
-    } 
+
+      if (filter == null){
+        actions.reset_gallery();
+      } 
+      // if (filter.some( f=> f === null)){
+      //     actions.reset_gallery();
+      // }
+      let group_options = Object.values(FilterGroup);
+      let from_group_filters: FilterOption[] = [];
+      if (group_options.includes(filter as FilterGroup)){
+        console.log(filter);
+        from_group_filters = (filter === FilterGroup.STUDENTS_2016)?[AuthorDisciplineFilter.ARTDESIGN_2016, AuthorDisciplineFilter.OTHER_2016, AuthorDisciplineFilter.ARCHITECTURE_2016, AuthorDisciplineFilter.LANDSCAPE_2016]:
+        []
+      }
+      if (group_options.includes(filter as FilterGroup)){
+        actions.filter_gallery({
+        filter_type: GalleryFilterType.FILTERGROUP,
+        filter: filter,
+      })}
+    // }
+      // filter.forEach(f=>{
+      //   actions.filter_gallery({
+
+      //   })
+      // })
+    // if (filter == null){
+    //   actions.reset_gallery();
+    // } 
     
     let cat_options = Object.values(TopicSubCategoryFilter);
+    
     if (cat_options.includes(filter as TopicSubCategoryFilter)){
       actions.filter_gallery({
         filter_type: GalleryFilterType.TOPIC,
@@ -319,27 +404,28 @@ const map_data: MapDataModel = {
       })
     }
 
-    let theme_options = Object.values(ThemeCategoryFilter);
-    if (theme_options.includes(filter as ThemeCategoryFilter)){
-      actions.filter_gallery({
-        filter_type: GalleryFilterType.THEME,
-        filter: filter,
-      })
-    } 
+    // let theme_options = Object.values(ThemeCategoryFilter);
+    // if (theme_options.includes(filter as ThemeCategoryFilter)){
+    //   actions.filter_gallery({
+    //     filter_type: GalleryFilterType.THEME,
+    //     filter: filter,
+    //   })
+    // } 
 
-    let author_options = Object.values(AuthorDisciplineFilter);
-    if (author_options.includes(filter as AuthorDisciplineFilter)){
-      actions.filter_gallery({
-        filter_type: GalleryFilterType.DISCIPLINE,
-        filter: filter,
-      })
-    } 
+    // let author_options = Object.values(AuthorDisciplineFilter);
+    // if (author_options.includes(filter as AuthorDisciplineFilter)){
+    //   actions.filter_gallery({
+    //     filter_type: GalleryFilterType.DISCIPLINE,
+    //     filter: filter,
+    //   })
+    // } 
     
   }),
   reset_gallery: action((state)=>{
     state.active_images = state.gallery_images; 
   }),
   set_active_filter: action((state, active_filter)=>{
+    console.log(active_filter);
     state.filter = active_filter
   }),
   set_active_lightbox: action((state, item)=>{
@@ -371,7 +457,7 @@ const map_data: MapDataModel = {
       console.log(filters)
       actions.set_multi_filter(filters)
   }),
-  set_multi_filter: action((state, filters)=>{
+  set_multi_filter: action((state, filters)=>{ 
       state.multi_tag = filters
   })
 }
@@ -471,17 +557,17 @@ function event_row_to_series(rows: EventRow[]): TimeSeries[]{
   let all_series: TimeSeries[] = [];
   let all_events: TimeRangeEvent[] = [];
   rows.forEach((event_row: EventRow)=>{
-    if (event_row.type === EventType.DATE){
-      console.log("GOT DATE TYPE");
-      const time_range = new TimeRange(event_row.start, event_row.end);
-      const data: EventData = {
-        title: event_row.title,
-        event_type: event_row.type,
-        tags: event_row.tags.split(',').map(t=>t.trim()),
-      }
-      const time_range_event = new TimeRangeEvent(time_range, [data]);
-      // console.log(time_range_event)
-      all_events.push(time_range_event);
+    // if (event_row.type === EventType.DATE){
+      // console.log("GOT DATE TYPE");
+      // const time_range = new TimeRange(event_row.start, event_row.end);
+      // const data: EventData = {
+      //   title: event_row.title,
+      //   // event_type: event_row.type,
+      //   tags: event_row.tags.split(',').map(t=>t.trim()),
+      // }
+      // const time_range_event = new TimeRangeEvent(time_range, [data]);
+      // // console.log(time_range_event)
+      // all_events.push(time_range_event);
       // all
       // all_events.push(time_range_event);
       // const time_series =  new TimeSeries({
@@ -490,14 +576,14 @@ function event_row_to_series(rows: EventRow[]): TimeSeries[]{
       // })
       // all_series.push(time_series);
       // return time_series
-    }
+    // }
 
-    if (event_row.type === EventType.RANGE){
-      console.log("GOT RANGE TYPE");
+    // if (event_row.type === EventType.RANGE){
+      // console.log("GOT RANGE TYPE");
       const time_range = new TimeRange(event_row.start, event_row.end);
       const data: EventData = {
         title: event_row.title,
-        event_type: event_row.type,
+        // event_type: event_row.type,
         tags: event_row.tags.split(',').map(t=>t.trim()),
       }
       const time_range_event = new TimeRangeEvent(time_range, [data]);
@@ -509,7 +595,7 @@ function event_row_to_series(rows: EventRow[]): TimeSeries[]{
       // })
       // all_series.push(time_series);
       // return time_series
-    }
+    // }
   });
   return group_events_to_rows(all_events)
 }
@@ -589,9 +675,9 @@ function type_event_rows(rows: any[]): EventRow[]{
     const cat_string: string = rows[ind]["category"];
     const event_type_string: string = rows[ind]["type"];
     const type_cat: EventLevel  = EventLevel[cat_string as unknown as keyof typeof EventLevel];
-    const type_event: EventType  = EventType[event_type_string as unknown as keyof typeof EventType];
+    // const type_event: EventType  = EventType[event_type_string as unknown as keyof typeof EventType];
     rows[ind]["category"] = type_cat;
-    rows[ind]["type"] = type_event;
+    // rows[ind]["type"] = type_event;
 
     const start_date = new Date(rows[ind]["start"]);
     const end_date = new Date(rows[ind]["end"]);
@@ -656,6 +742,90 @@ function getAllFuncs(toCheck: any) {
   return props.sort().filter(function(e, i, arr) { 
      if (e!==arr[i+1] && typeof toCheck[e] == 'function') return true;
   });
+}
+
+function get_year_discipline(author_enum: AuthorDisciplineFilter[]): YearSection{
+    const splits = author_enum.map(a=>a.split("_"));
+    let yddata: YearSection = {
+      years: [],
+      discipline: [],
+    };
+    splits.forEach((s: string[])=>{
+      yddata.discipline.push(s[0]);
+      yddata.years.push(s[1]);
+    })
+    // const split = author_enum.split("_");
+    //   if (split){
+    //     let discipline = split[0];
+    //     let year = split[1];
+    // }
+    return yddata
+}
+
+function filter_group_to_set(group_enum: FilterGroup): FilterOption[]{
+  let my_filters: FilterOption[] = [];
+   switch (group_enum){
+    case FilterGroup.STUDENTS_2016:
+      my_filters = [
+        AuthorDisciplineFilter.ARTDESIGN_2016, 
+        AuthorDisciplineFilter.ARCHITECTURE_2016,
+        AuthorDisciplineFilter.OTHER_2016,
+        AuthorDisciplineFilter.LANDSCAPE_2016,
+      ]
+      break;
+    case FilterGroup.STUDENTS_2018:
+      my_filters = [
+        AuthorDisciplineFilter.ARTDESIGN_2018,
+        AuthorDisciplineFilter.ARCHITECTURE_2018,
+        AuthorDisciplineFilter.OTHER_2018,
+        AuthorDisciplineFilter.LANDSCAPE_2018,
+      ]
+      break;
+    case FilterGroup.STUDENTS_2020:
+      my_filters = [
+        AuthorDisciplineFilter.ARTDESIGN_2020,
+        AuthorDisciplineFilter.ARCHITECTURE_2020,
+        AuthorDisciplineFilter.OTHER_2020,
+        AuthorDisciplineFilter.LANDSCAPE_2020,
+      ]
+      break;
+    case FilterGroup.BUILT_TOPIC:
+      my_filters = [
+        TopicSubCategoryFilter.BE_ENERGY,
+        TopicSubCategoryFilter.BE_HOUSING,
+        TopicSubCategoryFilter.BE_TRANSPORTATION,
+      ]
+      break;
+    case FilterGroup.ECONOMIC_TOPIC:
+      my_filters = [
+        TopicSubCategoryFilter.EE_COMMERCE,
+        TopicSubCategoryFilter.EE_COSTOFLIVING,
+        TopicSubCategoryFilter.EE_HOUSINGMARKET,
+      ]
+      break;
+    case FilterGroup.NATURAL_TOPIC:
+      my_filters = [
+        TopicSubCategoryFilter.NE_GREENSPACE,
+        TopicSubCategoryFilter.NE_POLLUTION,
+        TopicSubCategoryFilter.NE_WATER,
+      ]
+      break;
+    case FilterGroup.POLITICAL_TOPIC:
+      my_filters = [
+        TopicSubCategoryFilter.PE_ACTIVISM,
+        TopicSubCategoryFilter.PE_GOVERMENT,
+        TopicSubCategoryFilter.PE_LEGISLATION,
+      ]
+      break;
+    case FilterGroup.SOCIAL_TOPIC:
+      my_filters = [
+        TopicSubCategoryFilter.SE_EDUCATION,
+        TopicSubCategoryFilter.SE_HEALTH,
+        TopicSubCategoryFilter.SE_POPULATION,
+      ]
+      break;
+  }
+  return my_filters
 }
 
 

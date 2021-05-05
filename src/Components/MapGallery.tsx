@@ -36,7 +36,7 @@ const MapGallery = () => {
     const theme = useTheme();
 
     useEffect(() =>{
-
+        console.log(gallery_images)
     }, [gallery_images, active_lightbox]);
 
     useEffect(()=>{
