@@ -8,53 +8,51 @@ type SelectorParentProps = {
   // children?: (title: string) => React.ReactElement[]
 };
 
+//places grid unit selectors into a grid layout
 const SelectorParent = ({ children, columns }: SelectorParentProps) => {
   const test = "ddd  ";
   const theme = useTheme();
-  const clusterContainer = {
-    height: "76%",
-    padding: 0,
-    columns: columns ?? 12,
-    // display: 'flex',
-  } as React.CSSProperties;
+  const padding = "0em 0em 0em .25em";
+  // const clusterContainer = {
+  //   height: "76%",
+  //   padding: 0,
+  //   columns: columns ?? 12,
+  // } as React.CSSProperties;
 
   const selectorGroup = {
-    // paddingTop: '.25em',
-    display: "flex",
-    paddingLeft: ".25em",
-    paddingRight: ".25em",
-    paddingTop: ".5em",
+    padding: padding,
     height: "100%",
-    // borderLeft: `1px dashed ${theme.palette.primary.main}`,
     borderRight: `1px dashed ${theme.palette.primary.main}`,
   } as React.CSSProperties;
 
+  //if only has 1 group add no borders
   const noSiblings = {
-    display: "flex",
-    paddingTop: ".5em",
-    paddingRight: ".25em",
-    paddingLeft: ".25em",
+    padding: padding,
     height: "100%",
   } as React.CSSProperties;
 
+  //1px dashed border for first widget group
   const selectorGroupFirst = {
-    paddingTop: ".5em",
-    // paddingTop: '.25em',
-    display: "flex",
-    paddingLeft: 0,
+    padding: padding,
     height: "100%",
     borderRight: `1px dashed ${theme.palette.primary.main}`,
   } as React.CSSProperties;
 
+  //1px dashes border right for last widget group
   const selectorGroupLast = {
-    paddingTop: ".5em",
-    display: "flex",
-    // paddingTop: '.25em',
-    paddingLeft: ".25em",
+    padding: padding,
     height: "100%",
     borderLeft: `1px dashed ${theme.palette.primary.main}`,
   } as React.CSSProperties;
 
+  const child_count = Array.isArray(children) ? children.length : 1;
+
+  const gridContainer = {
+    display: "grid",
+    gridTemplateColumns: "1fr ".repeat(child_count),
+  } as React.CSSProperties;
+
+  //assign style based on index
   const group_style = (ind: number, chil: JSX.Element | JSX.Element[]) => {
     if (Array.isArray(chil)) {
       if (ind == 0) {
@@ -71,26 +69,20 @@ const SelectorParent = ({ children, columns }: SelectorParentProps) => {
   };
 
   return (
-    <Grid container spacing={0} direction="row" style={clusterContainer}>
+    // <Grid container spacing={0} direction="row" style={clusterContainer}>
+    <div style={gridContainer}>
       {children
         ? React.Children.map<React.ReactNode, React.ReactNode>(
             children,
             (child, index) => {
               if (React.isValidElement(child)) {
-                return (
-                  <Grid
-                    style={group_style(index, children)}
-                    item
-                    xs={child.props.size}
-                  >
-                    {child}
-                  </Grid>
-                );
+                return <div style={group_style(index, children)}>{child}</div>;
               }
             }
           )
         : null}
-    </Grid>
+      {/* </Grid> */}
+    </div>
   );
 };
 

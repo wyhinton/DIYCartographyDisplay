@@ -32,8 +32,8 @@ const Toolbar = () => {
     root: {
       // padding: 0,
       height: "100%",
-      border: `1px solid ${theme.palette.primary.main}`,
-      paddingLeft: ".5em",
+      // border: `1px solid ${theme.palette.primary.main}`,
+      // paddingLeft: ".5em",
       paddingRight: ".1em",
     },
   })(Grid);
@@ -60,7 +60,7 @@ const Toolbar = () => {
           <MapLens></MapLens>
         </SelectorSection>
       </SelectorContainer>
-      <SelectorContainer item xs={12} sm={12} md={6} lg={1}>
+      <SelectorContainer item xs={12} sm={12} md={6} lg={2}>
         <SelectorSection title="THEMES">
           <Themes></Themes>
         </SelectorSection>
