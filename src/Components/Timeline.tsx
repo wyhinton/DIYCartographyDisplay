@@ -28,7 +28,6 @@ interface Seperator {
 }
 
 const Timeline = function () {
-  const active_filter = useStoreState((state) => state.map_data?.filter);
   const time_series = useStoreState((state) => state.map_data.timeline_series);
 
   const event_rows: EventRow[] = useStoreState(
@@ -60,7 +59,7 @@ const Timeline = function () {
   const theme = useTheme();
   const row_height = 40;
   // const row_height = 20;
-  const start_date = new Date(1792, 0, 1);
+  const start_date = new Date(1763, 0, 1);
   const end_date = new Date(2020, 0, 1);
   const is_sm = useMediaQuery(theme.breakpoints.up("sm"));
   const data_loaded = useStoreState((state) => state.map_data.loaded);
@@ -78,7 +77,7 @@ const Timeline = function () {
     console.log(event_rows);
     console.log(time_series);
     console.log(time_series_count);
-    setChartHeight(row_height * time_series_count);
+    // setChartHeight(row_height * time_series_count);
     setTimeSeriesCount(time_series_count);
     const lengths = [
       time_series.state.length,
@@ -99,15 +98,9 @@ const Timeline = function () {
     setSeperators(seperators);
     console.log(seperators);
     console.log(seperators.length);
-    // const poss = [heights[0], heights[0+1], heights[0+1+2]]
 
     console.log(poss);
     console.log(lengths, heights, poss);
-    // lengths.reduce((acc: number[], cv: number)){
-    //   acc
-    // }
-
-    // },[data_loaded, seperators]);
   }, [data_loaded, event_rows, time_series]);
   useEffect(() => {}, [seperators]);
   const timelineSection = {
@@ -117,13 +110,6 @@ const Timeline = function () {
     width: "100%",
     borderTop: `1px solid ${theme.palette.primary.main}`,
     display: is_sm ? "inline-flex" : "none",
-  } as React.CSSProperties;
-
-  const testChart = {
-    // width: "100%",
-    // height: "200px",
-    // margin: 'auto',
-    // marginTop: '1em',
   } as React.CSSProperties;
 
   const linesContainer = {
@@ -157,7 +143,6 @@ const Timeline = function () {
   const make_series = (
     series: TimeSeries[],
     theme: Theme,
-    active_filter: any,
     row_height: number
   ) => {
     let test = series.map(function (ev, i) {
@@ -227,7 +212,7 @@ const Timeline = function () {
         </Text>
         <EventInfoDisplay info={eventInfo}></EventInfoDisplay>
       </Grid>
-      <Grid item xs={10} style={{ height: data_loaded ? "100%" : "101%" }}>
+      <Grid item xs={10} style={{ paddingTop: ".25em" }}>
         <div style={{ position: "relative", height: "200px" }}>
           <div style={linesContainer}>
             {seperators.map(function (f: Seperator, i: number) {
@@ -268,26 +253,11 @@ const Timeline = function () {
                 timeAxisStyle={timeAxis}
                 timeAxisTickCount={5}
               >
-                {make_series(
-                  time_series.national,
-                  theme,
-                  active_filter,
-                  row_height
-                )}
+                {make_series(time_series.national, theme, row_height)}
 
-                {make_series(
-                  time_series.state,
-                  theme,
-                  active_filter,
-                  row_height
-                )}
+                {make_series(time_series.state, theme, row_height)}
 
-                {make_series(
-                  time_series.city,
-                  theme,
-                  active_filter,
-                  row_height
-                )}
+                {make_series(time_series.city, theme, row_height)}
               </ChartContainer>
             </Resizable>
           </div>

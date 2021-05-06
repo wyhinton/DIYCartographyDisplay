@@ -10,6 +10,8 @@ import {
 import type { FilterOption } from "../../../model/types";
 
 import React from "react";
+
+//Containers a selection of grid units and header
 export type SelectorGroupProps = {
   title: string | null;
   size: number;
@@ -38,6 +40,7 @@ const SelectorGroup = ({ title, children, filter }: SelectorGroupProps) => {
     height: "fit-content",
     marginTop: "auto",
     marginBottom: "auto",
+    paddingRight: "1em",
     fontFamily: theme.typography.fontFamily,
   };
   return (

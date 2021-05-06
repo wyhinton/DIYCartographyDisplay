@@ -23,12 +23,14 @@ const SelectorParent = ({ children, columns }: SelectorParentProps) => {
     padding: padding,
     height: "100%",
     borderRight: `1px dashed ${theme.palette.primary.main}`,
+    maxWidth: "fit-content",
   } as React.CSSProperties;
 
   //if only has 1 group add no borders
   const noSiblings = {
     padding: padding,
     height: "100%",
+    maxWidth: "fit-content",
   } as React.CSSProperties;
 
   //1px dashed border for first widget group
@@ -36,13 +38,15 @@ const SelectorParent = ({ children, columns }: SelectorParentProps) => {
     padding: padding,
     height: "100%",
     borderRight: `1px dashed ${theme.palette.primary.main}`,
+    maxWidth: "fit-content",
   } as React.CSSProperties;
 
   //1px dashes border right for last widget group
   const selectorGroupLast = {
     padding: padding,
     height: "100%",
-    borderLeft: `1px dashed ${theme.palette.primary.main}`,
+    maxWidth: "fit-content",
+    // borderLeft: `1px dashed ${theme.palette.primary.main}`,
   } as React.CSSProperties;
 
   const child_count = Array.isArray(children) ? children.length : 1;
@@ -50,6 +54,7 @@ const SelectorParent = ({ children, columns }: SelectorParentProps) => {
   const gridContainer = {
     display: "grid",
     gridTemplateColumns: "1fr ".repeat(child_count),
+    maxWidth: "fit-content",
   } as React.CSSProperties;
 
   //assign style based on index

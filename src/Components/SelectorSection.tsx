@@ -16,6 +16,7 @@ export const SelectorSection = ({ title, children }: SelectorSectionProps) => {
     minHeight: "6rem",
     border: `1px solid ${theme.palette.primary.main}`,
     marginRight: "1em",
+    maxWidth: "fit-content",
   } as React.CSSProperties;
 
   const headerContainer = {

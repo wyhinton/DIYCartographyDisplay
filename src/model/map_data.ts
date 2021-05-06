@@ -1,3 +1,4 @@
+import { GitHub } from "@material-ui/icons";
 import { Action, action, thunk, Thunk, debug } from "easy-peasy";
 import GetSheetDone from "get-sheet-done";
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
@@ -19,10 +20,10 @@ export interface GalleryImage {
   caption: string;
   thumbnailWidth: number;
   thumbnailHeight: number;
-  tags: MapMetada[];
+  tags: MapMetadata[];
 }
 
-export interface MapMetada {
+export interface MapMetadata {
   discipline: AuthorDisciplineFilter;
   subtopic: TopicSubCategoryFilter;
   theme: ThemeCategoryFilter;
@@ -146,6 +147,11 @@ export interface FilterObj {
   filter: FilterOption;
 }
 
+export interface FilterResult {
+  filter_func: any;
+  filters: FilterOption[];
+}
+
 export interface MapDataModel {
   filter: FilterOption[];
   multi_tag: FilterOption[];
@@ -172,6 +178,7 @@ export interface MapDataModel {
   set_loaded: Action<MapDataModel, boolean>;
   thunk_set_multi_filter: Thunk<MapDataModel, FilterOption[]>;
   set_multi_filter: Action<MapDataModel, FilterOption[]>;
+  filter_gallery_2: Action<MapDataModel, FilterResult>;
 }
 
 //______________________
@@ -298,17 +305,69 @@ const map_data: MapDataModel = {
     state.active_images = payload;
   }),
   filter_gallery: action((state, filter_option) => {
-    // filter_option.forEach((f: FilterObj)=>{
-    // if (filter_option.filter.some(f=>f === FilterGroup.ACCESS_THEME)){
-    //   state.active_images = state.gallery_images.filter(im=>im.tags[0].theme === "ACCESS")
-    // }
-    console.log(debug(state.gallery_images));
+    // console.log(debug(state.gallery_images));
     if (filter_option.filter !== null) {
+      if (filter_option.filter_type === GalleryFilterType.TOPIC) {
+        console.log("got topic filter");
+        state.active_images = state.gallery_images.filter(
+          (gi) => gi.tags[0].subtopic === filter_option.filter
+        );
+      }
+
+      // if (filter_option.filter_type === GalleryFilterType.TOPIC) {
+      //   console.log("got topic filter");
+      //   state.active_images = state.gallery_images.filter(
+      //     (gi) => gi.tags[0].subtopic === filter_option.filter
+      //   );
+      // }
+
+      if (filter_option.filter_type === GalleryFilterType.DISCIPLINE) {
+        const discipline = filter_option.filter.split("_")[0];
+        const year = filter_option.filter.split("_")[1];
+        state.active_images = state.gallery_images.filter(
+          (gi) =>
+            gi.tags[0].year === year && gi.tags[0].discipline === discipline
+        );
+      }
+      if (filter_option.filter_type === GalleryFilterType.THEME) {
+        console.log("got theme filter");
+        state.active_images = state.gallery_images.filter(
+          (gi) => gi.tags[0].theme === filter_option.filter
+        );
+      }
+
       if (filter_option.filter_type === GalleryFilterType.FILTERGROUP) {
         // const filters =
+        if (filter_option.filter === FilterGroup.EQUITY_THEME) {
+          console.log("GOT EQITY THEM GROUP");
+          // console.log()
+          console.log(ThemeCategoryFilter.EQUITY);
+          // console.log(
+          //   debug(
+          //     state.gallery_images.filter(
+          //       (gi) => gi.tags[0].theme === ThemeCategoryFilter.EQUITY
+          //     )
+          //   )
+          // );
+          state.active_images = state.gallery_images.filter(
+            (gi) => gi.tags[0].theme === ThemeCategoryFilter.EQUITY
+          );
+        }
+        if (filter_option.filter === FilterGroup.ACCESS_THEME) {
+          state.active_images = state.gallery_images.filter(
+            (gi) => gi.tags[0].theme === ThemeCategoryFilter.ACCESS
+          );
+        }
+        if (filter_option.filter === FilterGroup.DIVERISTY_THEME) {
+          state.active_images = state.gallery_images.filter(
+            (gi) => gi.tags[0].theme === ThemeCategoryFilter.DIVERSITY
+          );
+        }
+        console.log("got filter group");
         const filters = filter_group_to_set(
           filter_option.filter as FilterGroup
         );
+        console.log(filters);
         state.filter = filters;
 
         if (
@@ -324,8 +383,9 @@ const map_data: MapDataModel = {
                 sets.years[0] &&
                 sets.discipline.includes(gi.tags[0].discipline))
           );
-          console.log(debug(state.gallery_images));
+          // console.log(debug(state.gallery_images));
         }
+
         if (
           filter_option.filter == FilterGroup.BUILT_TOPIC ||
           FilterGroup.NATURAL_TOPIC ||
@@ -339,115 +399,253 @@ const map_data: MapDataModel = {
         }
 
         // state.active_images = state.gallery_images.filter(gi=>)
-        console.log(filters);
+        // console.log(filters);
       }
     }
-
-    // })
-    // if filter_option.filter[0] == null{}
-    // filter_option.filter.forEach((f: FilterOption)=>{
-    //     if (f !== null ){
-    //       console.log(f.split("_"));
-    //     }
-    //     // if (filter_option.filter_type === GalleryFilterType.DISCIPLINE){
-
-    //     // let split =  f.split("_");
-    //     // if (split){
-    //     //   let discipline = split[0];
-    //     //   let year = split[1];
-    //     //   console.log(year, discipline);
-    //     //   const with_discipline_and_year = state.gallery_images.filter(gi=>gi.tags[0].discipline === discipline  && gi.tags[0].year === year)
-    //     //   state.active_images = with_discipline_and_year;
-    //     //   console.log(debug(with_discipline_and_year));
-    //     //   state.filter = filter_option.filter;
-    //     // }
-    //     // }
-    // })
-
-    // if (filter_option.filter === state.filter){
-    //   state.filter = null;
-    //   state.active_images = state.gallery_images;
-    // } else {
-    //   if (filter_option.filter_type === GalleryFilterType.TOPIC){
-    //     const with_subtopic = state.gallery_images.filter(gi=>gi.tags[0].subtopic === filter_option.filter)
-    //     state.active_images = with_subtopic;
-    //     state.filter = filter_option.filter;
-    //   }
-    //   if (filter_option.filter_type === GalleryFilterType.THEME){
-    //     const with_theme = state.gallery_images.filter(gi=>gi.tags[0].theme === filter_option.filter)
-    //     state.active_images = with_theme;
-    //     state.filter = filter_option.filter;
-    //   }
-    //   if (filter_option.filter_type === GalleryFilterType.DISCIPLINE){
-    //     let split =  filter_option.filter?.split("_");
-    //     if (split){
-    //       let discipline = split[0];
-    //       let year = split[1];
-    //       console.log(year, discipline);
-    //       const with_discipline_and_year = state.gallery_images.filter(gi=>gi.tags[0].discipline === discipline  && gi.tags[0].year === year)
-    //       state.active_images = with_discipline_and_year;
-    //       console.log(debug(with_discipline_and_year));
-    //       state.filter = filter_option.filter;
-    //     }
-    // }
-    // }
+  }),
+  filter_gallery_2: action((state, filter_result) => {
+    console.log(filter_result);
+    state.active_images = state.gallery_images.filter(
+      filter_result.filter_func
+    );
+    console.log(state.gallery_images.filter(filter_result.filter_func));
+    state.filter = filter_result.filters;
+    // state.active_images = state.gallery_images.filter((gi) => filter_func);
+    // console.l
   }),
   set_timeline_series: action((state, timeline_series) => {
     //  console.log(timeline_series);
     state.timeline_series = timeline_series;
   }),
   thunk_set_filter: thunk((actions, filter) => {
-    if (filter == null) {
-      actions.reset_gallery();
+    // function filter_year(cat: AUTHOR)
+    // function get_filter_match(filters)
+    function quick_get(
+      group: FilterGroup,
+      cat: keyof MapMetadata
+    ): FilterResult {
+      const filter_set = filter_group_to_set(group);
+      if (
+        group == FilterGroup.STUDENTS_2016 ||
+        group == FilterGroup.STUDENTS_2018 ||
+        group == FilterGroup.STUDENTS_2020
+      ) {
+        let splits = get_year_discipline(
+          filter_set as AuthorDisciplineFilter[]
+        );
+        const filter_func = function (val: GalleryImage) {
+          return splits.years.includes(val.tags[0].year);
+          // splits.discipline.includes(val.tags[0].discipline)
+        };
+        return {
+          filter_func: filter_func,
+          filters: filter_set,
+        } as FilterResult;
+      } else {
+        console.log("GOT TO NON YEAR");
+        const filter_func = function (val: GalleryImage) {
+          console.log(filter_set);
+          console.log(val.tags[0][cat]);
+          console.log(filter_set.includes(val.tags[0][cat]));
+          return filter_set.includes(val.tags[0][cat]);
+        };
+        return {
+          filter_func: filter_func,
+          filters: filter_set,
+        } as FilterResult;
+      }
     }
-    // if (filter.some( f=> f === null)){
-    //     actions.reset_gallery();
-    // }
-    let group_options = Object.values(FilterGroup);
-    let from_group_filters: FilterOption[] = [];
-    if (group_options.includes(filter as FilterGroup)) {
-      console.log(filter);
-      from_group_filters =
-        filter === FilterGroup.STUDENTS_2016
-          ? [
-              AuthorDisciplineFilter.ARTDESIGN_2016,
-              AuthorDisciplineFilter.OTHER_2016,
-              AuthorDisciplineFilter.ARCHITECTURE_2016,
-              AuthorDisciplineFilter.LANDSCAPE_2016,
-            ]
-          : [];
-    }
-    if (group_options.includes(filter as FilterGroup)) {
-      actions.filter_gallery({
-        filter_type: GalleryFilterType.FILTERGROUP,
-        filter: filter,
-      });
-    }
-    // }
-    // filter.forEach(f=>{
-    //   actions.filter_gallery({
 
-    //   })
-    // })
-    // if (filter == null){
+    function get_group_filter(f: FilterOption): FilterResult {
+      let filter_func: any;
+      let filters: FilterOption[] = [];
+      let final_result = {
+        filter_func: "aaa",
+        filters: [],
+      } as FilterResult;
+
+      switch (f) {
+        case FilterGroup.ACCESS_THEME:
+          final_result = quick_get(
+            FilterGroup.ACCESS_THEME,
+            "theme" as keyof MapMetadata
+          );
+          break;
+        case FilterGroup.EQUITY_THEME:
+          final_result = quick_get(
+            FilterGroup.EQUITY_THEME,
+            "theme" as keyof MapMetadata
+          );
+          break;
+        case FilterGroup.DIVERISTY_THEME:
+          final_result = quick_get(
+            FilterGroup.DIVERISTY_THEME,
+            "theme" as keyof MapMetadata
+          );
+          break;
+        case FilterGroup.STUDENTS_2016:
+          final_result = quick_get(
+            FilterGroup.STUDENTS_2016,
+            "year" as keyof MapMetadata
+          );
+          break;
+        case FilterGroup.STUDENTS_2018:
+          final_result = quick_get(
+            FilterGroup.STUDENTS_2018,
+            "year" as keyof MapMetadata
+          );
+          break;
+        case FilterGroup.STUDENTS_2020:
+          final_result = quick_get(
+            FilterGroup.STUDENTS_2020,
+            "year" as keyof MapMetadata
+          );
+          break;
+        case FilterGroup.BUILT_TOPIC:
+          final_result = quick_get(
+            FilterGroup.BUILT_TOPIC,
+            "subtopic" as keyof MapMetadata
+          );
+          break;
+        case FilterGroup.ECONOMIC_TOPIC:
+          final_result = quick_get(
+            FilterGroup.ECONOMIC_TOPIC,
+            "subtopic" as keyof MapMetadata
+          );
+          break;
+        case FilterGroup.NATURAL_TOPIC:
+          final_result = quick_get(
+            FilterGroup.NATURAL_TOPIC,
+            "subtopic" as keyof MapMetadata
+          );
+          break;
+        case FilterGroup.POLITICAL_TOPIC:
+          final_result = quick_get(
+            FilterGroup.POLITICAL_TOPIC,
+            "subtopic" as keyof MapMetadata
+          );
+          break;
+        case FilterGroup.SOCIAL_TOPIC:
+          final_result = quick_get(
+            FilterGroup.SOCIAL_TOPIC,
+            "subtopic" as keyof MapMetadata
+          );
+          break;
+      }
+      console.log(final_result);
+      return final_result;
+    }
+    // function is_enum_type<T>(val: FilterOption): boolean{
+    //   let key = Object.values(T).includes
+
+    // }
+    function get_single_filter(f: FilterOption): FilterResult {
+      let filter_func: any;
+      let filters: FilterOption[] = [];
+      if (
+        Object.values(TopicSubCategoryFilter).includes(
+          f as TopicSubCategoryFilter
+        )
+      ) {
+        filter_func = function (val: GalleryImage) {
+          return val.tags[0].subtopic === f;
+        };
+      } else if (
+        Object.values(ThemeCategoryFilter).includes(f as ThemeCategoryFilter)
+      ) {
+        filter_func = function (val: GalleryImage) {
+          return val.tags[0].theme === f;
+        };
+      } else if (
+        Object.values(AuthorDisciplineFilter).includes(
+          f as AuthorDisciplineFilter
+        )
+      ) {
+        f = f as AuthorDisciplineFilter;
+        let discipline = f.split("_")[0];
+        let year = f.split("_")[1];
+        filter_func = function (val: GalleryImage) {
+          return (
+            val.tags[0].year === year && val.tags[0].discipline == discipline
+          );
+        };
+      }
+      return {
+        filter_func: filter_func,
+        filters: [f],
+      } as FilterResult;
+    }
+
+    let group_options = Object.values(FilterGroup);
+    if (group_options.includes(filter as FilterGroup)) {
+      let group_filter = get_group_filter(filter);
+      actions.filter_gallery_2(group_filter);
+    } else {
+      let single_filter = get_single_filter(filter);
+      actions.filter_gallery_2(single_filter);
+    }
+
+    // if (filter == null) {
     //   actions.reset_gallery();
     // }
+    // let group_options = Object.values(FilterGroup);
+    // let from_group_filters: FilterOption[] = [];
+    // console.log(filter);
+    // if (group_options.includes(filter as FilterGroup)) {
+    //   from_group_filters =
+    //     filter === FilterGroup.STUDENTS_2016
+    //       ? [
+    //           AuthorDisciplineFilter.ARTDESIGN_2016,
+    //           AuthorDisciplineFilter.OTHER_2016,
+    //           AuthorDisciplineFilter.ARCHITECTURE_2016,
+    //           AuthorDisciplineFilter.LANDSCAPE_2016,
+    //         ]
+    //       : [];
+    // }
+    // if (group_options.includes(filter as FilterGroup)) {
+    //   actions.filter_gallery({
+    //     filter_type: GalleryFilterType.FILTERGROUP,
+    //     filter: filter,
+    //   });
+    // }
 
-    let cat_options = Object.values(TopicSubCategoryFilter);
+    // // }
+    // // filter.forEach(f=>{
+    // //   actions.filter_gallery({
 
-    if (cat_options.includes(filter as TopicSubCategoryFilter)) {
-      actions.filter_gallery({
-        filter_type: GalleryFilterType.TOPIC,
-        filter: filter,
-      });
-    }
+    // //   })
+    // // })
+    // // if (filter == null){
+    // //   actions.reset_gallery();
+    // // }
+
+    // let cat_options = Object.values(TopicSubCategoryFilter);
+
+    // if (cat_options.includes(filter as TopicSubCategoryFilter)) {
+    //   // console.log("GOT HERE");
+    //   actions.filter_gallery({
+    //     filter_type: GalleryFilterType.TOPIC,
+    //     filter: filter,
+    //   });
+    // }
+
+    // let dis_cat_options = Object.values(AuthorDisciplineFilter);
+
+    // if (dis_cat_options.includes(filter as AuthorDisciplineFilter)) {
+    //   console.log("GOT HERE");
+    //   console.log(filter);
+    //   actions.filter_gallery({
+    //     filter_type: GalleryFilterType.DISCIPLINE,
+    //     filter: filter,
+    //   });
+    // }
 
     // let theme_options = Object.values(ThemeCategoryFilter);
-    // if (theme_options.includes(filter as ThemeCategoryFilter)){
+    // if (theme_options.includes(filter as ThemeCategoryFilter)) {
     //   actions.filter_gallery({
     //     filter_type: GalleryFilterType.THEME,
     //     filter: filter,
-    //   })
+    //   });
     // }
 
     // let author_options = Object.values(AuthorDisciplineFilter);
@@ -605,56 +803,24 @@ function event_row_to_series(rows: EventRow[]): TimeSeries[] {
   let all_series: TimeSeries[] = [];
   let all_events: TimeRangeEvent[] = [];
   rows.forEach((event_row: EventRow) => {
-    // if (event_row.type === EventType.DATE){
-    // console.log("GOT DATE TYPE");
-    // const time_range = new TimeRange(event_row.start, event_row.end);
-    // const data: EventData = {
-    //   title: event_row.title,
-    //   // event_type: event_row.type,
-    //   tags: event_row.tags.split(',').map(t=>t.trim()),
-    // }
-    // const time_range_event = new TimeRangeEvent(time_range, [data]);
-    // // console.log(time_range_event)
-    // all_events.push(time_range_event);
-    // all
-    // all_events.push(time_range_event);
-    // const time_series =  new TimeSeries({
-    //   name: "test",
-    //   events: [time_range_event]
-    // })
-    // all_series.push(time_series);
-    // return time_series
-    // }
-
-    // if (event_row.type === EventType.RANGE){
-    // console.log("GOT RANGE TYPE");
     const time_range = new TimeRange(event_row.start, event_row.end);
     const data: EventData = {
       title: event_row.title,
-      // event_type: event_row.type,
       tags: event_row.tags.split(",").map((t) => t.trim()),
     };
     const time_range_event = new TimeRangeEvent(time_range, [data]);
     all_events.push(time_range_event);
-    // all_events.push(time_range_event);
-    // const time_series =  new TimeSeries({
-    //   name: "test",
-    //   events: [time_range_event]
-    // })
-    // all_series.push(time_series);
-    // return time_series
-    // }
   });
   return group_events_to_rows(all_events);
 }
 
+//sorts events into rows so that rows don't contain overlapping time events
 function group_events_to_rows(events: TimeRangeEvent[]): TimeSeries[] {
   let test_obj: any = {};
   test_obj[0] = [];
   (events as TimeRangeEvent[]).forEach(
     (ev2: TimeRangeEvent, ind: number, array: TimeRangeEvent[]) => {
       let row_count = 0;
-
       if (
         array.every((e3) => {
           if (ev2 === e3) {
@@ -663,13 +829,16 @@ function group_events_to_rows(events: TimeRangeEvent[]): TimeSeries[] {
           if (
             date_range_overlaps(e3.begin(), e3.end(), ev2.begin(), ev2.end())
           ) {
+            console.log("ranges do overlap");
             return false;
           } else {
+            console.log("ranges do not overlap");
             return true;
           }
         })
       ) {
         test_obj[row_count].push(ev2);
+        console.log(row_count);
       } else {
         row_count = row_count + 1;
         test_obj[ind] = [ev2];
@@ -849,6 +1018,9 @@ function get_year_discipline(
 
 function filter_group_to_set(group_enum: FilterGroup): FilterOption[] {
   let my_filters: FilterOption[] = [];
+  // let my_filter_function =
+  // let func: Function;
+
   switch (group_enum) {
     case FilterGroup.STUDENTS_2016:
       my_filters = [
@@ -857,6 +1029,9 @@ function filter_group_to_set(group_enum: FilterGroup): FilterOption[] {
         AuthorDisciplineFilter.OTHER_2016,
         AuthorDisciplineFilter.LANDSCAPE_2016,
       ];
+      // func = function(val: string):boolean {
+      //     return my_filters.includes(val)
+      // }
       break;
     case FilterGroup.STUDENTS_2018:
       my_filters = [
@@ -908,6 +1083,15 @@ function filter_group_to_set(group_enum: FilterGroup): FilterOption[] {
         TopicSubCategoryFilter.SE_HEALTH,
         TopicSubCategoryFilter.SE_POPULATION,
       ];
+      break;
+    case FilterGroup.EQUITY_THEME:
+      my_filters = [ThemeCategoryFilter.EQUITY];
+      break;
+    case FilterGroup.ACCESS_THEME:
+      my_filters = [ThemeCategoryFilter.ACCESS];
+      break;
+    case FilterGroup.DIVERISTY_THEME:
+      my_filters = [ThemeCategoryFilter.DIVERSITY];
       break;
   }
   return my_filters;

@@ -15,7 +15,7 @@ const Toolbar = () => {
   const toolbarContainer = {
     height: "fit-content",
     // height: '100%',
-    justifyContent: "space-between",
+    // justifyContent: "space-between",
     minHeight: "6rem",
     maxHeight: "17rem",
     display: is_sm ? "inline-flex" : "none",
@@ -40,7 +40,7 @@ const Toolbar = () => {
 
   return (
     <Grid container spacing={0} style={toolbarContainer}>
-      <SelectorContainer item xs={12} sm={12} md={6} lg={2}>
+      <SelectorContainer item xs={12} sm={12} md={6} lg={2} xl={2}>
         <SelectorSection title="SELECT & FILTER">
           <Text style={instructions_paragraph}>
             <Paragraph size={300} style={instructions_paragraph}>
@@ -50,17 +50,17 @@ const Toolbar = () => {
           </Text>
         </SelectorSection>
       </SelectorContainer>
-      <SelectorContainer item xs={12} sm={12} md={6} lg={4}>
+      <SelectorContainer item xs={12} sm={12} md={6} lg={3} xl={3}>
         <SelectorSection title="YEAR & DISCIPLINE">
           <YearDiscipline></YearDiscipline>
         </SelectorSection>
       </SelectorContainer>
-      <SelectorContainer item xs={12} sm={12} md={6} lg={4}>
+      <SelectorContainer item xs={12} sm={12} md={6} lg={3} xl={3}>
         <SelectorSection title="TOPICS">
           <MapLens></MapLens>
         </SelectorSection>
       </SelectorContainer>
-      <SelectorContainer item xs={12} sm={12} md={6} lg={2}>
+      <SelectorContainer item xs={12} sm={12} md={6} lg={3} xl={2}>
         <SelectorSection title="THEMES">
           <Themes></Themes>
         </SelectorSection>
