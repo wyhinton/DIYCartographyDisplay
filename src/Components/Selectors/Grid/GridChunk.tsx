@@ -1,15 +1,7 @@
-// import Grid from '@material-ui/core/Grid';
-// import { useTheme, withStyles } from "@material-ui/core/styles";
 import GridUnit from "./GridUnit";
 import { useStoreActions, useStoreState } from "../../../hooks";
 import { useState, useEffect } from "react";
-import {
-  AuthorDisciplineFilter,
-  TopicSubCategoryFilter,
-  ThemeCategoryFilter,
-} from "../../../model/enums";
 import { FilterOption } from "../../../model/types";
-import { FilterSharp } from "@material-ui/icons";
 interface GridChunkProps {
   count: number;
   filter: FilterOption;
@@ -44,23 +36,12 @@ function roundToStep(value: number, step: number) {
 }
 
 const GridChunk = ({ count, filter, base_color }: GridChunkProps) => {
-  const rowContainer = {
-    // marginTop: '.25em',
-    // width: ''
-    // width: '14px',
-    // position: 'absolute',
-    // bottom: 0,
-    // backgroundColor: 'red',
-    // width: '12%',
-  } as React.CSSProperties;
+  const rowContainer = {} as React.CSSProperties;
 
   const chunkContainer = {
     height: "100%",
     display: "flex",
     position: "relative",
-    // j
-    // width: 15,
-    // bottom: 0,
   } as React.CSSProperties;
 
   const cur_state_filters = useStoreState((state) => state.map_data.filter);
@@ -78,11 +59,7 @@ const GridChunk = ({ count, filter, base_color }: GridChunkProps) => {
     }
     if (cur_filters.some((f) => f === null)) {
       return base_color;
-    }
-    // if (cur_filters !== null && cur_filters != filter){
-    //   return -2
-    // }
-    else {
+    } else {
       return is_hovered ? -1 : base_color;
     }
   };

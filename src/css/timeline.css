@@ -1,0 +1,10 @@
+.x > .tick > line {
+  stroke-dasharray: 1, 2;
+  stroke: steelblue !important;
+}
+
+text {
+  font-family: "Audimat";
+  font-size: medium;
+  fill: #5794a5 !important;
+}

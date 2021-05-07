@@ -37,7 +37,6 @@ function App() {
   return (
     <ThemeProvider value={myCustomTheme}>
       <Grid container spacing={0}>
-        {/* <Grid container spacing={0} style={{}}> */}
         <Grid item md={12} lg={12}>
           <Toolbar />
         </Grid>

@@ -20,7 +20,8 @@ import Baseline from "./TimeSeries/components/Baseline";
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { EventLevel } from "../model/enums";
-
+import "../css/timeline.css";
+import { convertTypeAcquisitionFromJson } from "typescript";
 interface Seperator {
   pos: number;
   name: string;
@@ -41,31 +42,15 @@ const Timeline = function () {
     undefined
   );
   // const [timeSeriesCount, setTimeSeriesCount] = useState(0);
-  const [seperators, setSeperators] = useState<Seperator[]>([
-    // {
-    //   pos: 0,
-    //   name: EventLevel.national.toUpperCase(),
-    //   count: time_series.national.length,
-    // },
-    // {
-    //   pos: 1,
-    //   name: EventLevel.state.toUpperCase(),
-    //   count: time_series.state.length,
-    // },
-    // {
-    //   pos: 2,
-    //   name: EventLevel.city.toUpperCase(),
-    //   count: time_series.city.length,
-    // },
-  ]);
+  const [seperators, setSeperators] = useState<Seperator[]>([]);
   const theme = useTheme();
   const row_height = 15;
   // const row_height = 20;
   const start_date = new Date(1763, 0, 1);
   const end_date = new Date(2020, 0, 1);
   const is_sm = useMediaQuery(theme.breakpoints.up("sm"));
-  const data_loaded = useStoreState((state) => state.map_data.loaded);
-  const [width, setWidth] = useState(window.innerWidth);
+  // const data_loaded = useStoreState((state) => state.map_data.loaded);
+  // const [width, setWidth] = useState(window.innerWidth);
   function sum(acc: number, val: number) {
     return acc + val;
   }
@@ -124,13 +109,15 @@ const Timeline = function () {
     height: "100%",
     top: 0,
     zIndex: -1,
-    opacity: 0.5,
+    opacity: 1.0,
   } as React.CSSProperties;
 
   const seperatorText = {
-    fontSize: "9px",
+    fontSize: "12px",
     position: "absolute",
-    color: "lightgrey",
+    // color: "lightgrey",
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.primary.main,
   } as React.CSSProperties;
 
   const historicalEventsText = {
@@ -158,19 +145,53 @@ const Timeline = function () {
       };
 
       function style_func(s: any, state: any) {
-        if (state == "hover") {
-          console.log("got hover");
-          return {
+        // console.log(state);
+        let style: any;
+
+        switch (state) {
+          case "hover":
+            style = {
+              fill: theme.palette.primary.light,
+              opacity: 1.0,
+              fontFamily: theme.typography.fontFamily,
+            };
+            break;
+          case "selected":
+            style = {
+              fill: theme.palette.primary.dark,
+              opacity: 1.0,
+              fontFamily: theme.typography.fontFamily,
+            };
+            break;
+          default:
+            style = base_style;
+        }
+        // e.data().first().get("title"));
+        if (s.data().first().get("title") === selectedEvent) {
+          console.log("got selected");
+          style = {
             fill: theme.palette.primary.light,
             opacity: 1.0,
+            fontFamily: theme.typography.fontFamily,
           };
         }
-        if (state == "selected") {
-          return {
-            fill: theme.palette.primary.dark,
-            opacity: 1.0,
-          };
-        }
+        return style;
+
+        // if (state == "hover") {
+        //   console.log("got hover");
+        //   return {
+        //     fill: theme.palette.primary.light,
+        //     opacity: 1.0,
+        //     fontFamily: theme.typography.fontFamily,
+        //   };
+        // }
+        // if (state == "selected") {
+        //   return {
+        //     fill: theme.palette.primary.dark,
+        //     opacity: 1.0,
+        //     fontFamily: theme.typography.fontFamily,
+        //   };
+        // }
         return base_style;
       }
       function label_func(e: any) {
@@ -182,8 +203,7 @@ const Timeline = function () {
         let found_row = event_rows.filter((r) => r.title === title)[0];
 
         setEventInfo(found_row);
-        setSelectedEvent(e);
-        console.log(found_row);
+        setSelectedEvent(title);
         console.log(getAllFuncs(e));
       }
       return (
@@ -227,7 +247,7 @@ const Timeline = function () {
                 <div
                   key={i}
                   style={{
-                    borderTop: "1px solid lightgrey",
+                    borderTop: `1px solid ${theme.palette.primary.main}`,
                     top: `${sep.pos * 100}%`,
                     position: "relative",
                   }}
@@ -238,24 +258,6 @@ const Timeline = function () {
                 </div>
               );
             })}
-            {/* {seperators.map(function (f: Seperator, i: number) {
-              let tf: string = parseFloat(`${f.pos}&`).toFixed(2);
-              const testtest = {
-                paddingTop: 0,
-                position: "relative",
-                top: tf,
-                // height: "0px",
-                borderTop: `1px solid lightgrey`,
-              } as React.CSSProperties;
-
-              return (
-                <div key={f.pos} style={testtest}>
-                  <Text key={f.pos} style={seperatorText}>
-                    {f.name}
-                  </Text>
-                </div>
-              );
-            })} */}
           </div>
           <div
             style={{ height: "100%", width: "2000" }}
@@ -270,9 +272,7 @@ const Timeline = function () {
                 timeAxisTickCount={5}
               >
                 {make_series(time_series.national, theme, row_height)}
-
                 {make_series(time_series.state, theme, row_height)}
-
                 {make_series(time_series.city, theme, row_height)}
                 {make_series(time_series.international, theme, row_height)}
                 {make_series(time_series.NA, theme, row_height)}

@@ -59,6 +59,7 @@ const SelectorGroup = ({ title, children, filter }: SelectorGroupProps) => {
       marginBottom: "auto",
       paddingRight: "1em",
       fontFamily: theme.typography.fontFamily,
+      // color: theme.colorShades.main_0,
       color: theme.palette.primary.main,
     };
     console.log(fs);
