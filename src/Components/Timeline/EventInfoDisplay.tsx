@@ -23,12 +23,14 @@ function EventInfoDisplay({ info }: EventInfoDisplayProps) {
   const theme = useTheme();
   const infoContainer = {
     height: "100%",
+    // fontFamily: theme.typography.fontFamily,
     // border: `1px solid ${theme.palette.primary.main}`,
   } as React.CSSProperties;
   const infoBody = {
     color: theme.palette.primary.main,
-    fontSize: "9pt",
-    lineHeight: "9pt",
+    fontSize: "medium",
+    // lineHeight: "9pt",
+    paddingTop: ".5em",
   } as React.CSSProperties;
 
   const infoHeader = {
@@ -63,7 +65,7 @@ function EventInfoDisplay({ info }: EventInfoDisplayProps) {
     <div style={infoContainer}>
       <Scrollbars style={{ width: "100%", height: "100%" }}>
         <Text style={infoHeader}>
-          <Paragraph>{data.title}</Paragraph>
+          <Paragraph style={infoHeader}>{data.title}</Paragraph>
         </Text>
         <Text style={paragraph}>
           <Paragraph style={paragraph}>{data.info}</Paragraph>

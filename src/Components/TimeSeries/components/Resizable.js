@@ -50,6 +50,7 @@ export default class Resizable extends React.Component {
         // width: this.container.offsetWidth,
         // width: this.props.width,
         width: 0.8 * window.innerWidth,
+        // width: 0.8 * window.innerWidth,
       });
     }
   }

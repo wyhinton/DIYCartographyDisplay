@@ -658,26 +658,12 @@ function make_time_series(rows: EventRow[]): TimelineData {
   const categorized_events = groupBy(rows, "category");
   console.log(categorized_events);
   Object.keys(categorized_events).forEach((key) => {
+    console.log(key);
     const value: EventRow[] = categorized_events[key];
-    console.log(value);
-    // try {
-    console.log("HELLO THERE!");
     const events = event_rows_to_time_range_events(value);
-    console.log(events);
     const series = time_range_events_to_time_series(events);
-
-    // console.log(series);
     categorized_events[key] = series;
-
-    // const series = event_rows_to_time_range_events(value);
-    // console.log(series);
-    // categorized_events[key] = series;
-    // } catch (err) {
-    //   console.error("error converting to series");
-    // }
-    // const series = event_rows_to_time_range_events(value);
     console.log(series);
-    // categorized_events[key] = series;
   });
   console.log(categorized_events);
   return categorized_events;
@@ -703,6 +689,58 @@ function event_rows_to_time_range_events(rows: EventRow[]): TimeRangeEvent[] {
 function time_range_events_to_time_series(
   events: TimeRangeEvent[]
 ): TimeSeries[] {
+  let array_set: { [key: string]: any[] } = {};
+  let row_count = 0;
+  // for (let index = 0; index < events.length; index++) {
+  //   console.log(index);
+  //   const element = events[index];
+  //   if (Array.isArray(array_set[`row_${row_count}`]) == false) {
+  //     array_set[`row_${row_count}`] = [];
+  //   }
+  //   let test = array_set[`row_${row_count}`].every(
+  //     (d: TimeRangeEvent) =>
+  //       date_range_overlaps(
+  //         d.begin(),
+  //         d.end(),
+  //         element.begin(),
+  //         element.end()
+  //       ) == false
+  //   );
+  //   if (test) {
+  //     if (row_count > 0) {
+  //       array_set[`row_${row_count - 1}`].push(element);
+  //       // }
+  //     } else {
+  //       array_set[`row_${row_count}`].push(element);
+  //     }
+  //   } else {
+  //     row_count += 1;
+  //     array_set[`row_${row_count}`].push(element);
+  //   }
+  //   console.log(test);
+  //   console.log(array_set);
+  //   // if (
+  //   //   array_set[`row_${row_count}`].every(
+  //   //     (d: TimeRangeEvent) =>
+  //   //       date_range_overlaps(
+  //   //         d.begin(),
+  //   //         d.end(),
+  //   //         element.begin(),
+  //   //         element.end()
+  //   //       ) == false
+  //   //   )
+  //   // ) {
+  //   //   console.log("no overlap, going to push");
+  //   //   array_set[`row_${row_count}`].push(element);
+  //   //   console.log(array_set);
+  //   // } else {
+  //   //   // console.log("GOT overlap, MAKE NEW ROW");
+  //   //   // row_count += 1;
+  //   //   // array_set[`row_${row_count}`].push(element);
+  //   // }
+  //   // }
+  // }
+  // console.log(array_set);
   let test_obj: any = {};
   test_obj[0] = [];
   (events as TimeRangeEvent[]).forEach(

@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.css": "/static/css/main.b27b9360.chunk.css",
-    "main.js": "/static/js/main.7bc1b0d4.chunk.js",
-    "main.js.map": "/static/js/main.7bc1b0d4.chunk.js.map",
+    "main.css": "/static/css/main.3ca946d8.chunk.css",
+    "main.js": "/static/js/main.a8e04993.chunk.js",
+    "main.js.map": "/static/js/main.a8e04993.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.25c079ce.js",
     "runtime-main.js.map": "/static/js/runtime-main.25c079ce.js.map",
     "static/css/2.19627560.chunk.css": "/static/css/2.19627560.chunk.css",
@@ -12,7 +12,7 @@
     "static/js/3.4d4284e2.chunk.js.map": "/static/js/3.4d4284e2.chunk.js.map",
     "index.html": "/index.html",
     "static/css/2.19627560.chunk.css.map": "/static/css/2.19627560.chunk.css.map",
-    "static/css/main.b27b9360.chunk.css.map": "/static/css/main.b27b9360.chunk.css.map",
+    "static/css/main.3ca946d8.chunk.css.map": "/static/css/main.3ca946d8.chunk.css.map",
     "static/js/2.4e2628b4.chunk.js.LICENSE.txt": "/static/js/2.4e2628b4.chunk.js.LICENSE.txt",
     "static/media/App.css": "/static/media/Audimat-Mono.ttf.1686c2dd.woff",
     "static/media/slick-theme.css": "/static/media/slick.c94f7671.ttf"
@@ -21,7 +21,7 @@
     "static/js/runtime-main.25c079ce.js",
     "static/css/2.19627560.chunk.css",
     "static/js/2.4e2628b4.chunk.js",
-    "static/css/main.b27b9360.chunk.css",
-    "static/js/main.7bc1b0d4.chunk.js"
+    "static/css/main.3ca946d8.chunk.css",
+    "static/js/main.a8e04993.chunk.js"
   ]
 }

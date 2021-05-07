@@ -1,6 +1,6 @@
 .x > .tick > line {
   stroke-dasharray: 1, 2;
-  stroke: steelblue !important;
+  stroke: #5794a5 !important;
 }
 
 text {

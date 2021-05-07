@@ -24,13 +24,14 @@ import "../css/timeline.css";
 import { convertTypeAcquisitionFromJson } from "typescript";
 interface Seperator {
   pos: number;
+  // pos: string;
   name: string;
   // count: number;
 }
 
 const Timeline = function () {
   const time_series = useStoreState((state) => state.map_data.timeline_series);
-
+  const timeline_offset = "6em";
   const event_rows: EventRow[] = useStoreState(
     (state) => state.map_data.event_spreadsheet
   );
@@ -56,9 +57,6 @@ const Timeline = function () {
   }
 
   useEffect(() => {
-    // function sum(acc: number, val: TimeSeries[]): number {
-    //   return acc + val.length;
-    // }
     let tot = 0;
     Object.values(time_series).forEach((f) => {
       tot += f.length;
@@ -110,6 +108,7 @@ const Timeline = function () {
     top: 0,
     zIndex: -1,
     opacity: 1.0,
+    textAlign: "right",
   } as React.CSSProperties;
 
   const seperatorText = {
@@ -118,6 +117,7 @@ const Timeline = function () {
     // color: "lightgrey",
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.primary.main,
+    textAlilgn: "right",
   } as React.CSSProperties;
 
   const historicalEventsText = {
@@ -176,23 +176,6 @@ const Timeline = function () {
           };
         }
         return style;
-
-        // if (state == "hover") {
-        //   console.log("got hover");
-        //   return {
-        //     fill: theme.palette.primary.light,
-        //     opacity: 1.0,
-        //     fontFamily: theme.typography.fontFamily,
-        //   };
-        // }
-        // if (state == "selected") {
-        //   return {
-        //     fill: theme.palette.primary.dark,
-        //     opacity: 1.0,
-        //     fontFamily: theme.typography.fontFamily,
-        //   };
-        // }
-        return base_style;
       }
       function label_func(e: any) {
         return e.data().first().get("title");
@@ -247,20 +230,37 @@ const Timeline = function () {
                 <div
                   key={i}
                   style={{
-                    borderTop: `1px solid ${theme.palette.primary.main}`,
+                    // borderTop: `1px solid ${theme.palette.primary.main}`,
+                    textAlign: "right",
                     top: `${sep.pos * 100}%`,
                     position: "relative",
                   }}
                 >
-                  <Text key={i} style={seperatorText}>
-                    {sep.name.toUpperCase()}
-                  </Text>
+                  <div
+                    style={{
+                      borderTop: `1px solid ${theme.palette.primary.main}`,
+                      top: `${sep.pos * 100}%`,
+                      position: "relative",
+                      marginLeft: timeline_offset,
+                    }}
+                  ></div>
+                  <div
+                    style={{
+                      width: 100,
+                      marginLeft: "-6em",
+                    }}
+                  >
+                    {/* <div style={{ width: 100, marginLeft: timeline_offset }}> */}
+                    <Text key={i} style={seperatorText}>
+                      {sep.name.toUpperCase()}
+                    </Text>
+                  </div>
                 </div>
               );
             })}
           </div>
           <div
-            style={{ height: "100%", width: "2000" }}
+            style={{ height: "100%", width: "1000", marginLeft: "6em" }}
             ref={timeline_container}
           >
             <Resizable width={resizeWidth}>

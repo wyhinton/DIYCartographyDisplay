@@ -12,7 +12,7 @@ type SelectorParentProps = {
 const SelectorParent = ({ children, columns }: SelectorParentProps) => {
   const test = "ddd  ";
   const theme = useTheme();
-  const padding = "0em 0em 0em .25em";
+  const padding = "0.25em 0em 0em .25em";
   const selectorGroup = {
     padding: padding,
     height: "100%",
