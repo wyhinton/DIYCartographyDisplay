@@ -21,7 +21,7 @@ function Title() {
   } as React.CSSProperties;
   const titleContainer = {
     paddingBottom: "1em",
-    paddingTop: "1em",
+    paddingTop: ".5em",
   };
 
   return (

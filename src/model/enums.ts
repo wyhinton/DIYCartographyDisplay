@@ -17,11 +17,19 @@ export enum AuthorDisciplineFilter {
   LANDSCAPE_2020 = "LANDSCAPE_2020",
 }
 
+export enum FilterState {
+  SOLO = "SOLO",
+  DEACTIVATED = "DEACTIVATED",
+  DEFAULT = "DEFAULT",
+}
+// export
+
 export enum EventLevel {
   national = "national",
   state = "state",
   city = "city",
   international = "international",
+  NA = "NA",
 }
 
 export enum FilterGroup {

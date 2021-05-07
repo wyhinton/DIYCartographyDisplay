@@ -19,13 +19,19 @@ import PropTypes from "prop-types";
 export default class Resizable extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { width: 500 };
+    // this.state = { width: 500 };
+    console.log(this.props.width);
+    // console.log(this.props.parent.width);
+    // console.log(this.props.parent);
+    // console.log(this.props.parent.innerWidth);
+    this.state = { width: this.props.width };
+    // this.state = { width: "100%" };
     this.handleResize = this.handleResize.bind(this);
   }
 
   componentDidMount() {
     window.addEventListener("resize", this.handleResize);
-    console.log("got resize mount");
+    // console.log("got resize mount");
     this.handleResize();
   }
 
@@ -34,13 +40,16 @@ export default class Resizable extends React.Component {
   }
   //TEMPORARY SOLUTION FOR GETTING RESIZE TO WORK
   handleResize() {
-    console.log(this.container);
-    console.log(this.container.width);
+    // console.log(this.container)
+    // console.log(this.container.width);
+    console.log(this.props.width);
     if (this.container) {
+      // console.log(this.props.parent.width);
       this.setState({
         // width: this.container.width,
         // width: this.container.offsetWidth,
-        width: window.innerWidth,
+        // width: this.props.width,
+        width: 0.8 * window.innerWidth,
       });
     }
   }
@@ -65,4 +74,6 @@ export default class Resizable extends React.Component {
 
 Resizable.propTypes = {
   children: PropTypes.node,
+  // parent: PropTypes.any,
+  width: PropTypes.number,
 };

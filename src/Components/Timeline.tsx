@@ -1,5 +1,5 @@
 // import {v4 as uuid} from 'uuid';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTheme, Theme } from "@material-ui/core/styles";
 import { useStoreState } from "../hooks";
 import { Text } from "evergreen-ui";
@@ -24,7 +24,7 @@ import { EventLevel } from "../model/enums";
 interface Seperator {
   pos: number;
   name: string;
-  count: number;
+  // count: number;
 }
 
 const Timeline = function () {
@@ -33,31 +33,33 @@ const Timeline = function () {
   const event_rows: EventRow[] = useStoreState(
     (state) => state.map_data.event_spreadsheet
   );
+  const initial_width = 2000;
+  const timeline_container = useRef<HTMLDivElement | null>(null);
   const [eventInfo, setEventInfo] = useState<EventRow | undefined>(undefined);
+  const [resizeWidth, setResizeWidth] = useState(initial_width);
   const [selectedEvent, setSelectedEvent] = useState<TimeSeries | undefined>(
     undefined
   );
-  const [chartHeight, setChartHeight] = useState(0);
-  const [timeSeriesCount, setTimeSeriesCount] = useState(0);
-  const [seperators, setSeperators] = useState([
-    {
-      pos: 0,
-      name: EventLevel.national.toUpperCase(),
-      count: time_series.national.length,
-    },
-    {
-      pos: 1,
-      name: EventLevel.state.toUpperCase(),
-      count: time_series.state.length,
-    },
-    {
-      pos: 2,
-      name: EventLevel.city.toUpperCase(),
-      count: time_series.city.length,
-    },
+  // const [timeSeriesCount, setTimeSeriesCount] = useState(0);
+  const [seperators, setSeperators] = useState<Seperator[]>([
+    // {
+    //   pos: 0,
+    //   name: EventLevel.national.toUpperCase(),
+    //   count: time_series.national.length,
+    // },
+    // {
+    //   pos: 1,
+    //   name: EventLevel.state.toUpperCase(),
+    //   count: time_series.state.length,
+    // },
+    // {
+    //   pos: 2,
+    //   name: EventLevel.city.toUpperCase(),
+    //   count: time_series.city.length,
+    // },
   ]);
   const theme = useTheme();
-  const row_height = 40;
+  const row_height = 15;
   // const row_height = 20;
   const start_date = new Date(1763, 0, 1);
   const end_date = new Date(2020, 0, 1);
@@ -69,39 +71,36 @@ const Timeline = function () {
   }
 
   useEffect(() => {
-    const time_series_count =
-      time_series.state.length +
-      time_series.city.length +
-      time_series.national.length;
-
-    console.log(event_rows);
-    console.log(time_series);
-    console.log(time_series_count);
-    // setChartHeight(row_height * time_series_count);
-    setTimeSeriesCount(time_series_count);
-    const lengths = [
-      time_series.state.length,
-      time_series.city.length,
-      time_series.national.length,
-    ];
-    const heights = lengths.map((l) => l / timeSeriesCount);
-    // console.log(heights)
-    // const poss = heights.map((h,i,a)=>a.slice(0,i).reduce(sum))
-    console.log(heights[2]);
-    const poss = [heights[0], heights[0 + 1]];
-    poss.push(poss[0] + poss[1]);
-    poss.forEach((p: number, i: number) => {
-      // sc = Object.assign()
-      seperators[i].pos = p;
-      // seperators[i].pos = 1 - p
+    // function sum(acc: number, val: TimeSeries[]): number {
+    //   return acc + val.length;
+    // }
+    let tot = 0;
+    Object.values(time_series).forEach((f) => {
+      tot += f.length;
     });
-    setSeperators(seperators);
-    console.log(seperators);
-    console.log(seperators.length);
+    console.log(tot);
+    let seperators: Seperator[] = [];
+    let keys = Object.keys(time_series);
 
-    console.log(poss);
-    console.log(lengths, heights, poss);
-  }, [data_loaded, event_rows, time_series]);
+    let test = 0;
+    if (tot > 0) {
+      let top = 1.0;
+      Object.values(time_series).forEach((f, i) => {
+        console.log(f.length / tot);
+        top -= f.length / tot;
+        console.log(top);
+        test += f.length / tot;
+        let sep = {
+          pos: top,
+          name: keys[i],
+        } as Seperator;
+        seperators.push(sep);
+      });
+      setSeperators(seperators);
+      console.log(seperators);
+      console.log(test);
+    }
+  }, [time_series]);
   useEffect(() => {}, [seperators]);
   const timelineSection = {
     // height: 'fit-content',
@@ -112,6 +111,13 @@ const Timeline = function () {
     display: is_sm ? "inline-flex" : "none",
   } as React.CSSProperties;
 
+  useEffect(() => {
+    let test = timeline_container?.current?.style?.width;
+    console.log(test);
+    let test_number = parseInt(test ?? "2000");
+    console.log(test_number);
+    setResizeWidth(parseInt(test ?? "2000"));
+  }, [timeline_container]);
   const linesContainer = {
     position: "absolute",
     width: "100%",
@@ -207,48 +213,58 @@ const Timeline = function () {
     <Grid container spacing={0} style={timelineSection}>
       <Grid item xs={2}>
         {/* <div></div> */}
-        <Text style={historicalEventsText}>
+        {/* <Text style={historicalEventsText}>
           <span> HISTORICAL EVENTS</span>
         </Text>
+        <EventInfoDisplay info={eventInfo}></EventInfoDisplay> */}
         <EventInfoDisplay info={eventInfo}></EventInfoDisplay>
       </Grid>
       <Grid item xs={10} style={{ paddingTop: ".25em" }}>
         <div style={{ position: "relative", height: "200px" }}>
           <div style={linesContainer}>
-            {seperators.map(function (f: Seperator, i: number) {
-              let tf: string = parseFloat(`${f.pos}`).toFixed(2);
-              console.log(tf);
-              if (Math.floor(f.pos) === f.pos) {
-                console.log(i);
-                console.log(f);
-                console.log(f.pos * 100);
-                let test_top: string = `${parseFloat(tf) * 100}%`;
-
-                // conosol
-                const testtest = {
-                  paddingTop: test_top,
-                  position: "relative",
-                  height: "0px",
-                  borderTop: `1px solid lightgrey`,
-                } as React.CSSProperties;
-
-                return (
-                  <div key={f.pos} style={testtest}>
-                    <Text key={f.pos} style={seperatorText}>
-                      {f.name}
-                    </Text>
-                  </div>
-                );
-              }
+            {seperators.map((sep, i) => {
+              return (
+                <div
+                  key={i}
+                  style={{
+                    borderTop: "1px solid lightgrey",
+                    top: `${sep.pos * 100}%`,
+                    position: "relative",
+                  }}
+                >
+                  <Text key={i} style={seperatorText}>
+                    {sep.name.toUpperCase()}
+                  </Text>
+                </div>
+              );
             })}
+            {/* {seperators.map(function (f: Seperator, i: number) {
+              let tf: string = parseFloat(`${f.pos}&`).toFixed(2);
+              const testtest = {
+                paddingTop: 0,
+                position: "relative",
+                top: tf,
+                // height: "0px",
+                borderTop: `1px solid lightgrey`,
+              } as React.CSSProperties;
+
+              return (
+                <div key={f.pos} style={testtest}>
+                  <Text key={f.pos} style={seperatorText}>
+                    {f.name}
+                  </Text>
+                </div>
+              );
+            })} */}
           </div>
-          <div style={{ height: "100%", width: "2000" }}>
-            <Resizable>
+          <div
+            style={{ height: "100%", width: "2000" }}
+            ref={timeline_container}
+          >
+            <Resizable width={resizeWidth}>
               <ChartContainer
                 timeRange={timerange}
                 enablePanZoom={false}
-                width={width * 0.75}
-                // width = {data_loaded?1000:1005}
                 showGrid={true}
                 timeAxisStyle={timeAxis}
                 timeAxisTickCount={5}
@@ -258,6 +274,8 @@ const Timeline = function () {
                 {make_series(time_series.state, theme, row_height)}
 
                 {make_series(time_series.city, theme, row_height)}
+                {make_series(time_series.international, theme, row_height)}
+                {make_series(time_series.NA, theme, row_height)}
               </ChartContainer>
             </Resizable>
           </div>

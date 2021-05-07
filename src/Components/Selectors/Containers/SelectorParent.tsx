@@ -13,12 +13,6 @@ const SelectorParent = ({ children, columns }: SelectorParentProps) => {
   const test = "ddd  ";
   const theme = useTheme();
   const padding = "0em 0em 0em .25em";
-  // const clusterContainer = {
-  //   height: "76%",
-  //   padding: 0,
-  //   columns: columns ?? 12,
-  // } as React.CSSProperties;
-
   const selectorGroup = {
     padding: padding,
     height: "100%",

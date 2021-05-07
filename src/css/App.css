@@ -1,8 +1,8 @@
 @import url();
 
-@font-face{
-  font-family: 'Audimat';
-  src: url('fonts/Audimat-Mono.ttf.woff') format("woff")
+@font-face {
+  font-family: "Audimat";
+  src: url("fonts/Audimat-Mono.ttf.woff") format("woff");
 }
 
 .App {
@@ -21,8 +21,8 @@
 }
 
 @media only screen and (max-width: 600px) {
-  .title-padding{
-    display: none
+  .title-padding {
+    display: none;
   }
 }
 
@@ -41,16 +41,18 @@
   color: #61dafb;
 }
 
-#root{
+#root {
   height: 100%;
 }
 
-html, body {
+/* html, */
+body {
   margin: 0;
-  height: 100%;
-  padding: 1em;
+  contain: layout;
+  /* height: 100%; */
+  padding: 2em;
 }
 
-.ReactGridGallery_tile-viewport:hover{
-  outline: 1px solid #739eae
+.ReactGridGallery_tile-viewport:hover {
+  outline: 1px solid #739eae;
 }
