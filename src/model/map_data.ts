@@ -4,12 +4,13 @@ import GetSheetDone from "get-sheet-done";
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
 import {
   AuthorDisciplineFilter,
-  TopicSubCategoryFilter,
+  MapSubTopic,
   ThemeCategoryFilter,
   EventLevel,
   GalleryFilterType,
   EventType,
   FilterGroup,
+  Topic,
 } from "./enums";
 import type { FilterOption } from "./types";
 
@@ -25,7 +26,7 @@ export interface GalleryImage {
 
 export interface MapMetadata {
   discipline: AuthorDisciplineFilter;
-  subtopic: TopicSubCategoryFilter;
+  subtopic: MapSubTopic;
   theme: ThemeCategoryFilter;
   year: any;
 }
@@ -52,17 +53,17 @@ export interface MapRow {
   tags: string;
   discipline: string;
   theme: string;
-  // series0101: string,
-  // series0102: string,
-  // series0201: string,
-  // series0202: string,
-  // series0301: string,
-  // series0302: string,
-  photo1: string;
-  photo2: string;
-  photo3: string;
-  photo4: string;
-  photo5: string;
+  series0101: string;
+  series0102: string;
+  series0201: string;
+  series0202: string;
+  series0301: string;
+  series0302: string;
+  // photo1: string;
+  // photo2: string;
+  // photo3: string;
+  // photo4: string;
+  // photo5: string;
   thumbnail: string;
   year: string;
   subtopic: string;
@@ -163,6 +164,7 @@ export interface MapDataModel {
   event_spreadsheet: EventRow[];
   active_images: GalleryImage[];
   gallery_images: GalleryImage[];
+  all_images: GalleryImage[];
   timeline_series: TimelineData;
   loaded: boolean;
   active_lightbox: LightBoxContent;
@@ -172,6 +174,7 @@ export interface MapDataModel {
   set_map_spreadsheet: Action<MapDataModel, MapRow[]>;
   set_map_stats: Action<MapDataModel, MapStats>;
   set_event_spreadsheet: Action<MapDataModel, EventRow[]>;
+  set_all_images: Action<MapDataModel, GalleryImage[]>;
   set_gallery_images: Action<MapDataModel, GalleryImage[]>;
   set_active_images: Action<MapDataModel, GalleryImage[]>;
   set_timeline_series: Action<MapDataModel, TimelineData>;
@@ -218,11 +221,12 @@ const init_map_stats: MapStats = {
 };
 
 const map_data: MapDataModel = {
-  active_images: [],
   filter: [],
   group_filter: FilterGroup.NONE,
-  multi_tag: [],
+  active_images: [],
   gallery_images: [],
+  all_images: [],
+  multi_tag: [],
   timeline_series: initial_empty_timeline,
   loaded: false,
   active_lightbox: lb_initial,
@@ -238,11 +242,13 @@ const map_data: MapDataModel = {
       events: event_rows,
       maps: map_rows,
     };
-    //get maps sheet
-    let test_2018 = get_map_sheet(DOC_KEY, 3);
-    let test_2020 = get_map_sheet(DOC_KEY, 4);
-    let test_2016 = get_map_sheet(DOC_KEY, 5);
-    let map_sheets = [test_2018, test_2020, test_2016];
+    //get maps sheet\
+    let test_2016 = get_map_sheet(DOC_KEY, 3);
+    // let test_2018 = get_map_sheet(DOC_KEY, 3);
+    // let test_2020 = get_map_sheet(DOC_KEY, 4);
+
+    let map_sheets = [test_2016];
+    // let map_sheets = [test_2018, test_2020, test_2016];
 
     Promise.all(map_sheets).then((sheet_data: (void | MapRow[])[]) => {
       let gallery_image_responses: ImagePromise[] = [];
@@ -255,6 +261,7 @@ const map_data: MapDataModel = {
           let image_responses: ImagePromise[] = unsized_gallery_images.map(
             (gi: GalleryImage) => get_image(gi)
           );
+          console.log(unsized_gallery_images);
           gallery_image_responses.push(...image_responses);
           all_unsized_images.push(...unsized_gallery_images);
           map_data.maps.push(...sheet_payload);
@@ -262,6 +269,7 @@ const map_data: MapDataModel = {
           console.error("did not get map row array");
         }
       });
+
       Promise.all(gallery_image_responses).then((res: HTMLImageElement[]) => {
         let sized_gallery_images = all_unsized_images.map(function (
           def_img: GalleryImage,
@@ -276,7 +284,6 @@ const map_data: MapDataModel = {
         actions.set_active_images(sized_gallery_images);
       });
       const map_stats = generate_map_stats(map_data.maps);
-      // console.log(map_stats);
       actions.set_map_stats(map_stats);
       actions.set_map_spreadsheet(map_data.maps);
       actions.set_loaded(true);
@@ -286,9 +293,9 @@ const map_data: MapDataModel = {
       .then((event_sheet: LabeledCols<EventRow>) => {
         const typed_event_rows = type_event_rows(event_sheet.data);
         actions.set_event_spreadsheet(typed_event_rows);
-        console.log(typed_event_rows);
+        // console.table(typed_event_rows);
         const timeline_series = make_time_series(typed_event_rows);
-        console.log(timeline_series);
+        // console.table(timeline_series);
 
         actions.set_timeline_series(timeline_series);
         actions.set_loaded(true);
@@ -307,8 +314,10 @@ const map_data: MapDataModel = {
     state.map_stats = map_stats_obj;
   }),
   set_event_spreadsheet: action((state, event_rows) => {
-    console.log(event_rows);
     state.event_spreadsheet = event_rows;
+  }),
+  set_all_images: action((state, payload) => {
+    state.all_images = payload;
   }),
   set_gallery_images: action((state, payload) => {
     state.gallery_images = payload;
@@ -317,8 +326,6 @@ const map_data: MapDataModel = {
     state.active_images = payload;
   }),
   filter_gallery_2: action((state, filter_result) => {
-    console.log(filter_result.filters, state.filter);
-    console.log(filter_result.filters, debug(state.filter));
     if (arraysEqual(filter_result.filters, debug(state.filter))) {
       state.filter = [];
       state.active_images = state.gallery_images;
@@ -327,28 +334,14 @@ const map_data: MapDataModel = {
       state.active_images = state.gallery_images.filter(
         filter_result.filter_func
       );
-      console.log(state.gallery_images.filter(filter_result.filter_func));
       state.filter = filter_result.filters;
     }
   }),
   set_timeline_series: action((state, timeline_series) => {
-    console.log(timeline_series);
-    console.log(Object.values(timeline_series));
-    Object.values(timeline_series).forEach((ar: TimeSeries[]) => {
-      console.log(ar);
-      ar.forEach((ts) => {
-        console.log(ts.events());
-      });
-    });
-    // timeline_series.forEach(ts=>{
-    //   console.log(ts.events());
-    // })
     state.timeline_series = timeline_series;
   }),
   set_group_filter: action((state, group_filter) => {
     console.log("setting group filter", group_filter);
-    // console.log(debug(state.group_filter), group_filter);
-    // console.log(debug(state.group_filter), group_filter);
     if (state.group_filter === group_filter) {
       console.log("GOT SAME");
       state.group_filter = FilterGroup.NONE;
@@ -381,11 +374,7 @@ const map_data: MapDataModel = {
           filters: filter_set,
         } as FilterResult;
       } else {
-        console.log("GOT TO NON YEAR");
         const filter_func = function (val: GalleryImage) {
-          console.log(filter_set);
-          console.log(val.tags[0][cat]);
-          console.log(filter_set.includes(val.tags[0][cat]));
           return filter_set.includes(val.tags[0][cat]);
         };
         return {
@@ -396,8 +385,6 @@ const map_data: MapDataModel = {
     }
 
     function get_group_filter(f: FilterOption): FilterResult {
-      let filter_func: any;
-      let filters: FilterOption[] = [];
       let final_result = {
         filter_func: "aaa",
         filters: [],
@@ -477,12 +464,7 @@ const map_data: MapDataModel = {
 
     function get_single_filter(f: FilterOption): FilterResult {
       let filter_func: any;
-      let filters: FilterOption[] = [];
-      if (
-        Object.values(TopicSubCategoryFilter).includes(
-          f as TopicSubCategoryFilter
-        )
-      ) {
+      if (Object.values(MapSubTopic).includes(f as MapSubTopic)) {
         filter_func = function (val: GalleryImage) {
           return val.tags[0].subtopic === f;
         };
@@ -532,7 +514,8 @@ const map_data: MapDataModel = {
   }),
   set_active_lightbox: action((state, item) => {
     let source_row = state.map_spreadsheet.filter(
-      (r) => r.photo1 === item.src
+      (r) => r.series0101 === item.src
+      // (r) => r.photo1 === item.src
     )[0];
     let photo_sources: PhotoInfo[] = [];
     Object.keys(source_row).forEach(function (k: string) {
@@ -589,10 +572,6 @@ function generate_year_discpline_stats(
     let cats = Object.keys(year_breakdown);
     let final_data: any = {};
     cats.forEach((c) => {
-      // console.log(year_groups[k]);
-      // console.log(year_breakdown[c]);
-      // console.log(year_groups[k].length);
-      // console.log(year_groups[k].length);
       final_data[c] = Math.round(
         (year_breakdown[c].length / year_groups[yg_keys[i]].length) *
           max_unit_count
@@ -677,7 +656,6 @@ function event_rows_to_time_range_events(rows: EventRow[]): TimeRangeEvent[] {
     const data: EventData = {
       title: event_row.title,
     };
-    console.log(data);
     const time_range_event = new TimeRangeEvent(time_range, [data]);
     all_events.push(time_range_event);
   });
@@ -763,7 +741,6 @@ function time_range_events_to_time_series(
         })
       ) {
         test_obj[row_count].push(ev2);
-        console.log(row_count);
       } else {
         row_count = row_count + 1;
         test_obj[ind] = [ev2];
@@ -775,13 +752,11 @@ function time_range_events_to_time_series(
   });
   const row_arrays = Object.keys(sorted_events).map(
     (k) =>
-      // console.log(test_obj[k])
       new TimeSeries({
         name: "test",
         events: test_obj[k],
       })
   );
-  console.log(row_arrays);
   return row_arrays;
 }
 
@@ -797,11 +772,39 @@ function date_range_overlaps(
   return false;
 }
 
+// interface BaseImage{
+//   src: string,
+//   author: string,
+
+// }
+// function get_all_images(rows: MapRow[]):
+
+//maprow-> student
+//student-> gallery image and normal images
+
+interface Student {
+  title: string;
+  info: string;
+  discipline: AuthorDisciplineFilter;
+  author: string;
+  topic: Topic;
+  theme: ThemeCategoryFilter;
+  subtopic: MapSubTopic;
+  series0101: string;
+  series0102: string;
+  series0201: string;
+  series0202: string;
+  series0301: string;
+  series0303: string;
+}
+
 function map_rows_to_images(rows: MapRow[]): GalleryImage[] {
   let unsized_gallery_images: GalleryImage[] = rows.map((map_row: MapRow) => ({
-    src: map_row.photo1,
-    thumbnail: map_row.thumbnail,
+    src: map_row.series0101,
+    thumbnail: map_row.series0101,
+    // thumbnail: map_row.thumbnail,
     isSelected: false,
+    //TODO: SET UP CAPTIONS
     caption: "Im in this other file",
     thumbnailWidth: 95,
     thumbnailHeight: 174,
@@ -809,17 +812,18 @@ function map_rows_to_images(rows: MapRow[]): GalleryImage[] {
       {
         discipline:
           AuthorDisciplineFilter[
-            (map_row.discipline as unknown) as keyof typeof AuthorDisciplineFilter
+            map_row.discipline as unknown as keyof typeof AuthorDisciplineFilter
           ],
         subtopic:
-          TopicSubCategoryFilter[
-            ((map_row.tags +
+          MapSubTopic[
+            (map_row.tags +
+              // (map_row.tags +
               "_" +
-              map_row.subtopic) as unknown) as keyof typeof TopicSubCategoryFilter
+              map_row.subtopic) as unknown as keyof typeof MapSubTopic
           ],
         theme:
           ThemeCategoryFilter[
-            (map_row.theme as unknown) as keyof typeof ThemeCategoryFilter
+            map_row.theme as unknown as keyof typeof ThemeCategoryFilter
           ],
         year: map_row.year,
       },
@@ -838,10 +842,8 @@ function groupBy(arr: any[], property: any) {
 function type_event_rows(rows: any[]): EventRow[] {
   rows.forEach((r: any, ind: number) => {
     const cat_string: string = rows[ind]["category"];
-    console.log(cat_string);
     const type_cat: EventLevel =
-      EventLevel[(cat_string as unknown) as keyof typeof EventLevel];
-    console.log(type_cat);
+      EventLevel[cat_string as unknown as keyof typeof EventLevel];
     rows[ind]["category"] = type_cat;
     const start_date = new Date(rows[ind]["start"]);
     const end_date = new Date(rows[ind]["end"]);
@@ -856,10 +858,9 @@ function type_map_rows(rows: any[]): MapRow[] {
     const discipline_string: string = rows[ind]["discipline"];
     const type_cat: AuthorDisciplineFilter =
       AuthorDisciplineFilter[
-        (discipline_string as unknown) as keyof typeof AuthorDisciplineFilter
+        discipline_string as unknown as keyof typeof AuthorDisciplineFilter
       ];
     rows[ind]["discipline"] = type_cat;
-    // console.log(rows[ind]["catedisciplinegory"])
   });
   return rows;
 }
@@ -868,6 +869,7 @@ function get_image(image: GalleryImage): Promise<HTMLImageElement> {
   const promise = new Promise<HTMLImageElement>(function (resolve, reject) {
     let img = new Image();
     img.src = image.thumbnail;
+    // img.src = image.thumbnail;
     img.onload = () => {
       image.thumbnailHeight = img.height;
       image.thumbnailWidth = img.width;
@@ -964,37 +966,37 @@ function filter_group_to_set(group_enum: FilterGroup): FilterOption[] {
       break;
     case FilterGroup.BUILT_TOPIC:
       my_filters = [
-        TopicSubCategoryFilter.BE_ENERGY,
-        TopicSubCategoryFilter.BE_HOUSING,
-        TopicSubCategoryFilter.BE_TRANSPORTATION,
+        MapSubTopic.BE_INFRASTR,
+        MapSubTopic.BE_BUILDINGS,
+        MapSubTopic.BE_TRANSPORTATION,
       ];
       break;
     case FilterGroup.ECONOMIC_TOPIC:
       my_filters = [
-        TopicSubCategoryFilter.EE_COMMERCE,
-        TopicSubCategoryFilter.EE_COSTOFLIVING,
-        TopicSubCategoryFilter.EE_HOUSINGMARKET,
+        MapSubTopic.EE_WORK,
+        MapSubTopic.EE_PROPERTY,
+        MapSubTopic.EE_URBANDEV,
       ];
       break;
     case FilterGroup.NATURAL_TOPIC:
       my_filters = [
-        TopicSubCategoryFilter.NE_GREENSPACE,
-        TopicSubCategoryFilter.NE_POLLUTION,
-        TopicSubCategoryFilter.NE_WATER,
+        MapSubTopic.NE_GREENSPACE,
+        MapSubTopic.NE_POLLUTION,
+        MapSubTopic.NE_HYDROLOGY,
       ];
       break;
     case FilterGroup.POLITICAL_TOPIC:
       my_filters = [
-        TopicSubCategoryFilter.PE_ACTIVISM,
-        TopicSubCategoryFilter.PE_GOVERMENT,
-        TopicSubCategoryFilter.PE_LEGISLATION,
+        MapSubTopic.PE_CIVICENG,
+        MapSubTopic.PE_GOV,
+        MapSubTopic.PE_POLICY,
       ];
       break;
     case FilterGroup.SOCIAL_TOPIC:
       my_filters = [
-        TopicSubCategoryFilter.SE_EDUCATION,
-        TopicSubCategoryFilter.SE_HEALTH,
-        TopicSubCategoryFilter.SE_POPULATION,
+        MapSubTopic.SE_EDUCATION,
+        MapSubTopic.SE_HEALTH,
+        MapSubTopic.SE_RACEGEN,
       ];
       break;
     case FilterGroup.EQUITY_THEME:

@@ -1,8 +1,16 @@
-import {FilterGroup, AuthorDisciplineFilter, TopicSubCategoryFilter, ThemeCategoryFilter, EventLevel, GalleryFilterType, EventType} from './enums'
+import {
+  FilterGroup,
+  AuthorDisciplineFilter,
+  MapSubTopic,
+  ThemeCategoryFilter,
+  EventLevel,
+  GalleryFilterType,
+  EventType,
+} from "./enums";
 
-export type FilterOption =  
-    AuthorDisciplineFilter | 
-    TopicSubCategoryFilter | 
-    ThemeCategoryFilter |
-    FilterGroup |
-    null;
+export type FilterOption =
+  | AuthorDisciplineFilter
+  | MapSubTopic
+  | ThemeCategoryFilter
+  | FilterGroup
+  | null;

@@ -7,7 +7,7 @@ import { useStoreActions, useStoreState } from "../../hooks";
 import GridChunk from "./Grid/GridChunk";
 import {
   AuthorDisciplineFilter,
-  TopicSubCategoryFilter,
+  MapSubTopic,
   ThemeCategoryFilter,
   FilterGroup,
 } from "../../model/enums";
@@ -16,11 +16,7 @@ interface GridChunkProps {
   count: number;
   rows: number;
   cols: number;
-  filter:
-    | TopicSubCategoryFilter
-    | AuthorDisciplineFilter
-    | ThemeCategoryFilter
-    | null;
+  filter: MapSubTopic | AuthorDisciplineFilter | ThemeCategoryFilter | null;
 }
 
 const Themes = () => {

@@ -62,7 +62,6 @@ const SelectorGroup = ({ title, children, filter }: SelectorGroupProps) => {
       // color: theme.colorShades.main_0,
       color: theme.palette.primary.main,
     };
-    console.log(fs);
     switch (fs) {
       case FilterState.SOLO:
         base_style.color = theme.palette.primary.light;
