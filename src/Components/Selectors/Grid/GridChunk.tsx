@@ -20,7 +20,6 @@ function roundToStep(value: number, step: number) {
         let num_units = 0;
         if (i == num_cols - 1) {
           num_units = max_num_rows - Math.abs(value - val);
-          // num_units = max_num_rows + (value-val)
         } else {
           num_units = step;
         }
@@ -30,7 +29,6 @@ function roundToStep(value: number, step: number) {
         return col_data;
       }
     );
-    // console.log(test_arrs);
     return test_arrs;
   }
 }

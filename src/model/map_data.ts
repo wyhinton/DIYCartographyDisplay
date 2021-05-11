@@ -1,18 +1,48 @@
-import { GitHub } from "@material-ui/icons";
 import { Action, action, thunk, Thunk, debug } from "easy-peasy";
 import GetSheetDone from "get-sheet-done";
+import { getSemigroup } from "fp-ts/lib/NonEmptyArray";
+import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
+import { pipe } from "fp-ts/lib/function";
+import { sequenceT } from "fp-ts/lib/Apply";
+import {
+  Either,
+  left,
+  right,
+  mapLeft,
+  getApplicativeValidation,
+  chain,
+  map,
+  isLeft,
+  match,
+  isRight,
+  getOrElse,
+  foldMap,
+  bimap,
+} from "fp-ts/lib/Either";
+import * as E from "fp-ts/lib/Either";
 import {
   AuthorDisciplineFilter,
   MapSubTopic,
   ThemeCategoryFilter,
   EventLevel,
   GalleryFilterType,
-  EventType,
   FilterGroup,
   Topic,
 } from "./enums";
 import type { FilterOption } from "./types";
+import {
+  validate_student_row,
+  validateStudentData,
+  hasLetterT,
+  lengthAtLeastFour,
+} from "./validation";
+import type {
+  ValidationResult,
+  ValidationError,
+  ValidationsResult,
+} from "./validation";
+import { fold } from "fp-ts/lib/Tree";
 
 export interface GalleryImage {
   src: string;
@@ -40,17 +70,33 @@ export interface Tag {
   title: string;
 }
 
-export interface LabeledCols<T> {
+export interface GoolgeSheet<T> {
   data: Array<T>;
   title: string;
   updated: string;
 }
 
-export interface MapRow {
+interface Student {
+  title: string;
+  info: string;
+  discipline: AuthorDisciplineFilter;
+  author: string;
+  topic: Topic;
+  theme: ThemeCategoryFilter;
+  subtopic: MapSubTopic;
+  series0101: string;
+  series0102: string;
+  series0201: string;
+  series0202: string;
+  series0301: string;
+  series0302: string;
+}
+
+export interface RawStudentRowValues {
   title: string;
   info: string;
   author: string;
-  tags: string;
+  topic: string;
   discipline: string;
   theme: string;
   series0101: string;
@@ -68,10 +114,6 @@ export interface MapRow {
   year: string;
   subtopic: string;
 }
-
-// export interface Student{
-//   maps:
-// }
 
 export interface YearDisciplineStats {
   sixteen: YearGroup;
@@ -116,7 +158,7 @@ export interface PhotoInfo {
   source: string;
   kind: string;
 }
-export interface EventRow {
+export interface EventRowValues {
   start: Date;
   end: Date;
   title: string;
@@ -127,8 +169,8 @@ export interface EventRow {
 }
 
 export interface ExternalData {
-  events: EventRow[];
-  maps: MapRow[];
+  events: EventRowValues[];
+  maps: RawStudentRowValues[];
 }
 
 export interface EventData {
@@ -159,9 +201,9 @@ export interface MapDataModel {
   filter: FilterOption[];
   group_filter: FilterGroup;
   multi_tag: FilterOption[];
-  map_spreadsheet: MapRow[];
+  map_spreadsheet: RawStudentRowValues[];
   map_stats: MapStats | undefined;
-  event_spreadsheet: EventRow[];
+  event_spreadsheet: EventRowValues[];
   active_images: GalleryImage[];
   gallery_images: GalleryImage[];
   all_images: GalleryImage[];
@@ -169,11 +211,10 @@ export interface MapDataModel {
   loaded: boolean;
   active_lightbox: LightBoxContent;
   fetch_map_data: Thunk<MapDataModel>;
-  // filter_gallery: Action<MapDataModel, FilterObj>;
   set_group_filter: Action<MapDataModel, FilterGroup>;
-  set_map_spreadsheet: Action<MapDataModel, MapRow[]>;
+  set_map_spreadsheet: Action<MapDataModel, RawStudentRowValues[]>;
   set_map_stats: Action<MapDataModel, MapStats>;
-  set_event_spreadsheet: Action<MapDataModel, EventRow[]>;
+  set_event_spreadsheet: Action<MapDataModel, EventRowValues[]>;
   set_all_images: Action<MapDataModel, GalleryImage[]>;
   set_gallery_images: Action<MapDataModel, GalleryImage[]>;
   set_active_images: Action<MapDataModel, GalleryImage[]>;
@@ -235,8 +276,8 @@ const map_data: MapDataModel = {
   event_spreadsheet: [],
   fetch_map_data: thunk(async (actions) => {
     const DOC_KEY = "1-S8EkLYsknYoFWSynVeMQCi6Gf9PoV9A5ezzICXamJA";
-    const map_rows: MapRow[] = [];
-    const event_rows: EventRow[] = [];
+    const map_rows: RawStudentRowValues[] = [];
+    const event_rows: EventRowValues[] = [];
 
     const map_data: ExternalData = {
       events: event_rows,
@@ -250,47 +291,79 @@ const map_data: MapDataModel = {
     let map_sheets = [test_2016];
     // let map_sheets = [test_2018, test_2020, test_2016];
 
-    Promise.all(map_sheets).then((sheet_data: (void | MapRow[])[]) => {
-      let gallery_image_responses: ImagePromise[] = [];
-      let all_unsized_images: GalleryImage[] = [];
+    Promise.all(map_sheets).then(
+      (sheet_data: (void | RawStudentRowValues[])[]) => {
+        let gallery_image_responses: ImagePromise[] = [];
+        let all_unsized_images: GalleryImage[] = [];
+        let map_sheet_errors: string[] = [];
 
-      sheet_data.forEach((sheet_payload: void | MapRow[]) => {
-        if (Array.isArray(sheet_payload)) {
-          let succesful_map_rows = sheet_payload as Array<MapRow>;
-          let unsized_gallery_images = map_rows_to_images(succesful_map_rows);
-          let image_responses: ImagePromise[] = unsized_gallery_images.map(
-            (gi: GalleryImage) => get_image(gi)
-          );
-          console.log(unsized_gallery_images);
-          gallery_image_responses.push(...image_responses);
-          all_unsized_images.push(...unsized_gallery_images);
-          map_data.maps.push(...sheet_payload);
-        } else {
-          console.error("did not get map row array");
+        function onLeft(errors: Array<string>): string {
+          console.log("got on left");
+          return `Errors: ${errors.join(", ")}`;
         }
-      });
 
-      Promise.all(gallery_image_responses).then((res: HTMLImageElement[]) => {
-        let sized_gallery_images = all_unsized_images.map(function (
-          def_img: GalleryImage,
-          i
-        ) {
-          def_img["thumbnailWidth"] = res[i].width * 0.05;
-          def_img["thumbnailHeight"] = res[i].height * 0.05;
-          return def_img;
+        function onRight(value: number): string {
+          console.log("got on right");
+          return `Ok: ${value}`;
+        }
+        sheet_data.forEach((sheet_payload: void | RawStudentRowValues[]) => {
+          if (Array.isArray(sheet_payload)) {
+            let succesful_map_rows =
+              sheet_payload as Array<RawStudentRowValues>;
+            const validations = [lengthAtLeastFour];
+            let test = succesful_map_rows.map((r) =>
+              validateStudentData(validations, r)
+            );
+            // fn handle_result()
+            let validation_results = succesful_map_rows.map((r) => {
+              let test = validateStudentData(validations, r);
+              const log_error = (n: ValidationError) => {
+                console.error("got error");
+                console.log(n);
+              };
+              const log_good = (n: RawStudentRowValues) => {
+                console.log("got good");
+                console.log(n);
+              };
+              const mything = bimap(log_error, log_good);
+              mything(test);
+              // E.bimap(test)
+            });
+            let unsized_gallery_images = map_rows_to_images(succesful_map_rows);
+            let image_responses: ImagePromise[] = unsized_gallery_images.map(
+              (gi: GalleryImage) => get_image(gi)
+            );
+            console.log(unsized_gallery_images);
+            gallery_image_responses.push(...image_responses);
+            all_unsized_images.push(...unsized_gallery_images);
+            map_data.maps.push(...sheet_payload);
+          } else {
+            console.error("did not get map row array");
+          }
         });
-        // console.log(sized_gallery_images);
-        actions.set_gallery_images(sized_gallery_images);
-        actions.set_active_images(sized_gallery_images);
-      });
-      const map_stats = generate_map_stats(map_data.maps);
-      actions.set_map_stats(map_stats);
-      actions.set_map_spreadsheet(map_data.maps);
-      actions.set_loaded(true);
-    });
 
-    get_sheet<EventRow>(DOC_KEY, 2)
-      .then((event_sheet: LabeledCols<EventRow>) => {
+        Promise.all(gallery_image_responses).then((res: HTMLImageElement[]) => {
+          let sized_gallery_images = all_unsized_images.map(function (
+            def_img: GalleryImage,
+            i
+          ) {
+            def_img["thumbnailWidth"] = res[i].width * 0.05;
+            def_img["thumbnailHeight"] = res[i].height * 0.05;
+            return def_img;
+          });
+          // console.log(sized_gallery_images);
+          actions.set_gallery_images(sized_gallery_images);
+          actions.set_active_images(sized_gallery_images);
+        });
+        const map_stats = generate_map_stats(map_data.maps);
+        actions.set_map_stats(map_stats);
+        actions.set_map_spreadsheet(map_data.maps);
+        actions.set_loaded(true);
+      }
+    );
+
+    get_sheet<EventRowValues>(DOC_KEY, 2)
+      .then((event_sheet: GoolgeSheet<EventRowValues>) => {
         const typed_event_rows = type_event_rows(event_sheet.data);
         actions.set_event_spreadsheet(typed_event_rows);
         // console.table(typed_event_rows);
@@ -548,7 +621,7 @@ const map_data: MapDataModel = {
   }),
 };
 
-function generate_map_stats(map_rows: MapRow[]): MapStats {
+function generate_map_stats(map_rows: RawStudentRowValues[]): MapStats {
   const yd = generate_year_discpline_stats(map_rows);
   const td = generate_topic_stats(map_rows);
   const theme_stats = generate_theme_stats(map_rows);
@@ -561,7 +634,7 @@ function generate_map_stats(map_rows: MapRow[]): MapStats {
 }
 
 function generate_year_discpline_stats(
-  map_rows: MapRow[]
+  map_rows: RawStudentRowValues[]
 ): YearDisciplineStats {
   const year_groups = groupBy(map_rows, "year");
   const yg_keys = Object.keys(year_groups);
@@ -588,7 +661,7 @@ function generate_year_discpline_stats(
   return fomratted_data;
 }
 
-function generate_topic_stats(map_rows: MapRow[]): TagStats {
+function generate_topic_stats(map_rows: RawStudentRowValues[]): TagStats {
   const total_cat_blocks = 75;
   const topic_groups = groupBy(map_rows, "tags");
   let empty_cont: any = {};
@@ -617,7 +690,7 @@ function generate_topic_stats(map_rows: MapRow[]): TagStats {
   return empty_cont as TagStats;
 }
 
-function generate_theme_stats(map_rows: MapRow[]): any {
+function generate_theme_stats(map_rows: RawStudentRowValues[]): any {
   const num_theme_blocks = 25;
   //max number of blocks is 45
   const theme_groups = groupBy(map_rows, "theme");
@@ -633,12 +706,12 @@ function generate_theme_stats(map_rows: MapRow[]): any {
   return empty_theme_data as ThemeStats;
 }
 
-function make_time_series(rows: EventRow[]): TimelineData {
+function make_time_series(rows: EventRowValues[]): TimelineData {
   const categorized_events = groupBy(rows, "category");
   console.log(categorized_events);
   Object.keys(categorized_events).forEach((key) => {
     console.log(key);
-    const value: EventRow[] = categorized_events[key];
+    const value: EventRowValues[] = categorized_events[key];
     const events = event_rows_to_time_range_events(value);
     const series = time_range_events_to_time_series(events);
     categorized_events[key] = series;
@@ -648,10 +721,12 @@ function make_time_series(rows: EventRow[]): TimelineData {
   return categorized_events;
 }
 
-function event_rows_to_time_range_events(rows: EventRow[]): TimeRangeEvent[] {
+function event_rows_to_time_range_events(
+  rows: EventRowValues[]
+): TimeRangeEvent[] {
   let all_events: TimeRangeEvent[] = [];
   console.log(rows);
-  rows.forEach((event_row: EventRow) => {
+  rows.forEach((event_row: EventRowValues) => {
     const time_range = new TimeRange(event_row.start, event_row.end);
     const data: EventData = {
       title: event_row.title,
@@ -782,53 +857,39 @@ function date_range_overlaps(
 //maprow-> student
 //student-> gallery image and normal images
 
-interface Student {
-  title: string;
-  info: string;
-  discipline: AuthorDisciplineFilter;
-  author: string;
-  topic: Topic;
-  theme: ThemeCategoryFilter;
-  subtopic: MapSubTopic;
-  series0101: string;
-  series0102: string;
-  series0201: string;
-  series0202: string;
-  series0301: string;
-  series0303: string;
-}
-
-function map_rows_to_images(rows: MapRow[]): GalleryImage[] {
-  let unsized_gallery_images: GalleryImage[] = rows.map((map_row: MapRow) => ({
-    src: map_row.series0101,
-    thumbnail: map_row.series0101,
-    // thumbnail: map_row.thumbnail,
-    isSelected: false,
-    //TODO: SET UP CAPTIONS
-    caption: "Im in this other file",
-    thumbnailWidth: 95,
-    thumbnailHeight: 174,
-    tags: [
-      {
-        discipline:
-          AuthorDisciplineFilter[
-            map_row.discipline as unknown as keyof typeof AuthorDisciplineFilter
-          ],
-        subtopic:
-          MapSubTopic[
-            (map_row.tags +
-              // (map_row.tags +
-              "_" +
-              map_row.subtopic) as unknown as keyof typeof MapSubTopic
-          ],
-        theme:
-          ThemeCategoryFilter[
-            map_row.theme as unknown as keyof typeof ThemeCategoryFilter
-          ],
-        year: map_row.year,
-      },
-    ],
-  }));
+function map_rows_to_images(rows: RawStudentRowValues[]): GalleryImage[] {
+  let unsized_gallery_images: GalleryImage[] = rows.map(
+    (map_row: RawStudentRowValues) => ({
+      src: map_row.series0101,
+      thumbnail: map_row.series0101,
+      // thumbnail: map_row.thumbnail,
+      isSelected: false,
+      //TODO: SET UP CAPTIONS
+      caption: "Im in this other file",
+      thumbnailWidth: 95,
+      thumbnailHeight: 174,
+      tags: [
+        {
+          discipline:
+            AuthorDisciplineFilter[
+              map_row.discipline as unknown as keyof typeof AuthorDisciplineFilter
+            ],
+          subtopic:
+            MapSubTopic[
+              (map_row.topic +
+                // (map_row.tags +
+                "_" +
+                map_row.subtopic) as unknown as keyof typeof MapSubTopic
+            ],
+          theme:
+            ThemeCategoryFilter[
+              map_row.theme as unknown as keyof typeof ThemeCategoryFilter
+            ],
+          year: map_row.year,
+        },
+      ],
+    })
+  );
   return unsized_gallery_images;
 }
 
@@ -839,7 +900,7 @@ function groupBy(arr: any[], property: any) {
   }, {});
 }
 
-function type_event_rows(rows: any[]): EventRow[] {
+function type_event_rows(rows: any[]): EventRowValues[] {
   rows.forEach((r: any, ind: number) => {
     const cat_string: string = rows[ind]["category"];
     const type_cat: EventLevel =
@@ -853,7 +914,7 @@ function type_event_rows(rows: any[]): EventRow[] {
   return rows;
 }
 
-function type_map_rows(rows: any[]): MapRow[] {
+function type_map_rows(rows: any[]): RawStudentRowValues[] {
   rows.forEach((r: any, ind: number) => {
     const discipline_string: string = rows[ind]["discipline"];
     const type_cat: AuthorDisciplineFilter =
@@ -864,6 +925,60 @@ function type_map_rows(rows: any[]): MapRow[] {
   });
   return rows;
 }
+
+// const oneCapitalV = lift(oneCapital)
+// const oneNumberV = lift(oneNumber)
+
+// define a combinator that converts a check outputting an Either<E, A> into a check outputting a Either<NonEmptyArray<E>, A>
+function lift<E, A>(
+  check: (a: A) => Either<E, A>
+): (a: A) => Either<NonEmptyArray<E>, A> {
+  return (a) =>
+    pipe(
+      check(a),
+      mapLeft((a) => [a])
+    );
+}
+// const applicativeValidation = getValidation(getSemigroup<string>());
+// https://dev.to/gcanti/getting-started-with-fp-ts-either-vs-validation-5eja
+
+// function validateStudentRow(s: string): Either<NonEmptyArray<string>, string> {
+//   return pipe(
+//     sequenceT(getApplicativeValidation(getSemigroup<string>()))(
+//       minLengthV(s)
+//       // oneCapitalV(s),
+//       // oneNumberV(s)
+//     ),
+//     map(() => s)
+//   );
+// }
+
+const row_to_student = (row: RawStudentRowValues): Student => {
+  let student: Student = {
+    title: row.title,
+    info: row.info,
+    discipline:
+      AuthorDisciplineFilter[
+        row.discipline as unknown as keyof typeof AuthorDisciplineFilter
+      ],
+    author: row.author,
+    topic: Topic[row.topic as unknown as keyof typeof Topic],
+    theme:
+      ThemeCategoryFilter[
+        row.theme as unknown as keyof typeof ThemeCategoryFilter
+      ],
+    subtopic: MapSubTopic[row.topic as unknown as keyof typeof MapSubTopic],
+    series0101: row.series0101,
+    series0102: row.series0102,
+    series0201: row.series0201,
+    series0202: row.series0202,
+    series0301: row.series0301,
+    series0302: row.series0302,
+    //thumbnails: []
+    //
+  };
+  return student;
+};
 
 function get_image(image: GalleryImage): Promise<HTMLImageElement> {
   const promise = new Promise<HTMLImageElement>(function (resolve, reject) {
@@ -879,8 +994,8 @@ function get_image(image: GalleryImage): Promise<HTMLImageElement> {
   return promise;
 }
 
-function get_sheet<T>(key: string, sheet_num: number): Promise<LabeledCols<T>> {
-  const promise = new Promise<LabeledCols<T>>(function (resolve, reject) {
+function get_sheet<T>(key: string, sheet_num: number): Promise<GoolgeSheet<T>> {
+  const promise = new Promise<GoolgeSheet<T>>(function (resolve, reject) {
     GetSheetDone.labeledCols(key, sheet_num)
       .then((sheet: any) => {
         resolve(sheet);
@@ -897,10 +1012,10 @@ function get_sheet<T>(key: string, sheet_num: number): Promise<LabeledCols<T>> {
 function get_map_sheet(
   key: string,
   sheet_index: number
-): Promise<void | MapRow[]> {
+): Promise<void | RawStudentRowValues[]> {
   // function get_map_sheet(key: string, sheet_index: number): Promise<LabeledCols<MapRow[]>>{
-  var to_get = get_sheet<MapRow>(key, sheet_index)
-    .then((map_sheet: LabeledCols<MapRow>) => {
+  var to_get = get_sheet<RawStudentRowValues>(key, sheet_index)
+    .then((map_sheet: GoolgeSheet<RawStudentRowValues>) => {
       const typed_map_rows = type_map_rows(map_sheet.data);
       return typed_map_rows;
     })

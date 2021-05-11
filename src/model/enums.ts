@@ -96,7 +96,6 @@ export enum GalleryFilterType {
   FILTERGROUP_TOPIC,
   FILTERGROUP_YEAR,
 }
-export enum ClassYearFilter {}
 export enum ThemeCategoryFilter {
   EQUITY = "EQUITY",
   ACCESS = "ACCESS",

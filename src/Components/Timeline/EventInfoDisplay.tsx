@@ -10,13 +10,13 @@ import {
   ArrowRightIcon,
 } from "evergreen-ui";
 import { useTheme } from "@material-ui/core/styles";
-import type { EventRow } from "../../model/map_data";
+import type { EventRowValues } from "../../model/map_data";
 import { EventLevel, EventType } from "../../model/enums";
 import { useEffect } from "react";
 import { Scrollbars } from "react-custom-scrollbars";
 
 type EventInfoDisplayProps = {
-  info: EventRow | undefined;
+  info: EventRowValues | undefined;
 };
 
 function EventInfoDisplay({ info }: EventInfoDisplayProps) {
@@ -49,7 +49,7 @@ function EventInfoDisplay({ info }: EventInfoDisplayProps) {
     lineHeight: "15pt",
   } as React.CSSProperties;
 
-  const default_val: EventRow = {
+  const default_val: EventRowValues = {
     start: new Date(1 / 1 / 1900),
     end: new Date(1 / 1 / 1900),
     title: "",

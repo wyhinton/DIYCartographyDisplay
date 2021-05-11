@@ -1,29 +1,17 @@
 import { useStoreActions, useStoreState } from "../../../hooks";
-import { Link, Paragraph, Text, Icon } from "evergreen-ui";
-import { useTheme, withStyles } from "@material-ui/core/styles";
-import { useState, useEffect, cloneElement } from "react";
+import { useTheme } from "@material-ui/core/styles";
+import { useState, useEffect } from "react";
 import GridUnit from "./GridUnit";
-import {
-  AuthorDisciplineFilter,
-  MapSubTopic,
-  ThemeCategoryFilter,
-} from "../../../model/enums";
+import { MapSubTopic } from "../../../model/enums";
 import { FilterOption } from "../../../model/types";
 import blue from "@material-ui/core/colors/blue";
 import Tooltip from "@material-ui/core/Tooltip";
 
-function toTitleCase(val: string): string {
-  return val.replace(/(\w*\W*|\w*)\s*/g, function (txt: string) {
-    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-  });
-}
-
 interface GridRowProps {
   count: number;
-  // state_active_filters: FilterOption[];
   filter: FilterOption;
   icon: JSX.Element;
-  tooltip: string;
+  // tooltip: string;
 }
 function filterToToolTip(filter: FilterOption): string {
   let tooltip_title;
@@ -78,13 +66,16 @@ function filterToToolTip(filter: FilterOption): string {
   }
   return tooltip_title;
 }
-const GridRow = ({ count, icon, filter, tooltip }: GridRowProps) => {
+const GridRow = ({ count, icon, filter }: GridRowProps) => {
   const theme = useTheme();
   const [hovered, setHovered] = useState(false);
   const real_filter = useStoreState((state) => state.map_data.filter);
   const set_filter = useStoreActions(
     (actions) => actions.map_data.thunk_set_filter
   );
+  useEffect(() => {}, [real_filter]);
+  useEffect(() => {}, [hovered]);
+
   const set_row_color = (cur_filters: FilterOption[], is_hovered: boolean) => {
     if (cur_filters.some((f) => f == filter)) {
       return 4;
@@ -92,11 +83,10 @@ const GridRow = ({ count, icon, filter, tooltip }: GridRowProps) => {
       return is_hovered ? 4 : 0;
     }
   };
+  //T:SET ICON COLOR ON HOVER
   const set_icon_color = (is_active_filter: boolean, is_hovered: boolean) => {
     return is_hovered ? blue[100] : theme.palette.primary;
   };
-  useEffect(() => {}, [real_filter]);
-  useEffect(() => {}, [hovered]);
 
   const rowGrid = {
     width: "100%",
@@ -121,7 +111,7 @@ const GridRow = ({ count, icon, filter, tooltip }: GridRowProps) => {
           ></GridUnit>
         );
       })}
-      {<Tooltip title={tooltip}>{icon}</Tooltip>}
+      {<Tooltip title={filterToToolTip(filter)}>{icon}</Tooltip>}
     </div>
   );
 };

@@ -10,13 +10,13 @@ import Title from "./Components/Title";
 import { defaultTheme } from "evergreen-ui";
 import { ThemeProvider } from "evergreen-ui";
 import { merge } from "lodash";
-
+import ErrorBoundary from "./Components/ErrorBoundary";
 // const My
 
 // const test_data =
 // https://docs.google.com/spreadsheets/d/1-S8EkLYsknYoFWSynVeMQCi6Gf9PoV9A5ezzICXamJA/edit?usp=sharing
 // https://docs.google.com/spreadsheets/d/e/2PACX-1vShkIFNo43AJw8tdtdq4vsa40okE7v4IJbbXUOuIsLpnCYZMaQnPH9k3_YFhm814s2oa9VrVkQbzPNa/pubhtml
-function App() {
+const App = () => {
   const test_thunk = useStoreActions(
     (actions) => actions.map_data.fetch_map_data
   );
@@ -61,6 +61,6 @@ function App() {
       </Grid>
     </ThemeProvider>
   );
-}
+};
 
 export default App;

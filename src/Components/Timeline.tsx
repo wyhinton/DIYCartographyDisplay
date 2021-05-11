@@ -5,7 +5,7 @@ import { useStoreState } from "../hooks";
 import { Text } from "evergreen-ui";
 import Grid from "@material-ui/core/Grid";
 import EventInfoDisplay from "./Timeline/EventInfoDisplay";
-import type { EventRow } from "../model/map_data";
+import type { EventRowValues } from "../model/map_data";
 // https://codesandbox.io/s/l28vmvp2n9?from-embed
 
 import ChartContainer from "./TimeSeries/components/ChartContainer";
@@ -32,16 +32,16 @@ interface Seperator {
 const Timeline = function () {
   const time_series = useStoreState((state) => state.map_data.timeline_series);
   const timeline_offset = "6em";
-  const event_rows: EventRow[] = useStoreState(
+  const event_rows: EventRowValues[] = useStoreState(
     (state) => state.map_data.event_spreadsheet
   );
   const initial_width = 2000;
   const timeline_container = useRef<HTMLDivElement | null>(null);
-  const [eventInfo, setEventInfo] = useState<EventRow | undefined>(undefined);
+  const [eventInfo, setEventInfo] =
+    useState<EventRowValues | undefined>(undefined);
   const [resizeWidth, setResizeWidth] = useState(initial_width);
-  const [selectedEvent, setSelectedEvent] = useState<TimeSeries | undefined>(
-    undefined
-  );
+  const [selectedEvent, setSelectedEvent] =
+    useState<TimeSeries | undefined>(undefined);
   // const [timeSeriesCount, setTimeSeriesCount] = useState(0);
   const [seperators, setSeperators] = useState<Seperator[]>([]);
   const theme = useTheme();
