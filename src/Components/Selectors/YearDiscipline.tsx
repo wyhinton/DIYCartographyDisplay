@@ -15,14 +15,17 @@ function to_author_enum(
   const filter_string = discipline + "_" + year;
   const filter_enum =
     AuthorDisciplineFilter[
-      (filter_string as unknown) as keyof typeof AuthorDisciplineFilter
+      filter_string as unknown as keyof typeof AuthorDisciplineFilter
     ];
   return filter_enum;
 }
 
 const YearDiscipline = () => {
   const theme = useTheme();
-  const year_data = useStoreState((state) => state.map_data?.map_stats?.year);
+  const year_data = useStoreState(
+    (state) => state.map_data?.computed_student_stats?.year
+  );
+  // const year_data = useStoreState((state) => state.map_data?.map_stats?.year);
   console.log(year_data);
 
   const chunksContainer = {
@@ -51,33 +54,30 @@ const YearDiscipline = () => {
     marginTop: -4,
     paddingTop: ".25em",
   } as React.CSSProperties;
-  //   const rowContainer = {
-
-  //     marginTop: -4,
-  //   } as React.CSSProperties;
-
+  //TODO: SAFTER TYPING FOR year_breakdown fields
   const make_year_chunks = (year: string, year_breakdown?: any) => {
+    console.log(year_breakdown);
     if (year_breakdown) {
       return (
         <div style={chunksContainer}>
           <GridChunk
             base_color={0}
-            count={year_breakdown.ARCHITECTURE}
+            count={year_breakdown.ARCHITECTURE ?? 0}
             filter={to_author_enum("ARCHITECTURE", year)}
           />
           <GridChunk
             base_color={1}
-            count={year_breakdown.ARCHITECTURE}
+            count={year_breakdown.ARTDESIGN ?? 0}
             filter={to_author_enum("ARTDESIGN", year)}
           />
           <GridChunk
             base_color={2}
-            count={year_breakdown.ARCHITECTURE}
+            count={year_breakdown.LANDSCAPE ?? 0}
             filter={to_author_enum("LANDSCAPE", year)}
           />
           <GridChunk
             base_color={3}
-            count={year_breakdown.ARCHITECTURE}
+            count={year_breakdown.OTHER ?? 0}
             filter={to_author_enum("OTHER", year)}
           />
         </div>

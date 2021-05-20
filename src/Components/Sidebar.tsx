@@ -53,7 +53,7 @@ function Sidebar() {
           on community, culture and urban redevelopment.
         </Paragraph>
       </Text>
-      <Text style={sidebarParagraph}>
+      {/* <Text style={sidebarParagraph}>
         <br></br>
         <Paragraph style={sidebarParagraph}>
           Building on the seminal work of theorists like James Corner, Alan
@@ -67,7 +67,7 @@ function Sidebar() {
           people live” (Corner 1999, 213). These maps aim to open up
           conversations about this very reshaping.
         </Paragraph>
-      </Text>
+      </Text> */}
     </Pane>
   );
 }

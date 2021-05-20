@@ -21,20 +21,27 @@ function getRandomNumber(min: number, max: number) {
 const MapGallery = () => {
   // var shuffleClassName = this.state.toggleActive ? "player-control-icon active" : "player-control-icon"
   const gallery_images = useStoreState(
-    (state) => state.map_data?.active_images
+    (state) => state.map_data?.computed_active_images
   );
+  // const gallery_images = useStoreState(
+  //   (state) => state.map_data?.active_images
+  // );
   const [showLightbox, setShowLightBox] = useState(false);
   const set_active_lightbox = useStoreActions(
-    (actions) => actions.map_data.set_active_lightbox
+    (actions) => actions.map_data.set_lightbox_content
   );
   const active_lightbox = useStoreState(
     (state) => state.map_data.active_lightbox
   );
+  // const test_all_images = useStoreState(
+  //   (state) => state.map_data.test_gallery_images
+  // );
   const data_loaded = useStoreState((state) => state.map_data.loaded);
   const theme = useTheme();
 
   useEffect(() => {
     console.log(gallery_images);
+    // }, [test_all_images, active_lightbox]);
   }, [gallery_images, active_lightbox]);
 
   useEffect(() => {
@@ -81,9 +88,10 @@ const MapGallery = () => {
             <Gallery
               tagStyle={{ display: "none" }}
               // renderItem = {test_render_item}
+              // images={test_all_images}
               images={gallery_images}
               customOverlay={<div style={{ backgroundColor: "red" }}></div>}
-              rowHeight={75}
+              rowHeight={120}
               maxRows={10}
               enableLightbox={false}
               enableImageSelection={false}

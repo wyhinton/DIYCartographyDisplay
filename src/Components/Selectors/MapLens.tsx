@@ -33,10 +33,14 @@ import { useStoreState } from "../../hooks";
 
 const MapLens = () => {
   const theme = useTheme();
-  const tag_stats = useStoreState((state) => state.map_data?.map_stats?.tag);
-  const state_active_filters = useStoreState((state) => state.map_data.filter);
-  // console.log(tag_stats);
-
+  const tag_stats = useStoreState(
+    (state) => state.map_data?.computed_student_stats?.subtopic
+    // (state) => state.map_data?.map_stats?.subtopic
+  );
+  useEffect(() => {
+    console.log(tag_stats);
+  }, [tag_stats]);
+  //TODO: FIX REDUNDANT FILTER/TOPIC
   return (
     <>
       <SelectorParent columns={5}>
@@ -46,19 +50,19 @@ const MapLens = () => {
           filter={FilterGroup.BUILT_TOPIC}
         >
           <GridRow
-            filter={MapSubTopic.BE_INFRASTR}
+            filter={MapSubTopic.INFRASTR}
             count={tag_stats.BE?.ENERGY}
             icon={
               <LightbulbIcon color={theme.palette.primary.main} size={12} />
             }
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.BE_BUILDINGS}
+            filter={MapSubTopic.BUILDINGS}
             count={tag_stats.BE?.HOUSING}
             icon={<Apartment color={"primary"} style={{ fontSize: "12pt" }} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.BE_TRANSPORTATION}
+            filter={MapSubTopic.TRANSPORTATION}
             count={tag_stats.BE?.TRANSPORTATION}
             icon={
               <DirectionsBus
@@ -75,18 +79,18 @@ const MapLens = () => {
           filter={FilterGroup.ECONOMIC_TOPIC}
         >
           <GridRow
-            filter={MapSubTopic.EE_PROPERTY}
+            filter={MapSubTopic.PROPERTY}
             count={tag_stats.EE?.COSTOFLIVING}
             icon={<HomeIcon color={theme.palette.primary.main} size={12} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.EE_URBANDEV}
+            filter={MapSubTopic.URBANDEV}
             count={tag_stats.EE?.URBANDEV}
             icon={<ChartIcon color={theme.palette.primary.main} size={12} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.EE_WORK}
-            count={tag_stats.EE?.EE_WORK}
+            filter={MapSubTopic.WORK}
+            count={tag_stats.EE?.WORK}
             icon={
               <BriefcaseIcon color={theme.palette.primary.main} size={12} />
             }
@@ -98,18 +102,18 @@ const MapLens = () => {
           filter={FilterGroup.NATURAL_TOPIC}
         >
           <GridRow
-            filter={MapSubTopic.NE_GREENSPACE}
+            filter={MapSubTopic.GREENSPACE}
             count={tag_stats.NE?.GREENSPACE}
             icon={<TreeIcon color={theme.palette.primary.main} size={12} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.NE_POLLUTION}
+            filter={MapSubTopic.POLLUTION}
             count={tag_stats.NE?.POLLUTION}
             icon={<ChartIcon color={theme.palette.primary.main} size={12} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.NE_HYDROLOGY}
-            count={tag_stats.NE?.NE_HYDROLOGY}
+            filter={MapSubTopic.HYDROLOGY}
+            count={tag_stats.NE?.HYDROLOGY}
             icon={<Opacity color={"primary"} style={{ fontSize: "12pt" }} />}
           />
         </SelectorGroup>
@@ -119,20 +123,20 @@ const MapLens = () => {
           filter={FilterGroup.POLITICAL_TOPIC}
         >
           <GridRow
-            filter={MapSubTopic.PE_GOV}
+            filter={MapSubTopic.GOVERMENT}
             count={tag_stats.PE?.GOVERMENT}
             icon={
               <AccountBalance color={"primary"} style={{ fontSize: "12pt" }} />
             }
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.PE_POLICY}
-            count={tag_stats.PE?.LEGISLATION}
+            filter={MapSubTopic.POLICY}
+            count={tag_stats.PE?.POLICY}
             icon={<Gavel color={"primary"} style={{ fontSize: "12pt" }} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.PE_CIVICENG}
-            count={tag_stats.PE?.PE_CIVICENG}
+            filter={MapSubTopic.CIVICENG}
+            count={tag_stats.PE?.CIVICENG}
             icon={<VolumeUp color={"primary"} style={{ fontSize: "12pt" }} />}
           />
         </SelectorGroup>
@@ -142,20 +146,20 @@ const MapLens = () => {
           filter={FilterGroup.SOCIAL_TOPIC}
         >
           <GridRow
-            filter={MapSubTopic.SE_EDUCATION}
+            filter={MapSubTopic.EDUCATION}
             count={tag_stats.SE?.EDUCATION}
             icon={<School color={"primary"} style={{ fontSize: "12pt" }} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.SE_HEALTH}
-            count={tag_stats.SE?.HEALTH}
+            filter={MapSubTopic.HEALTHSAFETY}
+            count={tag_stats.SE?.HEALTHSAFETY}
             icon={
               <SymbolCrossIcon color={theme.palette.primary.main} size={12} />
             }
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.SE_RACEGEN}
-            count={tag_stats.SE?.POPULATION}
+            filter={MapSubTopic.RACEGEN}
+            count={tag_stats.SE?.RACEGEN}
             icon={<PeopleIcon color={theme.palette.primary.main} size={12} />}
           />
         </SelectorGroup>

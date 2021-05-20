@@ -17,7 +17,8 @@ export const GridUnit = ({ color, is_active_filter }: UnitProps) => {
   const data_loaded = useStoreState((state) => state.map_data.loaded);
   const duration = getRandomNumber(0.5, 4);
   const containerStyle = {
-    display: data_loaded ? "block" : "none",
+    display: "block",
+    // display: data_loaded ? "block" : "none",
     animation: data_loaded ? `fadein ${duration}s normal` : "",
     animationIterationCound: 1,
     marginTop: "auto",

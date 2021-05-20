@@ -12,8 +12,9 @@ import { sequence } from "fp-ts/lib/Array";
 // import { sequenceS } from "fp-ts/lib/Apply";
 import * as A from "fp-ts/lib/Array";
 import * as E from "fp-ts/lib/Either";
-import type { RawStudentRowValues } from "./map_data";
+import type { RawStudentRowValues } from "./sub_models/sheet_data_models";
 import { fold } from "fp-ts/lib/Either";
+import { ActionCreator, ThunkCreator } from "easy-peasy";
 
 import {
   Either,
@@ -21,8 +22,6 @@ import {
   right,
   mapLeft,
   getApplicativeValidation,
-  chain,
-  map,
 } from "fp-ts/lib/Either";
 
 function lift<E, A>(
@@ -41,8 +40,6 @@ const minLength = (
   s.title.length >= 100 ? right(s) : left("at least 6 characters");
 
 const minLengthV = lift(minLength);
-
-// const validations = [minLengthV];
 
 export function validate_student_row(
   row: RawStudentRowValues
@@ -63,11 +60,9 @@ export type ValidationResult<T> = E.Either<ValidationError, T>;
 
 export type ValidationsResult<T> = E.Either<ValidationError, T>;
 
-interface Validator<T> {
+export interface Validator<T> {
   (x: T): ValidationResult<T>;
 }
-
-interface Name extends String {}
 
 const applicativeV = E.getApplicativeValidation(getSemigroup<string>());
 
@@ -101,7 +96,28 @@ export const hasLetterT: Validator<RawStudentRowValues> = E.fromPredicate(
   () => ['value must be a string that includes the letter "t"']
 );
 
-const validations = [hasLetterT, lengthAtLeastFour];
+export function handle_validation(
+  row: RawStudentRowValues,
+  validators: Validator<RawStudentRowValues>[],
+  on_error: ActionCreator<ValidationError>,
+  on_success: ThunkCreator<RawStudentRowValues>
+) {
+  let test = validateStudentData(validators, row);
+  console.log("got to test validate func");
+  const on_error_container = (n: ValidationError) => {
+    on_error(n);
+    console.error("got error");
+    console.log(n);
+  };
+  const on_sucess_container = (n: RawStudentRowValues) => {
+    on_success(n);
+    // actions.my_test_action(n);
+    console.log("got good");
+    console.log(n);
+  };
+  let validation_sequence = E.bimap(on_error_container, on_sucess_container);
+  validation_sequence(test);
+}
 
 // console.log(validateName(validations, "sim"));
 // {left: ['value must be a string that includes the letter "t"', 'value must be a string of at least 4 characters']}

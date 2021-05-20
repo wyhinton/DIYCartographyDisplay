@@ -1,26 +1,17 @@
-import { Action, action, thunk, Thunk, debug } from "easy-peasy";
+import {
+  Action,
+  action,
+  thunk,
+  Thunk,
+  debug,
+  Computed,
+  computed,
+} from "easy-peasy";
 import GetSheetDone from "get-sheet-done";
-import { getSemigroup } from "fp-ts/lib/NonEmptyArray";
 import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
 import { pipe } from "fp-ts/lib/function";
-import { sequenceT } from "fp-ts/lib/Apply";
-import {
-  Either,
-  left,
-  right,
-  mapLeft,
-  getApplicativeValidation,
-  chain,
-  map,
-  isLeft,
-  match,
-  isRight,
-  getOrElse,
-  foldMap,
-  bimap,
-} from "fp-ts/lib/Either";
-import * as E from "fp-ts/lib/Either";
+import { Either, mapLeft } from "fp-ts/lib/Either";
 import {
   AuthorDisciplineFilter,
   MapSubTopic,
@@ -30,19 +21,24 @@ import {
   FilterGroup,
   Topic,
 } from "./enums";
+import type { MapStats } from "./sub_models/student_stats";
+import type { RawStudentRowValues } from "./sub_models/sheet_data_models";
 import type { FilterOption } from "./types";
 import {
-  validate_student_row,
-  validateStudentData,
-  hasLetterT,
+  handle_validation,
   lengthAtLeastFour,
-} from "./validation";
-import type {
-  ValidationResult,
   ValidationError,
-  ValidationsResult,
 } from "./validation";
-import { fold } from "fp-ts/lib/Tree";
+
+/**
+  tags can not be an object due to the Gallery Image API,
+  but it will accept an array of any type. So we get around 
+  this by putting our metadata object 
+  into an array. There
+  will never be more than one metadata object.
+*/
+
+// seperate out time range events from single date events
 
 export interface GalleryImage {
   src: string;
@@ -61,90 +57,35 @@ export interface MapMetadata {
   year: any;
 }
 
+//TODO: EXPLAIN WHY THIS IS NECESSARY
 export interface YearSection {
   years: string[];
   discipline: string[];
 }
-export interface Tag {
-  value: string;
-  title: string;
-}
 
+/**
+ * Generic GoogleSheet with type argument 
+   which we use only when fetching our sheets.
+   Currently te
+ */
+//TODO: FILLOUT TYPES
 export interface GoolgeSheet<T> {
   data: Array<T>;
   title: string;
   updated: string;
 }
 
-interface Student {
+export interface Student {
+  author: string;
+  year: string;
   title: string;
   info: string;
   discipline: AuthorDisciplineFilter;
-  author: string;
   topic: Topic;
-  theme: ThemeCategoryFilter;
   subtopic: MapSubTopic;
-  series0101: string;
-  series0102: string;
-  series0201: string;
-  series0202: string;
-  series0301: string;
-  series0302: string;
-}
-
-export interface RawStudentRowValues {
-  title: string;
-  info: string;
-  author: string;
-  topic: string;
-  discipline: string;
-  theme: string;
-  series0101: string;
-  series0102: string;
-  series0201: string;
-  series0202: string;
-  series0301: string;
-  series0302: string;
-  // photo1: string;
-  // photo2: string;
-  // photo3: string;
-  // photo4: string;
-  // photo5: string;
-  thumbnail: string;
-  year: string;
-  subtopic: string;
-}
-
-export interface YearDisciplineStats {
-  sixteen: YearGroup;
-  eighteen: YearGroup;
-}
-
-export interface MapStats {
-  year: any;
-  tag: any;
-  theme: any;
-}
-
-export interface TagStats {
-  BE: any;
-  EE: any;
-  NE: any;
-  PE: any;
-  SE: any;
-}
-
-export interface ThemeStats {
-  EQUITY: number;
-  ACCESS: number;
-  DIVERSITY: number;
-}
-
-export interface YearGroup {
-  ARTDESIGN: number;
-  ARCHITECTURE: number;
-  LANDSCAPE: number;
-  OTHER: number;
+  theme: ThemeCategoryFilter;
+  gallery_images: GalleryImage[];
+  lightbox_images: GalleryImage[];
 }
 
 export interface LightBoxContent {
@@ -158,6 +99,7 @@ export interface PhotoInfo {
   source: string;
   kind: string;
 }
+
 export interface EventRowValues {
   start: Date;
   end: Date;
@@ -165,18 +107,10 @@ export interface EventRowValues {
   info: string;
   tags: string;
   category: EventLevel;
-  // type: EventType,
 }
-
-export interface ExternalData {
-  events: EventRowValues[];
-  maps: RawStudentRowValues[];
-}
-
+//TODO: REMOVE THIS
 export interface EventData {
   title: string;
-  // event_type: EventType,
-  // tags: string[];
 }
 
 export interface TimelineData {
@@ -187,6 +121,7 @@ export interface TimelineData {
   NA: TimeSeries[];
 }
 
+//TODO: REMOVE
 export interface FilterObj {
   filter_type: GalleryFilterType;
   filter: FilterOption;
@@ -198,35 +133,66 @@ export interface FilterResult {
 }
 
 export interface MapDataModel {
+  //STATEFUL UI DATA (TOOLBAR)
+  doc_key: string;
   filter: FilterOption[];
   group_filter: FilterGroup;
-  multi_tag: FilterOption[];
-  map_spreadsheet: RawStudentRowValues[];
-  map_stats: MapStats | undefined;
-  event_spreadsheet: EventRowValues[];
-  active_images: GalleryImage[];
-  gallery_images: GalleryImage[];
-  all_images: GalleryImage[];
-  timeline_series: TimelineData;
+  filter_function: any;
   loaded: boolean;
   active_lightbox: LightBoxContent;
-  fetch_map_data: Thunk<MapDataModel>;
+  students: Student[];
+
+  //TIMELINE
+  timeline_series: TimelineData;
+
+  //GALLERY
+  all_images: GalleryImage[];
+  active_images: GalleryImage[];
+  gallery_images: GalleryImage[];
+
+  //COMPUTED FROM EXTERNAL DATA
+  computed_active_images: Computed<MapDataModel, GalleryImage[]>;
+  test_gallery_images: Computed<MapDataModel, GalleryImage[]>;
+  computed_student_stats: Computed<MapDataModel, MapStats>;
+  map_stats: MapStats | undefined;
+
+  //THUNKS - FETCH EXTERNAL
+  fetch_event_spreadsheet: Thunk<MapDataModel>;
+  fetch_student_sheets: Thunk<MapDataModel>;
+  request_all_spreadsheets: Thunk<MapDataModel>;
+
+  //THUNKS - UI
+  thunk_set_filter: Thunk<MapDataModel, FilterOption>;
+  process_student: Thunk<MapDataModel, RawStudentRowValues>;
+  process_raw_student_sheets: Thunk<MapDataModel, RawStudentRowValues[][]>;
+
+  //STORE RAW GOOGLE SHEETS INFO FOR DEBUGGING
+  raw_student_sheets: RawStudentRowValues[][];
+  map_spreadsheet: RawStudentRowValues[];
+  event_spreadsheet: EventRowValues[];
+  add_student_sheet_raw_data: Action<MapDataModel, RawStudentRowValues[]>;
+  set_event_spreadsheet: Action<MapDataModel, EventRowValues[]>;
+
+  //VALIDATION
+  validation_errors: ValidationError[];
+
+  //SETTERS
+  add_valid_student: Action<MapDataModel, Student>;
   set_group_filter: Action<MapDataModel, FilterGroup>;
+  set_filter_function: Action<MapDataModel, any>;
   set_map_spreadsheet: Action<MapDataModel, RawStudentRowValues[]>;
   set_map_stats: Action<MapDataModel, MapStats>;
-  set_event_spreadsheet: Action<MapDataModel, EventRowValues[]>;
   set_all_images: Action<MapDataModel, GalleryImage[]>;
   set_gallery_images: Action<MapDataModel, GalleryImage[]>;
   set_active_images: Action<MapDataModel, GalleryImage[]>;
   set_timeline_series: Action<MapDataModel, TimelineData>;
   set_active_filter: Action<MapDataModel, FilterOption[]>;
-  thunk_set_filter: Thunk<MapDataModel, FilterOption>;
   reset_gallery: Action<MapDataModel>;
-  set_active_lightbox: Action<MapDataModel, GalleryImage>;
+  set_lightbox_content: Action<MapDataModel, GalleryImage>;
   set_loaded: Action<MapDataModel, boolean>;
-  thunk_set_multi_filter: Thunk<MapDataModel, FilterOption[]>;
-  set_multi_filter: Action<MapDataModel, FilterOption[]>;
   filter_gallery_2: Action<MapDataModel, FilterResult>;
+  set_validation_errors: Action<MapDataModel, ValidationError[]>;
+  add_validation_error: Action<MapDataModel, ValidationError>;
 }
 
 //______________________
@@ -237,6 +203,7 @@ const empty_state: TimeSeries[] = [];
 const empty_city: TimeSeries[] = [];
 const empty_international: TimeSeries[] = [];
 const empty_NA: TimeSeries[] = [];
+const DOC_KEY = "1-S8EkLYsknYoFWSynVeMQCi6Gf9PoV9A5ezzICXamJA";
 
 const initial_empty_timeline: TimelineData = {
   national: empty_nat,
@@ -257,128 +224,290 @@ const lb_initial: LightBoxContent = {
 
 const init_map_stats: MapStats = {
   year: {},
-  tag: {},
+  subtopic: {},
   theme: {},
 };
 
+const row_to_student = (
+  row: RawStudentRowValues,
+  gallery_images: GalleryImage[]
+): Student => {
+  let student: Student = {
+    author: row.author,
+    year: row.year,
+    title: row.title,
+    info: row.info,
+    discipline:
+      AuthorDisciplineFilter[
+        row.discipline as unknown as keyof typeof AuthorDisciplineFilter
+      ],
+    topic: Topic[row.topic as unknown as keyof typeof Topic],
+    theme:
+      ThemeCategoryFilter[
+        row.theme as unknown as keyof typeof ThemeCategoryFilter
+      ],
+    subtopic: MapSubTopic[row.subtopic as unknown as keyof typeof MapSubTopic],
+    gallery_images: gallery_images,
+    lightbox_images: gallery_images,
+  };
+  console.log(student.subtopic);
+  return student;
+};
+
+function create_gallery_images_for_student(
+  single_row: RawStudentRowValues,
+  series_number: string
+): GalleryImage {
+  const keyTyped = series_number as keyof typeof single_row;
+  let gallery_image = {
+    src: single_row[keyTyped],
+    // src: single_row.series0101,
+    thumbnail: single_row[keyTyped],
+    // thumbnail: single_row.thumbnail,
+    isSelected: false,
+    //TODO: SET UP CAPTIONS
+    caption: "Im in this other file",
+    thumbnailWidth: 95,
+    thumbnailHeight: 174,
+    tags: [
+      {
+        discipline:
+          AuthorDisciplineFilter[
+            single_row.discipline as unknown as keyof typeof AuthorDisciplineFilter
+          ],
+        subtopic:
+          MapSubTopic[
+            // (single_row.tags + "_" +
+            single_row.subtopic as unknown as keyof typeof MapSubTopic
+          ],
+        theme:
+          ThemeCategoryFilter[
+            single_row.theme as unknown as keyof typeof ThemeCategoryFilter
+          ],
+        year: single_row.year,
+      },
+    ],
+  };
+  // );
+  return gallery_image;
+}
+
 const map_data: MapDataModel = {
+  doc_key: "1-S8EkLYsknYoFWSynVeMQCi6Gf9PoV9A5ezzICXamJA",
   filter: [],
+  students: [],
   group_filter: FilterGroup.NONE,
   active_images: [],
+  filter_function: (gi: GalleryImage) => true,
+  computed_active_images: computed((state) => {
+    console.log(state.filter_function);
+    let active = state.test_gallery_images.filter(state.filter_function);
+    console.log(active);
+    return active;
+  }),
+  raw_student_sheets: [],
   gallery_images: [],
   all_images: [],
-  multi_tag: [],
   timeline_series: initial_empty_timeline,
   loaded: false,
   active_lightbox: lb_initial,
   map_spreadsheet: [],
   map_stats: init_map_stats,
   event_spreadsheet: [],
-  fetch_map_data: thunk(async (actions) => {
-    const DOC_KEY = "1-S8EkLYsknYoFWSynVeMQCi6Gf9PoV9A5ezzICXamJA";
-    const map_rows: RawStudentRowValues[] = [];
-    const event_rows: EventRowValues[] = [];
+  validation_errors: [],
+  //creates a new student
+  add_valid_student: action((state, payload) => {
+    state.students.push(payload);
+  }),
+  add_student_sheet_raw_data: action((state, payload) => {
+    state.raw_student_sheets.push(payload);
+  }),
+  computed_student_stats: computed((state) => {
+    function topic_to_array_of_subtopics(topic: Topic): MapSubTopic[] {
+      let topic_subtopics: MapSubTopic[] = [];
+      switch (topic) {
+        case Topic.BE:
+          topic_subtopics = [
+            MapSubTopic.INFRASTR,
+            MapSubTopic.BUILDINGS,
+            MapSubTopic.TRANSPORTATION,
+          ];
+          break;
+        case Topic.EE:
+          topic_subtopics = [
+            MapSubTopic.WORK,
+            MapSubTopic.PROPERTY,
+            MapSubTopic.URBANDEV,
+          ];
+          break;
+        case Topic.NE:
+          topic_subtopics = [
+            MapSubTopic.GREENSPACE,
+            MapSubTopic.POLLUTION,
+            MapSubTopic.HYDROLOGY,
+          ];
+          break;
+        case Topic.PE:
+          topic_subtopics = [
+            MapSubTopic.CIVICENG,
+            MapSubTopic.GOVERMENT,
+            MapSubTopic.POLICY,
+          ];
+          // topic_subtopics = [MapSubTopic.CIVICENG, MapSubTopic.GOV, MapSubTopic.POLICY];
+          break;
+        case Topic.SE:
+          topic_subtopics = [
+            MapSubTopic.EDUCATION,
+            MapSubTopic.HEALTHSAFETY,
+            MapSubTopic.RACEGEN,
+          ];
+          break;
+      }
+      return topic_subtopics;
+    }
+    function object_values_to_array_lengths(obj: any): any {
+      let keys = Object.keys(obj);
+      keys.forEach((key) => {
+        obj[key] = obj[key].length;
+      });
+      return obj;
+    }
+    function get_year_breakdown(students: Student[]) {
+      let year_groups = groupBy(state.students, "year");
+      var new_obj = {};
+      for (const [key, value] of Object.entries(year_groups)) {
+        let test = groupBy(value as Student[], "discipline");
+        test = object_values_to_array_lengths(test);
+        (new_obj as any)[key] = test;
+        console.log(new_obj);
+      }
+      return new_obj;
+    }
+    const discipline_stats = get_year_breakdown(state.students);
+    const theme_stats = object_values_to_array_lengths(
+      groupBy(state.students, "theme")
+    );
+    function get_topic_breakdown(students: Student[]) {
+      let topic_groups = groupBy(state.students, "topic");
+      var student_map_stats = {};
+      for (const [key, value] of Object.entries(topic_groups)) {
+        let subtopic_group = groupBy(value as Student[], "subtopic");
+        let all_subtopics = topic_to_array_of_subtopics(
+          Topic[key as unknown as keyof typeof Topic]
+        );
 
-    const map_data: ExternalData = {
-      events: event_rows,
-      maps: map_rows,
-    };
-    //get maps sheet\
-    let test_2016 = get_map_sheet(DOC_KEY, 3);
-    // let test_2018 = get_map_sheet(DOC_KEY, 3);
-    // let test_2020 = get_map_sheet(DOC_KEY, 4);
-
-    let map_sheets = [test_2016];
-    // let map_sheets = [test_2018, test_2020, test_2016];
-
-    Promise.all(map_sheets).then(
-      (sheet_data: (void | RawStudentRowValues[])[]) => {
-        let gallery_image_responses: ImagePromise[] = [];
-        let all_unsized_images: GalleryImage[] = [];
-        let map_sheet_errors: string[] = [];
-
-        function onLeft(errors: Array<string>): string {
-          console.log("got on left");
-          return `Errors: ${errors.join(", ")}`;
-        }
-
-        function onRight(value: number): string {
-          console.log("got on right");
-          return `Ok: ${value}`;
-        }
-        sheet_data.forEach((sheet_payload: void | RawStudentRowValues[]) => {
-          if (Array.isArray(sheet_payload)) {
-            let succesful_map_rows =
-              sheet_payload as Array<RawStudentRowValues>;
-            const validations = [lengthAtLeastFour];
-            let test = succesful_map_rows.map((r) =>
-              validateStudentData(validations, r)
-            );
-            // fn handle_result()
-            let validation_results = succesful_map_rows.map((r) => {
-              let test = validateStudentData(validations, r);
-              const log_error = (n: ValidationError) => {
-                console.error("got error");
-                console.log(n);
-              };
-              const log_good = (n: RawStudentRowValues) => {
-                console.log("got good");
-                console.log(n);
-              };
-              const mything = bimap(log_error, log_good);
-              mything(test);
-              // E.bimap(test)
-            });
-            let unsized_gallery_images = map_rows_to_images(succesful_map_rows);
-            let image_responses: ImagePromise[] = unsized_gallery_images.map(
-              (gi: GalleryImage) => get_image(gi)
-            );
-            console.log(unsized_gallery_images);
-            gallery_image_responses.push(...image_responses);
-            all_unsized_images.push(...unsized_gallery_images);
-            map_data.maps.push(...sheet_payload);
-          } else {
-            console.error("did not get map row array");
+        subtopic_group = object_values_to_array_lengths(subtopic_group);
+        all_subtopics.forEach((st) => {
+          if (!(st in subtopic_group)) {
+            (subtopic_group as any)[st] = 0;
           }
         });
-
-        Promise.all(gallery_image_responses).then((res: HTMLImageElement[]) => {
-          let sized_gallery_images = all_unsized_images.map(function (
-            def_img: GalleryImage,
-            i
-          ) {
-            def_img["thumbnailWidth"] = res[i].width * 0.05;
-            def_img["thumbnailHeight"] = res[i].height * 0.05;
-            return def_img;
-          });
-          // console.log(sized_gallery_images);
-          actions.set_gallery_images(sized_gallery_images);
-          actions.set_active_images(sized_gallery_images);
-        });
-        const map_stats = generate_map_stats(map_data.maps);
-        actions.set_map_stats(map_stats);
-        actions.set_map_spreadsheet(map_data.maps);
-        actions.set_loaded(true);
+        (student_map_stats as any)[key] = subtopic_group;
       }
-    );
+      return student_map_stats;
+    }
 
-    get_sheet<EventRowValues>(DOC_KEY, 2)
+    const subtopic_stats = get_topic_breakdown(state.students);
+    // console.log(test);
+    const final_obj = {
+      year: discipline_stats,
+      subtopic: subtopic_stats,
+      theme: theme_stats,
+    };
+
+    console.log(final_obj);
+    let year_groups = groupBy(state.students, "year");
+    console.log(year_groups);
+
+    // console.log(test_res);
+    // // let theme_stats = test_res as ThemeStats;
+    // let map_stats: MapStats = {
+    //   year: test_res,
+    //   tag: test_res,
+    //   theme: test_res,
+    // };
+    return final_obj;
+  }),
+  // async (actions, payload, { getState, getStoreState }) => {
+  process_student: thunk(async (actions, payload, { getState }) => {
+    let first_image = create_gallery_images_for_student(payload, "series0101");
+    let image_request = get_image(first_image);
+    image_request.then((res: HTMLImageElement) => {
+      first_image.thumbnailWidth = res.width * 0.1;
+      first_image.thumbnailHeight = res.height * 0.1;
+      let student = row_to_student(payload, [first_image]);
+      actions.add_valid_student(student);
+    });
+  }),
+  process_raw_student_sheets: thunk(async (actions, payload, { getState }) => {
+    const validations = [lengthAtLeastFour];
+    payload.forEach((sheet: RawStudentRowValues[]) => {
+      sheet.forEach((row: RawStudentRowValues) => {
+        handle_validation(
+          row,
+          validations,
+          actions.add_validation_error,
+          actions.process_student
+        );
+      });
+    });
+  }),
+  set_filter_function: action((state, payload) => {
+    console.log("setting filter func");
+    state.filter_function = payload;
+  }),
+  test_gallery_images: computed((state) => {
+    let all_images: GalleryImage[] = [];
+    state.students.forEach((student) => {
+      all_images.push(...student.gallery_images);
+    });
+    return all_images;
+  }),
+  // add_validation_error: action(())
+  add_validation_error: action((state, payload) => {
+    state.validation_errors.push(payload);
+  }),
+  set_validation_errors: action((state, payload) => {
+    state.validation_errors = payload;
+  }),
+  request_all_spreadsheets: thunk(async (actions) => {
+    console.log("requesting all my spreadhsheets");
+  }),
+  // resolve_event_spreadsheet: action((state, payload){
+  fetch_event_spreadsheet: thunk(async (actions) => {
+    get_sheet<EventRowValues>(DOC_KEY, 1)
       .then((event_sheet: GoolgeSheet<EventRowValues>) => {
         const typed_event_rows = type_event_rows(event_sheet.data);
         actions.set_event_spreadsheet(typed_event_rows);
-        // console.table(typed_event_rows);
         const timeline_series = make_time_series(typed_event_rows);
-        // console.table(timeline_series);
-
         actions.set_timeline_series(timeline_series);
-        actions.set_loaded(true);
-        // } catch (error) {
-        // console.error("error generating time series");
-        // }
       })
       .catch((err: any) => {
         console.error(`Error fetching DOC_KEY ${DOC_KEY}`);
       });
+  }),
+  fetch_student_sheets: thunk(async (actions, _payload, { getState }) => {
+    let test_2016 = get_map_sheet(DOC_KEY, 2);
+    let student_sheet_requests = [test_2016];
+    // let student_sheet_requests = [test_2018, test_2020, test_2016];
+    Promise.all(student_sheet_requests).then(
+      (raw_student_rows: (void | RawStudentRowValues[])[]) => {
+        raw_student_rows.forEach((sheet_payload) => {
+          if (Array.isArray(sheet_payload)) {
+            actions.add_student_sheet_raw_data(
+              sheet_payload as RawStudentRowValues[]
+            );
+          } else {
+            console.error("did not get map row array");
+          }
+        });
+        // const map_stats = generate_map_stats(map_data.maps);
+        // actions.set_map_stats(map_stats);
+        // actions.set_map_spreadsheet(map_data.maps);
+        // actions.set_loaded(true);
+        actions.process_raw_student_sheets(getState().raw_student_sheets);
+      }
+    );
   }),
   set_map_spreadsheet: action((state, map_rows) => {
     state.map_spreadsheet = map_rows;
@@ -424,157 +553,17 @@ const map_data: MapDataModel = {
     }
   }),
   thunk_set_filter: thunk((actions, filter) => {
-    function quick_get(
-      group: FilterGroup,
-      cat: keyof MapMetadata
-    ): FilterResult {
-      const filter_set = filter_group_to_set(group);
-      if (
-        // group instanceof
-        group == FilterGroup.STUDENTS_2016 ||
-        group == FilterGroup.STUDENTS_2018 ||
-        group == FilterGroup.STUDENTS_2020
-      ) {
-        let splits = get_year_discipline(
-          filter_set as AuthorDisciplineFilter[]
-        );
-        const filter_func = function (val: GalleryImage) {
-          return splits.years.includes(val.tags[0].year);
-          // splits.discipline.includes(val.tags[0].discipline)
-        };
-        return {
-          filter_func: filter_func,
-          filters: filter_set,
-        } as FilterResult;
-      } else {
-        const filter_func = function (val: GalleryImage) {
-          return filter_set.includes(val.tags[0][cat]);
-        };
-        return {
-          filter_func: filter_func,
-          filters: filter_set,
-        } as FilterResult;
-      }
-    }
-
-    function get_group_filter(f: FilterOption): FilterResult {
-      let final_result = {
-        filter_func: "aaa",
-        filters: [],
-      } as FilterResult;
-
-      switch (f) {
-        case FilterGroup.ACCESS_THEME:
-          final_result = quick_get(
-            FilterGroup.ACCESS_THEME,
-            "theme" as keyof MapMetadata
-          );
-          break;
-        case FilterGroup.EQUITY_THEME:
-          final_result = quick_get(
-            FilterGroup.EQUITY_THEME,
-            "theme" as keyof MapMetadata
-          );
-          break;
-        case FilterGroup.DIVERISTY_THEME:
-          final_result = quick_get(
-            FilterGroup.DIVERISTY_THEME,
-            "theme" as keyof MapMetadata
-          );
-          break;
-        case FilterGroup.STUDENTS_2016:
-          final_result = quick_get(
-            FilterGroup.STUDENTS_2016,
-            "year" as keyof MapMetadata
-          );
-          break;
-        case FilterGroup.STUDENTS_2018:
-          final_result = quick_get(
-            FilterGroup.STUDENTS_2018,
-            "year" as keyof MapMetadata
-          );
-          break;
-        case FilterGroup.STUDENTS_2020:
-          final_result = quick_get(
-            FilterGroup.STUDENTS_2020,
-            "year" as keyof MapMetadata
-          );
-          break;
-        case FilterGroup.BUILT_TOPIC:
-          final_result = quick_get(
-            FilterGroup.BUILT_TOPIC,
-            "subtopic" as keyof MapMetadata
-          );
-          break;
-        case FilterGroup.ECONOMIC_TOPIC:
-          final_result = quick_get(
-            FilterGroup.ECONOMIC_TOPIC,
-            "subtopic" as keyof MapMetadata
-          );
-          break;
-        case FilterGroup.NATURAL_TOPIC:
-          final_result = quick_get(
-            FilterGroup.NATURAL_TOPIC,
-            "subtopic" as keyof MapMetadata
-          );
-          break;
-        case FilterGroup.POLITICAL_TOPIC:
-          final_result = quick_get(
-            FilterGroup.POLITICAL_TOPIC,
-            "subtopic" as keyof MapMetadata
-          );
-          break;
-        case FilterGroup.SOCIAL_TOPIC:
-          final_result = quick_get(
-            FilterGroup.SOCIAL_TOPIC,
-            "subtopic" as keyof MapMetadata
-          );
-          break;
-      }
-      console.log(final_result);
-      return final_result;
-    }
-
-    function get_single_filter(f: FilterOption): FilterResult {
-      let filter_func: any;
-      if (Object.values(MapSubTopic).includes(f as MapSubTopic)) {
-        filter_func = function (val: GalleryImage) {
-          return val.tags[0].subtopic === f;
-        };
-      } else if (
-        Object.values(ThemeCategoryFilter).includes(f as ThemeCategoryFilter)
-      ) {
-        filter_func = function (val: GalleryImage) {
-          return val.tags[0].theme === f;
-        };
-      } else if (
-        Object.values(AuthorDisciplineFilter).includes(
-          f as AuthorDisciplineFilter
-        )
-      ) {
-        f = f as AuthorDisciplineFilter;
-        let discipline = f.split("_")[0];
-        let year = f.split("_")[1];
-        filter_func = function (val: GalleryImage) {
-          return (
-            val.tags[0].year === year && val.tags[0].discipline == discipline
-          );
-        };
-      }
-      return {
-        filter_func: filter_func,
-        filters: [f],
-      } as FilterResult;
-    }
-
+    console.log("doing thunk set filter");
     let group_options = Object.values(FilterGroup);
 
     if (group_options.includes(filter as FilterGroup)) {
       let group_filter = get_group_filter(filter);
+      actions.set_filter_function(group_filter.filter_func);
       actions.filter_gallery_2(group_filter);
       actions.set_group_filter(filter as FilterGroup);
     } else {
       let single_filter = get_single_filter(filter);
+      actions.set_filter_function(single_filter.filter_func);
       actions.filter_gallery_2(single_filter);
     }
   }),
@@ -585,11 +574,12 @@ const map_data: MapDataModel = {
     console.log(active_filter);
     state.filter = active_filter;
   }),
-  set_active_lightbox: action((state, item) => {
+  set_lightbox_content: action((state, item) => {
     let source_row = state.map_spreadsheet.filter(
       (r) => r.series0101 === item.src
-      // (r) => r.photo1 === item.src
     )[0];
+
+    console.log(item);
     let photo_sources: PhotoInfo[] = [];
     Object.keys(source_row).forEach(function (k: string) {
       if (k.startsWith("photo")) {
@@ -612,99 +602,161 @@ const map_data: MapDataModel = {
   set_loaded: action((state, is_loaded) => {
     state.loaded = is_loaded;
   }),
-  thunk_set_multi_filter: thunk((actions, filters) => {
-    console.log(filters);
-    actions.set_multi_filter(filters);
-  }),
-  set_multi_filter: action((state, filters) => {
-    state.multi_tag = filters;
-  }),
 };
 
-function generate_map_stats(map_rows: RawStudentRowValues[]): MapStats {
-  const yd = generate_year_discpline_stats(map_rows);
-  const td = generate_topic_stats(map_rows);
-  const theme_stats = generate_theme_stats(map_rows);
-  const map_stats: MapStats = {
-    year: yd,
-    tag: td,
-    theme: theme_stats,
-  };
-  return map_stats;
-}
-
-function generate_year_discpline_stats(
-  map_rows: RawStudentRowValues[]
-): YearDisciplineStats {
-  const year_groups = groupBy(map_rows, "year");
-  const yg_keys = Object.keys(year_groups);
-  const max_unit_count = 10;
-
-  const year_group = yg_keys.map((k: any, i: number) => {
-    const year_breakdown = groupBy(year_groups[k], "discipline");
-    let cats = Object.keys(year_breakdown);
-    let final_data: any = {};
-    cats.forEach((c) => {
-      final_data[c] = Math.round(
-        (year_breakdown[c].length / year_groups[yg_keys[i]].length) *
-          max_unit_count
-      );
-    });
-    return final_data;
-  });
-  const final_data: any = {};
-  console.log(year_group);
-  year_group.forEach((s, ind) => {
-    final_data[yg_keys[ind]] = s;
-  });
-  let fomratted_data = final_data as YearDisciplineStats;
-  return fomratted_data;
-}
-
-function generate_topic_stats(map_rows: RawStudentRowValues[]): TagStats {
-  const total_cat_blocks = 75;
-  const topic_groups = groupBy(map_rows, "tags");
-  let empty_cont: any = {};
-  let keys = Object.keys(topic_groups);
-  keys.forEach((k) => {
-    const topic_group_count = topic_groups[k].length;
-    const sub_groups = groupBy(topic_groups[k], "subtopic");
-    const cat_percent = topic_groups[k].length / map_rows.length;
-    const portioned_cat_blocks = cat_percent * total_cat_blocks;
-    let empty_sg: any = {
-      cat_percent: topic_groups[k].length / map_rows.length,
-      cat_blocks: portioned_cat_blocks,
+function get_single_filter(f: FilterOption): FilterResult {
+  let filter_func: any;
+  if (Object.values(MapSubTopic).includes(f as MapSubTopic)) {
+    filter_func = function (val: GalleryImage) {
+      return val.tags[0].subtopic === f;
     };
-    const sub_keys = Object.keys(sub_groups);
-    sub_keys.forEach((sk) => {
-      empty_sg[sk] = Math.round(
-        ((Math.ceil(((sub_groups[sk].length / topic_group_count) * 100) / 20) *
-          20) /
-          100) *
-          5
+  } else if (
+    Object.values(ThemeCategoryFilter).includes(f as ThemeCategoryFilter)
+  ) {
+    filter_func = function (val: GalleryImage) {
+      return val.tags[0].theme === f;
+    };
+  } else if (
+    Object.values(AuthorDisciplineFilter).includes(f as AuthorDisciplineFilter)
+  ) {
+    f = f as AuthorDisciplineFilter;
+    let discipline = f.split("_")[0];
+    let year = f.split("_")[1];
+    filter_func = function (val: GalleryImage) {
+      return val.tags[0].year === year && val.tags[0].discipline == discipline;
+    };
+  }
+  return {
+    filter_func: filter_func,
+    filters: [f],
+  } as FilterResult;
+}
+
+///END MODEL
+//TODO: RENAME
+function quick_get(group: FilterGroup, cat: keyof MapMetadata): FilterResult {
+  const filter_set = filter_group_to_set(group);
+  if (
+    // group instanceof
+    group == FilterGroup.STUDENTS_2016 ||
+    group == FilterGroup.STUDENTS_2018 ||
+    group == FilterGroup.STUDENTS_2020
+  ) {
+    let splits = get_year_discipline(filter_set as AuthorDisciplineFilter[]);
+    const filter_func = function (val: GalleryImage) {
+      return splits.years.includes(val.tags[0].year);
+      // splits.discipline.includes(val.tags[0].discipline)
+    };
+    return {
+      filter_func: filter_func,
+      filters: filter_set,
+    } as FilterResult;
+  } else {
+    const filter_func = function (val: GalleryImage) {
+      console.log(cat);
+      console.log(filter_set);
+      console.log(val.tags[0]);
+      console.log(val.tags[0][cat]);
+      console.log(filter_set.includes(val.tags[0][cat]));
+      return filter_set.includes(val.tags[0][cat]);
+      // return filter_set.includes(val.tags[0][cat]);
+    };
+    return {
+      filter_func: filter_func,
+      filters: filter_set,
+    } as FilterResult;
+  }
+}
+
+function get_group_filter(f: FilterOption): FilterResult {
+  let final_result = {
+    filter_func: "aaa",
+    filters: [],
+  } as FilterResult;
+
+  switch (f) {
+    case FilterGroup.ACCESS_THEME:
+      final_result = quick_get(
+        FilterGroup.ACCESS_THEME,
+        "theme" as keyof MapMetadata
       );
-    });
-    empty_cont[k] = empty_sg;
-  });
-
-  return empty_cont as TagStats;
+      break;
+    case FilterGroup.EQUITY_THEME:
+      final_result = quick_get(
+        FilterGroup.EQUITY_THEME,
+        "theme" as keyof MapMetadata
+      );
+      break;
+    case FilterGroup.DIVERISTY_THEME:
+      final_result = quick_get(
+        FilterGroup.DIVERISTY_THEME,
+        "theme" as keyof MapMetadata
+      );
+      break;
+    case FilterGroup.STUDENTS_2016:
+      final_result = quick_get(
+        FilterGroup.STUDENTS_2016,
+        "year" as keyof MapMetadata
+      );
+      break;
+    case FilterGroup.STUDENTS_2018:
+      final_result = quick_get(
+        FilterGroup.STUDENTS_2018,
+        "year" as keyof MapMetadata
+      );
+      break;
+    case FilterGroup.STUDENTS_2020:
+      final_result = quick_get(
+        FilterGroup.STUDENTS_2020,
+        "year" as keyof MapMetadata
+      );
+      break;
+    case FilterGroup.BUILT_TOPIC:
+      final_result = quick_get(
+        FilterGroup.BUILT_TOPIC,
+        "subtopic" as keyof MapMetadata
+      );
+      break;
+    case FilterGroup.ECONOMIC_TOPIC:
+      final_result = quick_get(
+        FilterGroup.ECONOMIC_TOPIC,
+        "subtopic" as keyof MapMetadata
+      );
+      break;
+    case FilterGroup.NATURAL_TOPIC:
+      final_result = quick_get(
+        FilterGroup.NATURAL_TOPIC,
+        "subtopic" as keyof MapMetadata
+      );
+      break;
+    case FilterGroup.POLITICAL_TOPIC:
+      final_result = quick_get(
+        FilterGroup.POLITICAL_TOPIC,
+        "subtopic" as keyof MapMetadata
+      );
+      break;
+    case FilterGroup.SOCIAL_TOPIC:
+      final_result = quick_get(
+        FilterGroup.SOCIAL_TOPIC,
+        "subtopic" as keyof MapMetadata
+      );
+      break;
+  }
+  console.log(final_result);
+  return final_result;
 }
 
-function generate_theme_stats(map_rows: RawStudentRowValues[]): any {
-  const num_theme_blocks = 25;
-  //max number of blocks is 45
-  const theme_groups = groupBy(map_rows, "theme");
-  const theme_keys = Object.keys(theme_groups);
-  let empty_theme_data: any = {};
-
-  theme_keys.forEach((k) => {
-    empty_theme_data[k] = Math.round(
-      (theme_groups[k].length / map_rows.length) * num_theme_blocks
-    );
-    // empty_theme_data[k] = theme_groups[k].length/map_rows.length
-  });
-  return empty_theme_data as ThemeStats;
-}
+// function generate_map_stats(map_rows: RawStudentRowValues[]): MapStats {
+//   const yd = generate_year_discpline_stats(map_rows);
+//   const td = generate_topic_stats(map_rows);
+//   const theme_stats = generate_theme_stats(map_rows);
+//   const map_stats: MapStats = {
+//     year: yd,
+//     tag: td,
+//     theme: theme_stats,
+//   };
+//   return map_stats;
+// }
 
 function make_time_series(rows: EventRowValues[]): TimelineData {
   const categorized_events = groupBy(rows, "category");
@@ -899,6 +951,12 @@ function groupBy(arr: any[], property: any) {
     return acc;
   }, {});
 }
+// function groupByCount(arr: any[], property: any) {
+//   return arr.reduce((acc, cur) => {
+//     acc[cur[property]] = [...(acc[cur[property]] || []), cur];
+//     return acc;
+//   }, {});
+// }
 
 function type_event_rows(rows: any[]): EventRowValues[] {
   rows.forEach((r: any, ind: number) => {
@@ -953,32 +1011,32 @@ function lift<E, A>(
 //   );
 // }
 
-const row_to_student = (row: RawStudentRowValues): Student => {
-  let student: Student = {
-    title: row.title,
-    info: row.info,
-    discipline:
-      AuthorDisciplineFilter[
-        row.discipline as unknown as keyof typeof AuthorDisciplineFilter
-      ],
-    author: row.author,
-    topic: Topic[row.topic as unknown as keyof typeof Topic],
-    theme:
-      ThemeCategoryFilter[
-        row.theme as unknown as keyof typeof ThemeCategoryFilter
-      ],
-    subtopic: MapSubTopic[row.topic as unknown as keyof typeof MapSubTopic],
-    series0101: row.series0101,
-    series0102: row.series0102,
-    series0201: row.series0201,
-    series0202: row.series0202,
-    series0301: row.series0301,
-    series0302: row.series0302,
-    //thumbnails: []
-    //
-  };
-  return student;
-};
+// const row_to_student = (row: RawStudentRowValues): Student => {
+//   let student: Student = {
+//     title: row.title,
+//     info: row.info,
+//     discipline:
+//       AuthorDisciplineFilter[
+//         row.discipline as unknown as keyof typeof AuthorDisciplineFilter
+//       ],
+//     author: row.author,
+//     topic: Topic[row.topic as unknown as keyof typeof Topic],
+//     theme:
+//       ThemeCategoryFilter[
+//         row.theme as unknown as keyof typeof ThemeCategoryFilter
+//       ],
+//     subtopic: MapSubTopic[row.topic as unknown as keyof typeof MapSubTopic],
+//     series0101: row.series0101,
+//     series0102: row.series0102,
+//     series0201: row.series0201,
+//     series0202: row.series0202,
+//     series0301: row.series0301,
+//     series0302: row.series0302,
+//     //thumbnails: []
+//     //
+//   };
+//   return student;
+// };
 
 function get_image(image: GalleryImage): Promise<HTMLImageElement> {
   const promise = new Promise<HTMLImageElement>(function (resolve, reject) {
@@ -1081,37 +1139,38 @@ function filter_group_to_set(group_enum: FilterGroup): FilterOption[] {
       break;
     case FilterGroup.BUILT_TOPIC:
       my_filters = [
-        MapSubTopic.BE_INFRASTR,
-        MapSubTopic.BE_BUILDINGS,
-        MapSubTopic.BE_TRANSPORTATION,
+        MapSubTopic.INFRASTR,
+        MapSubTopic.BUILDINGS,
+        MapSubTopic.TRANSPORTATION,
       ];
       break;
     case FilterGroup.ECONOMIC_TOPIC:
       my_filters = [
-        MapSubTopic.EE_WORK,
-        MapSubTopic.EE_PROPERTY,
-        MapSubTopic.EE_URBANDEV,
+        MapSubTopic.WORK,
+        MapSubTopic.PROPERTY,
+        MapSubTopic.URBANDEV,
       ];
       break;
     case FilterGroup.NATURAL_TOPIC:
       my_filters = [
-        MapSubTopic.NE_GREENSPACE,
-        MapSubTopic.NE_POLLUTION,
-        MapSubTopic.NE_HYDROLOGY,
+        MapSubTopic.GREENSPACE,
+        MapSubTopic.POLLUTION,
+        MapSubTopic.HYDROLOGY,
       ];
       break;
     case FilterGroup.POLITICAL_TOPIC:
       my_filters = [
-        MapSubTopic.PE_CIVICENG,
-        MapSubTopic.PE_GOV,
-        MapSubTopic.PE_POLICY,
+        MapSubTopic.CIVICENG,
+        MapSubTopic.GOVERMENT,
+        MapSubTopic.POLICY,
       ];
+      // my_filters = [MapSubTopic.CIVICENG, MapSubTopic.GOV, MapSubTopic.POLICY];
       break;
     case FilterGroup.SOCIAL_TOPIC:
       my_filters = [
-        MapSubTopic.SE_EDUCATION,
-        MapSubTopic.SE_HEALTH,
-        MapSubTopic.SE_RACEGEN,
+        MapSubTopic.EDUCATION,
+        MapSubTopic.HEALTHSAFETY,
+        MapSubTopic.RACEGEN,
       ];
       break;
     case FilterGroup.EQUITY_THEME:
@@ -1144,3 +1203,29 @@ function arraysEqual(a: any[], b: any[]): boolean {
 }
 
 export default map_data;
+
+// Promise.all(gallery_image_responses).then(
+//   (res: HTMLImageElement[]) => {
+//     let sized_gallery_images = all_unsized_images.map(function (
+//       def_img: GalleryImage,
+//       i
+//     ) {
+//       def_img["thumbnailWidth"] = res[i].width * 0.05;
+//       def_img["thumbnailHeight"] = res[i].height * 0.05;
+//       return def_img;
+//     });
+//     // console.log(sized_gallery_images);
+//     actions.set_gallery_images(sized_gallery_images);
+//     actions.set_active_images(sized_gallery_images);
+//   }
+// );
+
+// let unsized_gallery_images =
+//   map_rows_to_images(succesful_map_rows);
+// let image_responses: ImagePromise[] = unsized_gallery_images.map(
+//   (gi: GalleryImage) => get_image(gi)
+// );
+// console.log(unsized_gallery_images);
+// gallery_image_responses.push(...image_responses);
+// all_unsized_images.push(...unsized_gallery_images);
+// map_data.maps.push(...sheet_payload);

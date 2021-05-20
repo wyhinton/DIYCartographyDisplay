@@ -17,8 +17,14 @@ import ErrorBoundary from "./Components/ErrorBoundary";
 // https://docs.google.com/spreadsheets/d/1-S8EkLYsknYoFWSynVeMQCi6Gf9PoV9A5ezzICXamJA/edit?usp=sharing
 // https://docs.google.com/spreadsheets/d/e/2PACX-1vShkIFNo43AJw8tdtdq4vsa40okE7v4IJbbXUOuIsLpnCYZMaQnPH9k3_YFhm814s2oa9VrVkQbzPNa/pubhtml
 const App = () => {
-  const test_thunk = useStoreActions(
-    (actions) => actions.map_data.fetch_map_data
+  const fetch_app_data = useStoreActions(
+    (actions) => actions.map_data.fetch_student_sheets
+  );
+  const fetch_event_spreadsheet = useStoreActions(
+    (actions) => actions.map_data.fetch_event_spreadsheet
+  );
+  const fetch_all_spreedsheets = useStoreActions(
+    (actions) => actions.map_data.request_all_spreadsheets
   );
   const myCustomTheme = merge({}, defaultTheme, {
     typography: {
@@ -30,8 +36,9 @@ const App = () => {
     },
   });
   useEffect(() => {
-    test_thunk();
-    console.log(defaultTheme);
+    fetch_event_spreadsheet();
+    fetch_app_data();
+    fetch_all_spreedsheets();
   }, []);
 
   return (

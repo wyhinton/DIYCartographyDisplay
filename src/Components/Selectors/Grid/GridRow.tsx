@@ -11,54 +11,53 @@ interface GridRowProps {
   count: number;
   filter: FilterOption;
   icon: JSX.Element;
-  // tooltip: string;
 }
 function filterToToolTip(filter: FilterOption): string {
   let tooltip_title;
   switch (filter) {
-    case MapSubTopic.BE_BUILDINGS:
+    case MapSubTopic.BUILDINGS:
       tooltip_title = "Buildings";
       break;
-    case MapSubTopic.BE_TRANSPORTATION:
+    case MapSubTopic.TRANSPORTATION:
       tooltip_title = "Transportation";
       break;
-    case MapSubTopic.BE_INFRASTR:
+    case MapSubTopic.INFRASTR:
       tooltip_title = "Infrastructure";
       break;
-    case MapSubTopic.EE_PROPERTY:
+    case MapSubTopic.PROPERTY:
       tooltip_title = "Property";
       break;
-    case MapSubTopic.EE_URBANDEV:
+    case MapSubTopic.URBANDEV:
       tooltip_title = "Urban Development";
       break;
-    case MapSubTopic.EE_WORK:
+    case MapSubTopic.WORK:
       tooltip_title = "Work";
       break;
-    case MapSubTopic.NE_GREENSPACE:
+    case MapSubTopic.GREENSPACE:
       tooltip_title = "Greenspace";
       break;
-    case MapSubTopic.NE_POLLUTION:
+    case MapSubTopic.POLLUTION:
       tooltip_title = "Pollution";
       break;
-    case MapSubTopic.NE_HYDROLOGY:
+    case MapSubTopic.HYDROLOGY:
       tooltip_title = "Hydrology";
       break;
-    case MapSubTopic.PE_GOV:
+    case MapSubTopic.GOVERMENT:
       tooltip_title = "Government";
       break;
-    case MapSubTopic.PE_POLICY:
+    case MapSubTopic.POLICY:
       tooltip_title = "Policy";
       break;
-    case MapSubTopic.PE_CIVICENG:
+    case MapSubTopic.CIVICENG:
       tooltip_title = "Civic Engagment";
       break;
-    case MapSubTopic.SE_EDUCATION:
+    case MapSubTopic.EDUCATION:
       tooltip_title = "Education";
       break;
-    case MapSubTopic.SE_HEALTH:
+    case MapSubTopic.HEALTHSAFETY:
       tooltip_title = "Health";
       break;
-    case MapSubTopic.SE_RACEGEN:
+    case MapSubTopic.RACEGEN:
       tooltip_title = "Race and Gender";
       break;
     default:
@@ -70,7 +69,7 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
   const theme = useTheme();
   const [hovered, setHovered] = useState(false);
   const real_filter = useStoreState((state) => state.map_data.filter);
-  const set_filter = useStoreActions(
+  const thunk_set_filter = useStoreActions(
     (actions) => actions.map_data.thunk_set_filter
   );
   useEffect(() => {}, [real_filter]);
@@ -99,10 +98,11 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
       onMouseEnter={() => setHovered(!hovered)}
       onMouseLeave={() => setHovered(!hovered)}
       onMouseUp={() => {
-        set_filter(filter);
+        thunk_set_filter(filter);
       }}
     >
       {Array.from(Array(count)).map((r, i) => {
+        console.log(count);
         return (
           <GridUnit
             key={i}
