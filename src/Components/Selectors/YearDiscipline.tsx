@@ -23,7 +23,7 @@ function to_author_enum(
 const YearDiscipline = () => {
   const theme = useTheme();
   const year_data = useStoreState(
-    (state) => state.map_data?.computed_student_stats?.year
+    (state) => state.map_data?.studentStats?.year
   );
   // const year_data = useStoreState((state) => state.map_data?.map_stats?.year);
   console.log(year_data);
@@ -112,21 +112,22 @@ const YearDiscipline = () => {
           size={3}
           filter={FilterGroup.STUDENTS_2016}
         >
-          {make_year_chunks("2016", year_data["2016"])}
+          {make_year_chunks("2016", year_data?.["2016"])}
+          {/* make_year_chunks("2016", year_data["2016"])} */}
         </SelectorGroup>
         <SelectorGroup
           title={"2018"}
           size={3}
           filter={FilterGroup.STUDENTS_2018}
         >
-          {make_year_chunks("2018", year_data["2018"])}
+          {make_year_chunks("2018", year_data?.["2018"])}
         </SelectorGroup>
         <SelectorGroup
           title={"2020"}
           size={3}
           filter={FilterGroup.STUDENTS_2020}
         >
-          {make_year_chunks("2020", year_data["2020"])}
+          {make_year_chunks("2020", year_data?.["2020"])}
         </SelectorGroup>
       </SelectorParent>
     </>

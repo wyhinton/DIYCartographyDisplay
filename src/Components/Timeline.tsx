@@ -21,7 +21,6 @@ import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { EventLevel } from "../model/enums";
 import "../css/timeline.css";
-import { convertTypeAcquisitionFromJson } from "typescript";
 interface Seperator {
   pos: number;
   // pos: string;
@@ -30,6 +29,7 @@ interface Seperator {
 }
 
 const Timeline = function () {
+  // const time_series = useStoreState((state) => state.map_data.timlineData);
   const time_series = useStoreState((state) => state.map_data.timeline_series);
   const timeline_offset = "6em";
   const event_rows: EventRowValues[] = useStoreState(

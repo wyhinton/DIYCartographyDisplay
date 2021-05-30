@@ -23,18 +23,13 @@ const MapGallery = () => {
   const gallery_images = useStoreState(
     (state) => state.map_data?.computed_active_images
   );
-  // const gallery_images = useStoreState(
-  //   (state) => state.map_data?.active_images
-  // );
   const [showLightbox, setShowLightBox] = useState(false);
   const set_active_lightbox = useStoreActions(
-    (actions) => actions.map_data.set_lightbox_content
+    (actions) => actions.map_data.set_lightboxData
   );
-  const active_lightbox = useStoreState(
-    (state) => state.map_data.active_lightbox
-  );
-  // const test_all_images = useStoreState(
-  //   (state) => state.map_data.test_gallery_images
+  const active_lightbox = useStoreState((state) => state.map_data.lightBoxData);
+  // const active_lightbox = useStoreState(
+  //   (state) => state.map_data.active_lightbox
   // );
   const data_loaded = useStoreState((state) => state.map_data.loaded);
   const theme = useTheme();

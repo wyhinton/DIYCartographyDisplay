@@ -8,10 +8,7 @@ import {
   computed,
 } from "easy-peasy";
 import GetSheetDone from "get-sheet-done";
-import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
-import { pipe } from "fp-ts/lib/function";
-import { Either, mapLeft } from "fp-ts/lib/Either";
 import {
   AuthorDisciplineFilter,
   MapSubTopic,
@@ -21,14 +18,24 @@ import {
   FilterGroup,
   Topic,
 } from "./enums";
-import type { MapStats } from "./sub_models/student_stats";
-import type { RawStudentRowValues } from "./sub_models/sheet_data_models";
+// import type { MapStats } from "./sub_models/student_stats";
+import type {
+  RawStudentRowValues,
+  GoolgeSheet,
+  RawEventRowValues,
+} from "./sheet_data_models";
 import type { FilterOption } from "./types";
 import {
   handle_validation,
   lengthAtLeastFour,
   ValidationError,
 } from "./validation";
+import { arraysEqual, groupBy } from "./utils";
+import { StudentClass, SeriesId } from "./student";
+import { StudentStats } from "./student_stats";
+import { LightBoxData } from "./lightbox";
+import { TimelineEvent } from "./timeline_event";
+import { Timeline } from "./timeline";
 
 /**
   tags can not be an object due to the Gallery Image API,
@@ -51,6 +58,7 @@ export interface GalleryImage {
 }
 
 export interface MapMetadata {
+  author: string;
   discipline: AuthorDisciplineFilter;
   subtopic: MapSubTopic;
   theme: ThemeCategoryFilter;
@@ -63,42 +71,7 @@ export interface YearSection {
   discipline: string[];
 }
 
-/**
- * Generic GoogleSheet with type argument 
-   which we use only when fetching our sheets.
-   Currently te
- */
 //TODO: FILLOUT TYPES
-export interface GoolgeSheet<T> {
-  data: Array<T>;
-  title: string;
-  updated: string;
-}
-
-export interface Student {
-  author: string;
-  year: string;
-  title: string;
-  info: string;
-  discipline: AuthorDisciplineFilter;
-  topic: Topic;
-  subtopic: MapSubTopic;
-  theme: ThemeCategoryFilter;
-  gallery_images: GalleryImage[];
-  lightbox_images: GalleryImage[];
-}
-
-export interface LightBoxContent {
-  images: PhotoInfo[];
-  description: string;
-  author: string;
-  title: string;
-}
-
-export interface PhotoInfo {
-  source: string;
-  kind: string;
-}
 
 export interface EventRowValues {
   start: Date;
@@ -134,14 +107,16 @@ export interface FilterResult {
 
 export interface MapDataModel {
   //STATEFUL UI DATA (TOOLBAR)
-  doc_key: string;
   filter: FilterOption[];
   group_filter: FilterGroup;
   filter_function: any;
   loaded: boolean;
-  active_lightbox: LightBoxContent;
-  students: Student[];
-
+  // active_lightbox: LightBoxData;
+  // active_lightbox: LightBoxContent;
+  studentsClass: StudentClass[];
+  studentStats: StudentStats | undefined;
+  lightBoxData: LightBoxData;
+  timlineData: Timeline;
   //TIMELINE
   timeline_series: TimelineData;
 
@@ -152,20 +127,21 @@ export interface MapDataModel {
 
   //COMPUTED FROM EXTERNAL DATA
   computed_active_images: Computed<MapDataModel, GalleryImage[]>;
-  test_gallery_images: Computed<MapDataModel, GalleryImage[]>;
-  computed_student_stats: Computed<MapDataModel, MapStats>;
-  map_stats: MapStats | undefined;
+  computed_all_gallery_images: Computed<MapDataModel, GalleryImage[]>;
 
   //THUNKS - FETCH EXTERNAL
   fetch_event_spreadsheet: Thunk<MapDataModel>;
   fetch_student_sheets: Thunk<MapDataModel>;
   request_all_spreadsheets: Thunk<MapDataModel>;
+  request_student_assets: Action<
+    MapDataModel,
+    [RawStudentRowValues, Promise<HTMLImageElement>]
+  >;
+  student_asset_requests: [RawStudentRowValues, Promise<HTMLImageElement>][];
 
   //THUNKS - UI
   thunk_set_filter: Thunk<MapDataModel, FilterOption>;
-  process_student: Thunk<MapDataModel, RawStudentRowValues>;
   process_raw_student_sheets: Thunk<MapDataModel, RawStudentRowValues[][]>;
-
   //STORE RAW GOOGLE SHEETS INFO FOR DEBUGGING
   raw_student_sheets: RawStudentRowValues[][];
   map_spreadsheet: RawStudentRowValues[];
@@ -177,18 +153,17 @@ export interface MapDataModel {
   validation_errors: ValidationError[];
 
   //SETTERS
-  add_valid_student: Action<MapDataModel, Student>;
+  // set_LightBoxData: Action<MapDataModel, StudentClass>;
+  set_timelineData: Action<MapDataModel, TimelineEvent[]>;
+  set_lightboxData: Action<MapDataModel, GalleryImage>;
+  set_StudentStats: Action<MapDataModel, StudentStats>;
+  set_all_students: Action<MapDataModel, StudentClass[]>;
   set_group_filter: Action<MapDataModel, FilterGroup>;
   set_filter_function: Action<MapDataModel, any>;
-  set_map_spreadsheet: Action<MapDataModel, RawStudentRowValues[]>;
-  set_map_stats: Action<MapDataModel, MapStats>;
-  set_all_images: Action<MapDataModel, GalleryImage[]>;
   set_gallery_images: Action<MapDataModel, GalleryImage[]>;
-  set_active_images: Action<MapDataModel, GalleryImage[]>;
   set_timeline_series: Action<MapDataModel, TimelineData>;
   set_active_filter: Action<MapDataModel, FilterOption[]>;
-  reset_gallery: Action<MapDataModel>;
-  set_lightbox_content: Action<MapDataModel, GalleryImage>;
+
   set_loaded: Action<MapDataModel, boolean>;
   filter_gallery_2: Action<MapDataModel, FilterResult>;
   set_validation_errors: Action<MapDataModel, ValidationError[]>;
@@ -213,95 +188,29 @@ const initial_empty_timeline: TimelineData = {
   NA: empty_NA,
 };
 
-const empty_photo: PhotoInfo[] = [];
+// const empty_photo: PhotoInfo[] = [];
 
-const lb_initial: LightBoxContent = {
-  images: empty_photo,
-  description: "default",
-  title: "string",
-  author: "some author",
-};
-
-const init_map_stats: MapStats = {
-  year: {},
-  subtopic: {},
-  theme: {},
-};
-
-const row_to_student = (
-  row: RawStudentRowValues,
-  gallery_images: GalleryImage[]
-): Student => {
-  let student: Student = {
-    author: row.author,
-    year: row.year,
-    title: row.title,
-    info: row.info,
-    discipline:
-      AuthorDisciplineFilter[
-        row.discipline as unknown as keyof typeof AuthorDisciplineFilter
-      ],
-    topic: Topic[row.topic as unknown as keyof typeof Topic],
-    theme:
-      ThemeCategoryFilter[
-        row.theme as unknown as keyof typeof ThemeCategoryFilter
-      ],
-    subtopic: MapSubTopic[row.subtopic as unknown as keyof typeof MapSubTopic],
-    gallery_images: gallery_images,
-    lightbox_images: gallery_images,
-  };
-  console.log(student.subtopic);
-  return student;
-};
-
-function create_gallery_images_for_student(
-  single_row: RawStudentRowValues,
-  series_number: string
-): GalleryImage {
-  const keyTyped = series_number as keyof typeof single_row;
-  let gallery_image = {
-    src: single_row[keyTyped],
-    // src: single_row.series0101,
-    thumbnail: single_row[keyTyped],
-    // thumbnail: single_row.thumbnail,
-    isSelected: false,
-    //TODO: SET UP CAPTIONS
-    caption: "Im in this other file",
-    thumbnailWidth: 95,
-    thumbnailHeight: 174,
-    tags: [
-      {
-        discipline:
-          AuthorDisciplineFilter[
-            single_row.discipline as unknown as keyof typeof AuthorDisciplineFilter
-          ],
-        subtopic:
-          MapSubTopic[
-            // (single_row.tags + "_" +
-            single_row.subtopic as unknown as keyof typeof MapSubTopic
-          ],
-        theme:
-          ThemeCategoryFilter[
-            single_row.theme as unknown as keyof typeof ThemeCategoryFilter
-          ],
-        year: single_row.year,
-      },
-    ],
-  };
-  // );
-  return gallery_image;
-}
+// const lb_initial: LightBoxContent = {
+//   images: empty_photo,
+//   description: "default",
+//   title: "string",
+//   author: "some author",
+// };
 
 const map_data: MapDataModel = {
-  doc_key: "1-S8EkLYsknYoFWSynVeMQCi6Gf9PoV9A5ezzICXamJA",
   filter: [],
-  students: [],
+  timlineData: new Timeline(),
+  // students: [],
+  studentsClass: [],
+  lightBoxData: new LightBoxData(),
   group_filter: FilterGroup.NONE,
   active_images: [],
   filter_function: (gi: GalleryImage) => true,
   computed_active_images: computed((state) => {
     console.log(state.filter_function);
-    let active = state.test_gallery_images.filter(state.filter_function);
+    let active = state.computed_all_gallery_images.filter(
+      state.filter_function
+    );
     console.log(active);
     return active;
   }),
@@ -310,160 +219,56 @@ const map_data: MapDataModel = {
   all_images: [],
   timeline_series: initial_empty_timeline,
   loaded: false,
-  active_lightbox: lb_initial,
+  // active_lightbox: lb_initial,
   map_spreadsheet: [],
-  map_stats: init_map_stats,
+  studentStats: undefined,
   event_spreadsheet: [],
   validation_errors: [],
+  student_asset_requests: [],
   //creates a new student
-  add_valid_student: action((state, payload) => {
-    state.students.push(payload);
+  // set_loaded_students: action((state, payload) => {
+  //   state.students = payload;
+  // }),
+  set_all_students: action((state, payload) => {
+    state.studentsClass = payload;
+  }),
+  request_student_assets: action((state, payload) => {
+    state.student_asset_requests.push(payload);
   }),
   add_student_sheet_raw_data: action((state, payload) => {
     state.raw_student_sheets.push(payload);
   }),
-  computed_student_stats: computed((state) => {
-    function topic_to_array_of_subtopics(topic: Topic): MapSubTopic[] {
-      let topic_subtopics: MapSubTopic[] = [];
-      switch (topic) {
-        case Topic.BE:
-          topic_subtopics = [
-            MapSubTopic.INFRASTR,
-            MapSubTopic.BUILDINGS,
-            MapSubTopic.TRANSPORTATION,
-          ];
-          break;
-        case Topic.EE:
-          topic_subtopics = [
-            MapSubTopic.WORK,
-            MapSubTopic.PROPERTY,
-            MapSubTopic.URBANDEV,
-          ];
-          break;
-        case Topic.NE:
-          topic_subtopics = [
-            MapSubTopic.GREENSPACE,
-            MapSubTopic.POLLUTION,
-            MapSubTopic.HYDROLOGY,
-          ];
-          break;
-        case Topic.PE:
-          topic_subtopics = [
-            MapSubTopic.CIVICENG,
-            MapSubTopic.GOVERMENT,
-            MapSubTopic.POLICY,
-          ];
-          // topic_subtopics = [MapSubTopic.CIVICENG, MapSubTopic.GOV, MapSubTopic.POLICY];
-          break;
-        case Topic.SE:
-          topic_subtopics = [
-            MapSubTopic.EDUCATION,
-            MapSubTopic.HEALTHSAFETY,
-            MapSubTopic.RACEGEN,
-          ];
-          break;
-      }
-      return topic_subtopics;
-    }
-    function object_values_to_array_lengths(obj: any): any {
-      let keys = Object.keys(obj);
-      keys.forEach((key) => {
-        obj[key] = obj[key].length;
-      });
-      return obj;
-    }
-    function get_year_breakdown(students: Student[]) {
-      let year_groups = groupBy(state.students, "year");
-      var new_obj = {};
-      for (const [key, value] of Object.entries(year_groups)) {
-        let test = groupBy(value as Student[], "discipline");
-        test = object_values_to_array_lengths(test);
-        (new_obj as any)[key] = test;
-        console.log(new_obj);
-      }
-      return new_obj;
-    }
-    const discipline_stats = get_year_breakdown(state.students);
-    const theme_stats = object_values_to_array_lengths(
-      groupBy(state.students, "theme")
+  process_raw_student_sheets: thunk(async (actions, payload) => {
+    const all_rows = payload.flat();
+    let all_students = all_rows.map((r) => new StudentClass(r));
+    let resize_req = all_students.map((s) =>
+      s.request_gallery_thumbnail(SeriesId.series0101)
     );
-    function get_topic_breakdown(students: Student[]) {
-      let topic_groups = groupBy(state.students, "topic");
-      var student_map_stats = {};
-      for (const [key, value] of Object.entries(topic_groups)) {
-        let subtopic_group = groupBy(value as Student[], "subtopic");
-        let all_subtopics = topic_to_array_of_subtopics(
-          Topic[key as unknown as keyof typeof Topic]
-        );
-
-        subtopic_group = object_values_to_array_lengths(subtopic_group);
-        all_subtopics.forEach((st) => {
-          if (!(st in subtopic_group)) {
-            (subtopic_group as any)[st] = 0;
-          }
-        });
-        (student_map_stats as any)[key] = subtopic_group;
-      }
-      return student_map_stats;
-    }
-
-    const subtopic_stats = get_topic_breakdown(state.students);
-    // console.log(test);
-    const final_obj = {
-      year: discipline_stats,
-      subtopic: subtopic_stats,
-      theme: theme_stats,
-    };
-
-    console.log(final_obj);
-    let year_groups = groupBy(state.students, "year");
-    console.log(year_groups);
-
-    // console.log(test_res);
-    // // let theme_stats = test_res as ThemeStats;
-    // let map_stats: MapStats = {
-    //   year: test_res,
-    //   tag: test_res,
-    //   theme: test_res,
-    // };
-    return final_obj;
-  }),
-  // async (actions, payload, { getState, getStoreState }) => {
-  process_student: thunk(async (actions, payload, { getState }) => {
-    let first_image = create_gallery_images_for_student(payload, "series0101");
-    let image_request = get_image(first_image);
-    image_request.then((res: HTMLImageElement) => {
-      first_image.thumbnailWidth = res.width * 0.1;
-      first_image.thumbnailHeight = res.height * 0.1;
-      let student = row_to_student(payload, [first_image]);
-      actions.add_valid_student(student);
-    });
-  }),
-  process_raw_student_sheets: thunk(async (actions, payload, { getState }) => {
-    const validations = [lengthAtLeastFour];
-    payload.forEach((sheet: RawStudentRowValues[]) => {
-      sheet.forEach((row: RawStudentRowValues) => {
-        handle_validation(
-          row,
-          validations,
-          actions.add_validation_error,
-          actions.process_student
-        );
+    Promise.all(resize_req).then((imgs) => {
+      let new_students: StudentClass[] = [];
+      imgs.forEach((img, i) => {
+        if (img) {
+          all_students[i].create_gallery_image(SeriesId.series0101, img);
+          // all_students[i].create_gallery_image(SeriesId.series0101, img);
+          new_students.push(all_students[i]);
+        }
       });
+      let student_stats = new StudentStats(new_students);
+      console.log(student_stats);
+      actions.set_all_students(new_students);
+      actions.set_StudentStats(student_stats);
     });
+  }),
+  set_StudentStats: action((state, payload) => {
+    state.studentStats = payload;
   }),
   set_filter_function: action((state, payload) => {
     console.log("setting filter func");
     state.filter_function = payload;
   }),
-  test_gallery_images: computed((state) => {
-    let all_images: GalleryImage[] = [];
-    state.students.forEach((student) => {
-      all_images.push(...student.gallery_images);
-    });
-    return all_images;
+  computed_all_gallery_images: computed((state) => {
+    return state.studentsClass.map((s) => s.get_gallery_images()).flat();
   }),
-  // add_validation_error: action(())
   add_validation_error: action((state, payload) => {
     state.validation_errors.push(payload);
   }),
@@ -473,10 +278,13 @@ const map_data: MapDataModel = {
   request_all_spreadsheets: thunk(async (actions) => {
     console.log("requesting all my spreadhsheets");
   }),
-  // resolve_event_spreadsheet: action((state, payload){
   fetch_event_spreadsheet: thunk(async (actions) => {
-    get_sheet<EventRowValues>(DOC_KEY, 1)
-      .then((event_sheet: GoolgeSheet<EventRowValues>) => {
+    get_sheet<RawEventRowValues>(DOC_KEY, 1)
+      .then((event_sheet: GoolgeSheet<RawEventRowValues>) => {
+        let timeline_events = event_sheet.data.map((r) => new TimelineEvent(r));
+        actions.set_timelineData(timeline_events);
+
+        //
         const typed_event_rows = type_event_rows(event_sheet.data);
         actions.set_event_spreadsheet(typed_event_rows);
         const timeline_series = make_time_series(typed_event_rows);
@@ -486,10 +294,12 @@ const map_data: MapDataModel = {
         console.error(`Error fetching DOC_KEY ${DOC_KEY}`);
       });
   }),
+  set_timelineData: action((state, payload) => {
+    state.timlineData.set_data(payload);
+  }),
   fetch_student_sheets: thunk(async (actions, _payload, { getState }) => {
     let test_2016 = get_map_sheet(DOC_KEY, 2);
     let student_sheet_requests = [test_2016];
-    // let student_sheet_requests = [test_2018, test_2020, test_2016];
     Promise.all(student_sheet_requests).then(
       (raw_student_rows: (void | RawStudentRowValues[])[]) => {
         raw_student_rows.forEach((sheet_payload) => {
@@ -501,31 +311,15 @@ const map_data: MapDataModel = {
             console.error("did not get map row array");
           }
         });
-        // const map_stats = generate_map_stats(map_data.maps);
-        // actions.set_map_stats(map_stats);
-        // actions.set_map_spreadsheet(map_data.maps);
-        // actions.set_loaded(true);
         actions.process_raw_student_sheets(getState().raw_student_sheets);
       }
     );
   }),
-  set_map_spreadsheet: action((state, map_rows) => {
-    state.map_spreadsheet = map_rows;
-  }),
-  set_map_stats: action((state, map_stats_obj) => {
-    state.map_stats = map_stats_obj;
-  }),
   set_event_spreadsheet: action((state, event_rows) => {
     state.event_spreadsheet = event_rows;
   }),
-  set_all_images: action((state, payload) => {
-    state.all_images = payload;
-  }),
   set_gallery_images: action((state, payload) => {
     state.gallery_images = payload;
-  }),
-  set_active_images: action((state, payload) => {
-    state.active_images = payload;
   }),
   filter_gallery_2: action((state, filter_result) => {
     if (arraysEqual(filter_result.filters, debug(state.filter))) {
@@ -567,43 +361,26 @@ const map_data: MapDataModel = {
       actions.filter_gallery_2(single_filter);
     }
   }),
-  reset_gallery: action((state) => {
-    state.active_images = state.gallery_images;
-  }),
   set_active_filter: action((state, active_filter) => {
     console.log(active_filter);
     state.filter = active_filter;
   }),
-  set_lightbox_content: action((state, item) => {
-    let source_row = state.map_spreadsheet.filter(
-      (r) => r.series0101 === item.src
-    )[0];
-
+  set_lightboxData: action((state, item) => {
     console.log(item);
-    let photo_sources: PhotoInfo[] = [];
-    Object.keys(source_row).forEach(function (k: string) {
-      if (k.startsWith("photo")) {
-        const key = k as keyof typeof source_row;
-        const photo_info: PhotoInfo = {
-          source: source_row[key],
-          kind: k,
-        };
-        photo_sources.push(photo_info);
-      }
-    });
-    const info: LightBoxContent = {
-      images: photo_sources,
-      description: source_row.info,
-      title: source_row.title,
-      author: source_row.author,
-    };
-    state.active_lightbox = info;
+    const tag_data: MapMetadata = item.tags[0];
+    const selected_student = state.studentsClass.filter(
+      (s) => s.author === tag_data.author
+    )[0];
+    console.log(debug(selected_student));
+    state.lightBoxData.set_student(selected_student);
   }),
   set_loaded: action((state, is_loaded) => {
     state.loaded = is_loaded;
   }),
 };
-
+function prop<T, K extends keyof T>(obj: T, key: K) {
+  return obj[key];
+}
 function get_single_filter(f: FilterOption): FilterResult {
   let filter_func: any;
   if (Object.values(MapSubTopic).includes(f as MapSubTopic)) {
@@ -746,18 +523,6 @@ function get_group_filter(f: FilterOption): FilterResult {
   return final_result;
 }
 
-// function generate_map_stats(map_rows: RawStudentRowValues[]): MapStats {
-//   const yd = generate_year_discpline_stats(map_rows);
-//   const td = generate_topic_stats(map_rows);
-//   const theme_stats = generate_theme_stats(map_rows);
-//   const map_stats: MapStats = {
-//     year: yd,
-//     tag: td,
-//     theme: theme_stats,
-//   };
-//   return map_stats;
-// }
-
 function make_time_series(rows: EventRowValues[]): TimelineData {
   const categorized_events = groupBy(rows, "category");
   console.log(categorized_events);
@@ -899,65 +664,6 @@ function date_range_overlaps(
   return false;
 }
 
-// interface BaseImage{
-//   src: string,
-//   author: string,
-
-// }
-// function get_all_images(rows: MapRow[]):
-
-//maprow-> student
-//student-> gallery image and normal images
-
-function map_rows_to_images(rows: RawStudentRowValues[]): GalleryImage[] {
-  let unsized_gallery_images: GalleryImage[] = rows.map(
-    (map_row: RawStudentRowValues) => ({
-      src: map_row.series0101,
-      thumbnail: map_row.series0101,
-      // thumbnail: map_row.thumbnail,
-      isSelected: false,
-      //TODO: SET UP CAPTIONS
-      caption: "Im in this other file",
-      thumbnailWidth: 95,
-      thumbnailHeight: 174,
-      tags: [
-        {
-          discipline:
-            AuthorDisciplineFilter[
-              map_row.discipline as unknown as keyof typeof AuthorDisciplineFilter
-            ],
-          subtopic:
-            MapSubTopic[
-              (map_row.topic +
-                // (map_row.tags +
-                "_" +
-                map_row.subtopic) as unknown as keyof typeof MapSubTopic
-            ],
-          theme:
-            ThemeCategoryFilter[
-              map_row.theme as unknown as keyof typeof ThemeCategoryFilter
-            ],
-          year: map_row.year,
-        },
-      ],
-    })
-  );
-  return unsized_gallery_images;
-}
-
-function groupBy(arr: any[], property: any) {
-  return arr.reduce((acc, cur) => {
-    acc[cur[property]] = [...(acc[cur[property]] || []), cur];
-    return acc;
-  }, {});
-}
-// function groupByCount(arr: any[], property: any) {
-//   return arr.reduce((acc, cur) => {
-//     acc[cur[property]] = [...(acc[cur[property]] || []), cur];
-//     return acc;
-//   }, {});
-// }
-
 function type_event_rows(rows: any[]): EventRowValues[] {
   rows.forEach((r: any, ind: number) => {
     const cat_string: string = rows[ind]["category"];
@@ -984,68 +690,15 @@ function type_map_rows(rows: any[]): RawStudentRowValues[] {
   return rows;
 }
 
-// const oneCapitalV = lift(oneCapital)
-// const oneNumberV = lift(oneNumber)
-
-// define a combinator that converts a check outputting an Either<E, A> into a check outputting a Either<NonEmptyArray<E>, A>
-function lift<E, A>(
-  check: (a: A) => Either<E, A>
-): (a: A) => Either<NonEmptyArray<E>, A> {
-  return (a) =>
-    pipe(
-      check(a),
-      mapLeft((a) => [a])
-    );
-}
-// const applicativeValidation = getValidation(getSemigroup<string>());
-// https://dev.to/gcanti/getting-started-with-fp-ts-either-vs-validation-5eja
-
-// function validateStudentRow(s: string): Either<NonEmptyArray<string>, string> {
-//   return pipe(
-//     sequenceT(getApplicativeValidation(getSemigroup<string>()))(
-//       minLengthV(s)
-//       // oneCapitalV(s),
-//       // oneNumberV(s)
-//     ),
-//     map(() => s)
-//   );
-// }
-
-// const row_to_student = (row: RawStudentRowValues): Student => {
-//   let student: Student = {
-//     title: row.title,
-//     info: row.info,
-//     discipline:
-//       AuthorDisciplineFilter[
-//         row.discipline as unknown as keyof typeof AuthorDisciplineFilter
-//       ],
-//     author: row.author,
-//     topic: Topic[row.topic as unknown as keyof typeof Topic],
-//     theme:
-//       ThemeCategoryFilter[
-//         row.theme as unknown as keyof typeof ThemeCategoryFilter
-//       ],
-//     subtopic: MapSubTopic[row.topic as unknown as keyof typeof MapSubTopic],
-//     series0101: row.series0101,
-//     series0102: row.series0102,
-//     series0201: row.series0201,
-//     series0202: row.series0202,
-//     series0301: row.series0301,
-//     series0302: row.series0302,
-//     //thumbnails: []
-//     //
-//   };
-//   return student;
-// };
-
-function get_image(image: GalleryImage): Promise<HTMLImageElement> {
+function request_image(image_url: string): Promise<HTMLImageElement> {
+  // function get_image(image: GalleryImage): Promise<HTMLImageElement> {
   const promise = new Promise<HTMLImageElement>(function (resolve, reject) {
     let img = new Image();
-    img.src = image.thumbnail;
+    img.src = image_url;
     // img.src = image.thumbnail;
     img.onload = () => {
-      image.thumbnailHeight = img.height;
-      image.thumbnailWidth = img.width;
+      // image.thumbnailHeight = img.height;
+      // image.thumbnailWidth = img.width;
       resolve(img);
     };
   });
@@ -1081,18 +734,6 @@ function get_map_sheet(
       console.error(`Error fetching DOC_KEY ${key}`);
     });
   return to_get;
-}
-
-function getAllFuncs(toCheck: any) {
-  var props: any[] = [];
-  var obj = toCheck;
-  do {
-    props = props.concat(Object.getOwnPropertyNames(obj));
-  } while ((obj = Object.getPrototypeOf(obj)));
-
-  return props.sort().filter(function (e, i, arr) {
-    if (e !== arr[i + 1] && typeof toCheck[e] == "function") return true;
-  });
 }
 
 function get_year_discipline(
@@ -1186,46 +827,4 @@ function filter_group_to_set(group_enum: FilterGroup): FilterOption[] {
   return my_filters;
 }
 
-function arraysEqual(a: any[], b: any[]): boolean {
-  if (a === b) return true;
-  if (a == null || b == null) return false;
-  if (a.length !== b.length) return false;
-
-  // If you don't care about the order of the elements inside
-  // the array, you should sort both arrays here.
-  // Please note that calling sort on an array will modify that array.
-  // you might want to clone your array first.
-
-  for (var i = 0; i < a.length; ++i) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
-}
-
 export default map_data;
-
-// Promise.all(gallery_image_responses).then(
-//   (res: HTMLImageElement[]) => {
-//     let sized_gallery_images = all_unsized_images.map(function (
-//       def_img: GalleryImage,
-//       i
-//     ) {
-//       def_img["thumbnailWidth"] = res[i].width * 0.05;
-//       def_img["thumbnailHeight"] = res[i].height * 0.05;
-//       return def_img;
-//     });
-//     // console.log(sized_gallery_images);
-//     actions.set_gallery_images(sized_gallery_images);
-//     actions.set_active_images(sized_gallery_images);
-//   }
-// );
-
-// let unsized_gallery_images =
-//   map_rows_to_images(succesful_map_rows);
-// let image_responses: ImagePromise[] = unsized_gallery_images.map(
-//   (gi: GalleryImage) => get_image(gi)
-// );
-// console.log(unsized_gallery_images);
-// gallery_image_responses.push(...image_responses);
-// all_unsized_images.push(...unsized_gallery_images);
-// map_data.maps.push(...sheet_payload);

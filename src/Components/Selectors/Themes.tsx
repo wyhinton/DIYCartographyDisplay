@@ -21,9 +21,9 @@ interface GridChunkProps {
 
 const Themes = () => {
   const theme = useTheme();
-  const total_count = 35;
   const theme_stats = useStoreState(
-    (state) => state.map_data?.map_stats?.theme
+    (state) => state.map_data?.studentStats?.theme
+    // (state) => state.map_data?.map_stats?.theme
   );
   // const theme_stats = map_stats.theme;
   return (
@@ -35,7 +35,7 @@ const Themes = () => {
           filter={FilterGroup.EQUITY_THEME}
         >
           <GridChunk
-            count={theme_stats.EQUITY}
+            count={theme_stats?.EQUITY}
             filter={ThemeCategoryFilter.EQUITY}
             base_color={0}
           />
@@ -46,7 +46,7 @@ const Themes = () => {
           filter={FilterGroup.ACCESS_THEME}
         >
           <GridChunk
-            count={theme_stats.ACCESS}
+            count={theme_stats?.ACCESS}
             filter={ThemeCategoryFilter.ACCESS}
             base_color={0}
           />
@@ -57,7 +57,7 @@ const Themes = () => {
           filter={FilterGroup.DIVERISTY_THEME}
         >
           <GridChunk
-            count={theme_stats.DIVERSITY}
+            count={theme_stats?.DIVERSITY}
             filter={ThemeCategoryFilter.DIVERSITY}
             base_color={0}
           />

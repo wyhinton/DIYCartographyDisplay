@@ -38,7 +38,7 @@ const App = () => {
   useEffect(() => {
     fetch_event_spreadsheet();
     fetch_app_data();
-    fetch_all_spreedsheets();
+    // fetch_all_spreedsheets();
   }, []);
 
   return (
