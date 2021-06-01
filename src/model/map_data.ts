@@ -106,24 +106,19 @@ export interface FilterResult {
 }
 
 export interface MapDataModel {
-  //STATEFUL UI DATA (TOOLBAR)
-  filter: FilterOption[];
-  group_filter: FilterGroup;
-  filter_function: any;
-  loaded: boolean;
-  // active_lightbox: LightBoxData;
-  // active_lightbox: LightBoxContent;
-  studentsClass: StudentClass[];
-  studentStats: StudentStats | undefined;
-  lightBoxData: LightBoxData;
-  timlineData: Timeline;
-  //TIMELINE
-  timeline_series: TimelineData;
-
-  //GALLERY
-  all_images: GalleryImage[];
+  //STATE
   active_images: GalleryImage[];
+  all_images: GalleryImage[];
+  filter: FilterOption[];
+  filter_function: any;
   gallery_images: GalleryImage[];
+  group_filter: FilterGroup;
+  lightBoxData: LightBoxData;
+  loaded: boolean;
+  studentStats: StudentStats | undefined;
+  studentsClass: StudentClass[];
+  timeline_series: TimelineData;
+  timlineData: Timeline;
 
   //COMPUTED FROM EXTERNAL DATA
   computed_active_images: Computed<MapDataModel, GalleryImage[]>;
@@ -299,7 +294,11 @@ const map_data: MapDataModel = {
   }),
   fetch_student_sheets: thunk(async (actions, _payload, { getState }) => {
     let test_2016 = get_map_sheet(DOC_KEY, 2);
+    // let test_2018 = get_map_sheet(DOC_KEY, 3);
+    // console.log(test_2018);
+    // let student_sheet_requests = [test_2016, test_2018];
     let student_sheet_requests = [test_2016];
+    console.log(student_sheet_requests);
     Promise.all(student_sheet_requests).then(
       (raw_student_rows: (void | RawStudentRowValues[])[]) => {
         raw_student_rows.forEach((sheet_payload) => {
@@ -378,9 +377,6 @@ const map_data: MapDataModel = {
     state.loaded = is_loaded;
   }),
 };
-function prop<T, K extends keyof T>(obj: T, key: K) {
-  return obj[key];
-}
 function get_single_filter(f: FilterOption): FilterResult {
   let filter_func: any;
   if (Object.values(MapSubTopic).includes(f as MapSubTopic)) {
@@ -678,33 +674,6 @@ function type_event_rows(rows: any[]): EventRowValues[] {
   return rows;
 }
 
-function type_map_rows(rows: any[]): RawStudentRowValues[] {
-  rows.forEach((r: any, ind: number) => {
-    const discipline_string: string = rows[ind]["discipline"];
-    const type_cat: AuthorDisciplineFilter =
-      AuthorDisciplineFilter[
-        discipline_string as unknown as keyof typeof AuthorDisciplineFilter
-      ];
-    rows[ind]["discipline"] = type_cat;
-  });
-  return rows;
-}
-
-function request_image(image_url: string): Promise<HTMLImageElement> {
-  // function get_image(image: GalleryImage): Promise<HTMLImageElement> {
-  const promise = new Promise<HTMLImageElement>(function (resolve, reject) {
-    let img = new Image();
-    img.src = image_url;
-    // img.src = image.thumbnail;
-    img.onload = () => {
-      // image.thumbnailHeight = img.height;
-      // image.thumbnailWidth = img.width;
-      resolve(img);
-    };
-  });
-  return promise;
-}
-
 function get_sheet<T>(key: string, sheet_num: number): Promise<GoolgeSheet<T>> {
   const promise = new Promise<GoolgeSheet<T>>(function (resolve, reject) {
     GetSheetDone.labeledCols(key, sheet_num)
@@ -727,8 +696,8 @@ function get_map_sheet(
   // function get_map_sheet(key: string, sheet_index: number): Promise<LabeledCols<MapRow[]>>{
   var to_get = get_sheet<RawStudentRowValues>(key, sheet_index)
     .then((map_sheet: GoolgeSheet<RawStudentRowValues>) => {
-      const typed_map_rows = type_map_rows(map_sheet.data);
-      return typed_map_rows;
+      // const typed_map_rows = type_map_rows(map_sheet.data);
+      // return typed_map_rows;
     })
     .catch((err: any) => {
       console.error(`Error fetching DOC_KEY ${key}`);

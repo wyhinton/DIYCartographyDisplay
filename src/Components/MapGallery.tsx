@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Gallery from "react-grid-gallery";
-import { useTheme, withStyles } from "@material-ui/core/styles";
+import { useTheme } from "@material-ui/core/styles";
 import { useStoreActions, useStoreState } from "../hooks";
 import { Scrollbars } from "react-custom-scrollbars";
-import LightBox from "./ImageGallery/LightBox";
+import LightBox from "./LightBox";
 import "../css/GridGallery.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -28,9 +28,6 @@ const MapGallery = () => {
     (actions) => actions.map_data.set_lightboxData
   );
   const active_lightbox = useStoreState((state) => state.map_data.lightBoxData);
-  // const active_lightbox = useStoreState(
-  //   (state) => state.map_data.active_lightbox
-  // );
   const data_loaded = useStoreState((state) => state.map_data.loaded);
   const theme = useTheme();
 
