@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useTheme, withStyles } from "@material-ui/core/styles";
-import { CrossIcon, Heading } from "evergreen-ui";
+import { CrossIcon } from "evergreen-ui";
 import Backdrop from "@material-ui/core/Backdrop";
 import Grid from "@material-ui/core/Grid";
 import { useStoreState } from "../../hooks";
@@ -15,12 +15,11 @@ interface LightBoxProps {
 }
 
 const LightBox = ({ show, onClick }: LightBoxProps) => {
+  const theme = useTheme();
   const active_lightbox = useStoreState((state) => state.map_data.lightBoxData);
   useEffect(() => {
     console.log(active_lightbox);
   }, [active_lightbox.author]);
-  // const active_lightbox = useStoreState(state=>state.map_data.active_lightbox);
-  const theme = useTheme();
 
   const galleryStyle = {
     height: "90vh",

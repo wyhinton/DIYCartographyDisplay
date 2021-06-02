@@ -1,6 +1,6 @@
 import Grid from "@material-ui/core/Grid";
 import SelectorSection from "./SelectorSection";
-import { Link, Paragraph, Text, Icon, ArrowRightIcon } from "evergreen-ui";
+import { Paragraph, Text } from "evergreen-ui";
 import { useTheme, withStyles } from "@material-ui/core/styles";
 import YearDiscipline from "./Selectors/YearDiscipline";
 import Themes from "./Selectors/Themes";
@@ -14,8 +14,6 @@ const Toolbar = () => {
 
   const toolbarContainer = {
     height: "fit-content",
-    // height: '100%',
-    // justifyContent: "space-between",
     minHeight: "6rem",
     maxHeight: "17rem",
     display: is_sm ? "inline-flex" : "none",
@@ -30,10 +28,7 @@ const Toolbar = () => {
 
   const SelectorContainer = withStyles({
     root: {
-      // padding: 0,
       height: "100%",
-      // border: `1px solid ${theme.palette.primary.main}`,
-      // paddingLeft: ".5em",
       paddingRight: ".1em",
     },
   })(Grid);
@@ -70,20 +65,3 @@ const Toolbar = () => {
 };
 
 export default Toolbar;
-
-//     {/* <Grid item xs = {3} style = {gridSect}>
-//         <div style = {{paddingRight: '2em'}}>
-
-//         {/* <SelectorSection title = " f "> */}
-//         <Text>
-
-//         <Link style = {linkStyle} >WAYS TO EXPEREINCE THIS
-//             <Icon icon = {ArrowRightIcon} size  = {9}/>
-//         </Link>
-//         <Paragraph style = {instructions_paragraph}>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC,
-//             making it over 2000 years old.
-//         </Paragraph>
-//         </Text>
-// </div>
-//     {/* </SelectorSection> */}
-// </Grid> */}

@@ -3,8 +3,14 @@
 [![Language: Typescript](https://badges.aleen42.com/src/typescript.svg)](https://badges.aleen42.com/src/typescript.svg)
 [![Framework: React](https://badges.aleen42.com/src/react.svg)](https://badges.aleen42.com/src/react.svg)
 
-
 # Mapping Urban Change: DIY Cartography
 
 This project is an interactive gallery of student from ADN:560, DIY Cartography.
 
+# Overview
+
+This website is based on a
+
+# Components
+
+- `Lightbox`

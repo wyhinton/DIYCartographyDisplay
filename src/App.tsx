@@ -1,31 +1,25 @@
-import { useEffect } from "react";
-import "./css/App.css";
-import Grid from "@material-ui/core/Grid";
-import Sidebar from "./Components/Sidebar";
-import MapGallery from "./Components/MapGallery";
-import Timeline from "./Components/Timeline";
-import { useStoreActions } from "./hooks";
-import Toolbar from "./Components/Toolbar";
-import Title from "./Components/Title";
-import { defaultTheme } from "evergreen-ui";
-import { ThemeProvider } from "evergreen-ui";
-import { merge } from "lodash";
-import ErrorBoundary from "./Components/ErrorBoundary";
-// const My
-
-// const test_data =
 // https://docs.google.com/spreadsheets/d/1-S8EkLYsknYoFWSynVeMQCi6Gf9PoV9A5ezzICXamJA/edit?usp=sharing
 // https://docs.google.com/spreadsheets/d/e/2PACX-1vShkIFNo43AJw8tdtdq4vsa40okE7v4IJbbXUOuIsLpnCYZMaQnPH9k3_YFhm814s2oa9VrVkQbzPNa/pubhtml
-const App = () => {
-  const fetch_app_data = useStoreActions(
+import "./css/App.css";
+import Grid from "@material-ui/core/Grid";
+import MapGallery from "./Components/MapGallery";
+import Sidebar from "./Components/Sidebar";
+import Timeline from "./Components/Timeline";
+import Title from "./Components/Title";
+import Toolbar from "./Components/Toolbar";
+import { ThemeProvider, defaultTheme } from "evergreen-ui";
+import { merge } from "lodash";
+import React, { useEffect } from "react";
+import { useStoreActions } from "./hooks";
+
+const App = (): JSX.Element => {
+  const fetchStudentSpreadsheet = useStoreActions(
     (actions) => actions.map_data.fetch_student_sheets
   );
-  const fetch_event_spreadsheet = useStoreActions(
+  const fetchEventSpreadsheet = useStoreActions(
     (actions) => actions.map_data.fetch_event_spreadsheet
   );
-  const fetch_all_spreedsheets = useStoreActions(
-    (actions) => actions.map_data.request_all_spreadsheets
-  );
+
   const myCustomTheme = merge({}, defaultTheme, {
     typography: {
       fontFamilies: {
@@ -36,10 +30,9 @@ const App = () => {
     },
   });
   useEffect(() => {
-    fetch_event_spreadsheet();
-    fetch_app_data();
-    // fetch_all_spreedsheets();
-  }, []);
+    fetchEventSpreadsheet();
+    fetchStudentSpreadsheet();
+  });
 
   return (
     <ThemeProvider value={myCustomTheme}>

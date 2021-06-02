@@ -1,3 +1,6 @@
+// https://codesandbox.io/s/react-grid-gallery-ztf4n?file=/src/index.js:358-880
+// https://codesandbox.io/s/r48lm1jopq
+
 import React, { useState, useEffect } from "react";
 import Gallery from "react-grid-gallery";
 import { useTheme } from "@material-ui/core/styles";
@@ -9,9 +12,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "../css/SlickSlide.css";
 
-// https://codesandbox.io/s/react-grid-gallery-ztf4n?file=/src/index.js:358-880
-// https://codesandbox.io/s/r48lm1jopq
-
 function getRandomNumber(min: number, max: number) {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -19,7 +19,6 @@ function getRandomNumber(min: number, max: number) {
 }
 
 const MapGallery = () => {
-  // var shuffleClassName = this.state.toggleActive ? "player-control-icon active" : "player-control-icon"
   const gallery_images = useStoreState(
     (state) => state.map_data?.computed_active_images
   );
@@ -33,7 +32,6 @@ const MapGallery = () => {
 
   useEffect(() => {
     console.log(gallery_images);
-    // }, [test_all_images, active_lightbox]);
   }, [gallery_images, active_lightbox]);
 
   useEffect(() => {
@@ -79,8 +77,6 @@ const MapGallery = () => {
           <div style={{ height: "100%", paddingTop: "0", width: "100%" }}>
             <Gallery
               tagStyle={{ display: "none" }}
-              // renderItem = {test_render_item}
-              // images={test_all_images}
               images={gallery_images}
               customOverlay={<div style={{ backgroundColor: "red" }}></div>}
               rowHeight={120}

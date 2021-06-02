@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import Grid from "@material-ui/core/Grid";
 import { Text } from "evergreen-ui";
 import { useTheme } from "@material-ui/core/styles";

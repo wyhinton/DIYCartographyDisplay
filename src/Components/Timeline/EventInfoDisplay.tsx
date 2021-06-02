@@ -1,17 +1,7 @@
-import {
-  Heading,
-  Paragraph,
-  Link,
-  Strong,
-  Small,
-  Text,
-  Icon,
-  Pane,
-  ArrowRightIcon,
-} from "evergreen-ui";
+import { Paragraph, Text } from "evergreen-ui";
 import { useTheme } from "@material-ui/core/styles";
 import type { EventRowValues } from "../../model/map_data";
-import { EventLevel, EventType } from "../../model/enums";
+import { EventLevel } from "../../model/enums";
 import { useEffect } from "react";
 import { Scrollbars } from "react-custom-scrollbars";
 
@@ -23,14 +13,6 @@ function EventInfoDisplay({ info }: EventInfoDisplayProps) {
   const theme = useTheme();
   const infoContainer = {
     height: "100%",
-    // fontFamily: theme.typography.fontFamily,
-    // border: `1px solid ${theme.palette.primary.main}`,
-  } as React.CSSProperties;
-  const infoBody = {
-    color: theme.palette.primary.main,
-    fontSize: "medium",
-    // lineHeight: "9pt",
-    paddingTop: ".5em",
   } as React.CSSProperties;
 
   const infoHeader = {
@@ -42,7 +24,6 @@ function EventInfoDisplay({ info }: EventInfoDisplayProps) {
   } as React.CSSProperties;
 
   const paragraph = {
-    // : "left"
     color: theme.palette.primary.main,
     fontFamily: theme.typography.fontFamily,
     fontSize: "9pt",
@@ -55,7 +36,6 @@ function EventInfoDisplay({ info }: EventInfoDisplayProps) {
     title: "",
     info: "",
     tags: "",
-    // type: EventType.DATE,
     category: EventLevel.national,
   };
   const data = info ?? default_val;

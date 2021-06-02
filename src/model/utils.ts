@@ -8,15 +8,15 @@ export function arraysEqual(a: any[], b: any[]): boolean {
   // Please note that calling sort on an array will modify that array.
   // you might want to clone your array first.
 
-  for (var i = 0; i < a.length; ++i) {
+  for (let i = 0; i < a.length; ++i) {
     if (a[i] !== b[i]) return false;
   }
   return true;
 }
 
 export function getAllFuncs(toCheck: any) {
-  var props: any[] = [];
-  var obj = toCheck;
+  let props: any[] = [];
+  let obj = toCheck;
   do {
     props = props.concat(Object.getOwnPropertyNames(obj));
   } while ((obj = Object.getPrototypeOf(obj)));

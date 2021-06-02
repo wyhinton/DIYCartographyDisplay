@@ -1,6 +1,7 @@
 import { Paragraph, Text, Pane } from "evergreen-ui";
 import { useTheme } from "@material-ui/core/styles";
-function Sidebar() {
+
+function Sidebar(): JSX.Element {
   const theme = useTheme();
 
   const sidebarContainer = {
@@ -24,13 +25,6 @@ function Sidebar() {
     fontWeight: 800,
   } as React.CSSProperties;
 
-  const sidebarParagraph = {
-    color: theme.palette.primary.main,
-    fontSize: "9pt",
-    lineHeight: "12pt",
-    fontFamily: theme.typography.fontFamily,
-  } as React.CSSProperties;
-
   return (
     <Pane style={sidebarContainer}>
       <Text style={{ lineHeight: "12pt" }}>
@@ -45,12 +39,12 @@ function Sidebar() {
           critical moment to reflect and recognize significant urban spaces as
           we shape the future city. These series of maps created by students in
           a Graduate seminar in the College of Design at NC State use mapping as
-          a way to examine the history and future of Raleigh's urban develop—not
-          just from a physical and infrastructural perspective, but also the
-          ways that social, economic, political and natural development have
-          also shaped it. They offer alternative methods to visualize, capture
-          and integrate contemporary and historic voices into a rich discourse
-          on community, culture and urban redevelopment.
+          a way to examine the history and future of Raleigh&apos;s urban
+          develop—not just from a physical and infrastructural perspective, but
+          also the ways that social, economic, political and natural development
+          have also shaped it. They offer alternative methods to visualize,
+          capture and integrate contemporary and historic voices into a rich
+          discourse on community, culture and urban redevelopment.
         </Paragraph>
       </Text>
       {/* <Text style={sidebarParagraph}>

@@ -41,7 +41,7 @@ export interface EventRowValues {
    which we use only when fetching our sheets.
    Currently te
  */
-export interface GoolgeSheet<T> {
+export interface GoogleSheet<T> {
   data: Array<T>;
   title: string;
   updated: string;

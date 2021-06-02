@@ -1,13 +1,10 @@
-// import Grid from '@material-ui/core/Grid';
-import { useTheme, withStyles } from "@material-ui/core/styles";
+// https://material-ui.com/components/material-icons/
 import SelectorGroup from "./Containers/SelectorGroup";
 import SelectorParent from "./Containers/SelectorParent";
 import GridRow from "./Grid/GridRow";
 import { useEffect } from "react";
 import { MapSubTopic, FilterGroup } from "../../model/enums";
-
-// import {}
-// https://material-ui.com/components/material-icons/
+import { useTheme } from "@material-ui/core/styles";
 
 import {
   LightbulbIcon,
@@ -35,8 +32,6 @@ const MapLens = () => {
   const theme = useTheme();
   const tag_stats = useStoreState(
     (state) => state.map_data?.studentStats?.subtopic
-    // (state) => state.map_data?.computed_student_stats?.subtopic
-    // (state) => state.map_data?.map_stats?.subtopic
   );
   useEffect(() => {
     console.log(tag_stats);

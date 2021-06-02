@@ -1,10 +1,11 @@
 // import Grid from '@material-ui/core/Grid';
 import { Paragraph, Text } from "evergreen-ui";
-import { useTheme, withStyles } from "@material-ui/core/styles";
+import { useTheme } from "@material-ui/core/styles";
 import SelectorGroup from "./Containers/SelectorGroup";
 import SelectorParent from "./Containers/SelectorParent";
 import GridChunk from "./Grid/GridChunk";
 import GridUnit from "./Grid/GridUnit";
+import { useState, useEffect, useRef } from "react";
 import { useStoreState } from "../../hooks";
 import { AuthorDisciplineFilter, FilterGroup } from "../../model/enums";
 
@@ -25,12 +26,9 @@ const YearDiscipline = () => {
   const year_data = useStoreState(
     (state) => state.map_data?.studentStats?.year
   );
-  // const year_data = useStoreState((state) => state.map_data?.map_stats?.year);
   console.log(year_data);
-
+  // useEffect(() => {}, [year_data]);3
   const chunksContainer = {
-    // position: 'relative',
-    // marginTop: ''
     display: "flex",
     height: "51px",
   } as React.CSSProperties;
@@ -113,7 +111,6 @@ const YearDiscipline = () => {
           filter={FilterGroup.STUDENTS_2016}
         >
           {make_year_chunks("2016", year_data?.["2016"])}
-          {/* make_year_chunks("2016", year_data["2016"])} */}
         </SelectorGroup>
         <SelectorGroup
           title={"2018"}

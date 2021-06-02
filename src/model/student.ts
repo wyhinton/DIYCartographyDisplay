@@ -20,9 +20,7 @@ export enum SeriesId {
   series0202 = "series0202",
 }
 
-interface ImageAddress extends String {}
-
-function request_image(image_url: ImageAddress): Promise<HTMLImageElement> {
+function request_image(image_url: string): Promise<HTMLImageElement> {
   // function get_image(image: GalleryImage): Promise<HTMLImageElement> {
   const promise = new Promise<HTMLImageElement>(function (resolve, reject) {
     let img = new Image();
@@ -46,14 +44,14 @@ export class StudentClass {
   topic!: Topic;
   subtopic!: MapSubTopic;
   theme!: ThemeCategoryFilter;
-  image_data!: Map<SeriesId, ImageAddress>;
+  image_data!: Map<SeriesId, string>;
   gallery_images!: GalleryImage[];
 
   request_gallery_thumbnail(
     id: SeriesId
   ): Promise<HTMLImageElement> | undefined {
     if (this.image_data.has(id)) {
-      let test = this.image_data.get(id) ?? ("" as ImageAddress);
+      let test = this.image_data.get(id) ?? ("" as string);
       let req = request_image(test);
       return req;
     }
@@ -113,16 +111,16 @@ export class StudentClass {
     this.gallery_images = gi;
   }
   constructor(row: RawStudentRowValues) {
-    let pairArr: [SeriesId, ImageAddress][] = [];
+    let pairArr: [SeriesId, string][] = [];
 
     //get all the image seriesfields
-    for (var key of Object.keys(row)) {
+    for (let key of Object.keys(row)) {
       if (Object.keys(SeriesId).includes(key)) {
         const keyTyped = key as keyof typeof row;
         if (row[keyTyped] !== "NA") {
-          const new_pair: [SeriesId, ImageAddress] = [
+          const new_pair: [SeriesId, string] = [
             SeriesId[key as unknown as keyof typeof SeriesId],
-            row[keyTyped] as ImageAddress,
+            row[keyTyped] as string,
           ];
           pairArr.push(new_pair);
         }

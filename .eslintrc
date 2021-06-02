@@ -1,0 +1,27 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended"
+    // "airbnb",
+    // "plugin:prettier/recommended",
+    // "prettier/@typescript-eslint"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "react"],
+  "rules": {
+    "linebreak-style": 0,
+    "@typescript-eslint/indent": 0,
+    "prefer-const": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/naming-convention": "warn",
+    "@typescript-eslint/no-empty-function": "warn",
+    "react/prop-types": "off"
+  },
+  // "ignorePatterns": "[Components/Timeline/TimeSeries/js/*.js, Components/Timeline/TimeSeries/components/*.js]",
+  "globals": {
+    "React": true,
+    "JSX": true
+  }
+}

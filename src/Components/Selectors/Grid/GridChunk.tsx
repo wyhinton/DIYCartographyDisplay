@@ -5,7 +5,6 @@ import { FilterOption } from "../../../model/types";
 interface GridChunkProps {
   count: number;
   filter: FilterOption;
-  // filter: FilterOption,
   base_color: number;
 }
 
@@ -63,6 +62,7 @@ const GridChunk = ({ count, filter, base_color }: GridChunkProps) => {
   };
   const [hovered, setHovered] = useState(false);
   useEffect(() => {}, [cur_state_filters]);
+  // useEffect(() => {_}, [cur_state_filters]);
 
   useEffect(() => {}, [hovered]);
 

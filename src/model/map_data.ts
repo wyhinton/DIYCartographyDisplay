@@ -16,12 +16,10 @@ import {
   EventLevel,
   GalleryFilterType,
   FilterGroup,
-  Topic,
 } from "./enums";
-// import type { MapStats } from "./sub_models/student_stats";
 import type {
   RawStudentRowValues,
-  GoolgeSheet,
+  GoogleSheet,
   RawEventRowValues,
 } from "./sheet_data_models";
 import type { FilterOption } from "./types";
@@ -36,6 +34,7 @@ import { StudentStats } from "./student_stats";
 import { LightBoxData } from "./lightbox";
 import { TimelineEvent } from "./timeline_event";
 import { Timeline } from "./timeline";
+import SHEET_KEY from "./sheet_key";
 
 /**
   tags can not be an object due to the Gallery Image API,
@@ -44,8 +43,6 @@ import { Timeline } from "./timeline";
   into an array. There
   will never be more than one metadata object.
 */
-
-// seperate out time range events from single date events
 
 export interface GalleryImage {
   src: string;
@@ -71,8 +68,6 @@ export interface YearSection {
   discipline: string[];
 }
 
-//TODO: FILLOUT TYPES
-
 export interface EventRowValues {
   start: Date;
   end: Date;
@@ -81,10 +76,6 @@ export interface EventRowValues {
   tags: string;
   category: EventLevel;
 }
-//TODO: REMOVE THIS
-export interface EventData {
-  title: string;
-}
 
 export interface TimelineData {
   national: TimeSeries[];
@@ -92,12 +83,6 @@ export interface TimelineData {
   city: TimeSeries[];
   international: TimeSeries[];
   NA: TimeSeries[];
-}
-
-//TODO: REMOVE
-export interface FilterObj {
-  filter_type: GalleryFilterType;
-  filter: FilterOption;
 }
 
 export interface FilterResult {
@@ -127,7 +112,6 @@ export interface MapDataModel {
   //THUNKS - FETCH EXTERNAL
   fetch_event_spreadsheet: Thunk<MapDataModel>;
   fetch_student_sheets: Thunk<MapDataModel>;
-  request_all_spreadsheets: Thunk<MapDataModel>;
   request_student_assets: Action<
     MapDataModel,
     [RawStudentRowValues, Promise<HTMLImageElement>]
@@ -149,31 +133,28 @@ export interface MapDataModel {
 
   //SETTERS
   // set_LightBoxData: Action<MapDataModel, StudentClass>;
-  set_timelineData: Action<MapDataModel, TimelineEvent[]>;
-  set_lightboxData: Action<MapDataModel, GalleryImage>;
+  add_validation_error: Action<MapDataModel, ValidationError>;
+  filter_gallery_2: Action<MapDataModel, FilterResult>;
   set_StudentStats: Action<MapDataModel, StudentStats>;
+  set_active_filter: Action<MapDataModel, FilterOption[]>;
   set_all_students: Action<MapDataModel, StudentClass[]>;
-  set_group_filter: Action<MapDataModel, FilterGroup>;
   set_filter_function: Action<MapDataModel, any>;
   set_gallery_images: Action<MapDataModel, GalleryImage[]>;
-  set_timeline_series: Action<MapDataModel, TimelineData>;
-  set_active_filter: Action<MapDataModel, FilterOption[]>;
-
+  set_group_filter: Action<MapDataModel, FilterGroup>;
+  set_lightboxData: Action<MapDataModel, GalleryImage>;
   set_loaded: Action<MapDataModel, boolean>;
-  filter_gallery_2: Action<MapDataModel, FilterResult>;
+  set_timelineData: Action<MapDataModel, TimelineEvent[]>;
+  set_timeline_series: Action<MapDataModel, TimelineData>;
   set_validation_errors: Action<MapDataModel, ValidationError[]>;
-  add_validation_error: Action<MapDataModel, ValidationError>;
 }
 
 //______________________
-type ImagePromise = Promise<HTMLImageElement>;
 
 const empty_nat: TimeSeries[] = [];
 const empty_state: TimeSeries[] = [];
 const empty_city: TimeSeries[] = [];
 const empty_international: TimeSeries[] = [];
 const empty_NA: TimeSeries[] = [];
-const DOC_KEY = "1-S8EkLYsknYoFWSynVeMQCi6Gf9PoV9A5ezzICXamJA";
 
 const initial_empty_timeline: TimelineData = {
   national: empty_nat,
@@ -183,19 +164,9 @@ const initial_empty_timeline: TimelineData = {
   NA: empty_NA,
 };
 
-// const empty_photo: PhotoInfo[] = [];
-
-// const lb_initial: LightBoxContent = {
-//   images: empty_photo,
-//   description: "default",
-//   title: "string",
-//   author: "some author",
-// };
-
 const map_data: MapDataModel = {
   filter: [],
   timlineData: new Timeline(),
-  // students: [],
   studentsClass: [],
   lightBoxData: new LightBoxData(),
   group_filter: FilterGroup.NONE,
@@ -214,16 +185,11 @@ const map_data: MapDataModel = {
   all_images: [],
   timeline_series: initial_empty_timeline,
   loaded: false,
-  // active_lightbox: lb_initial,
   map_spreadsheet: [],
   studentStats: undefined,
   event_spreadsheet: [],
   validation_errors: [],
   student_asset_requests: [],
-  //creates a new student
-  // set_loaded_students: action((state, payload) => {
-  //   state.students = payload;
-  // }),
   set_all_students: action((state, payload) => {
     state.studentsClass = payload;
   }),
@@ -235,6 +201,7 @@ const map_data: MapDataModel = {
   }),
   process_raw_student_sheets: thunk(async (actions, payload) => {
     const all_rows = payload.flat();
+    console.log(all_rows);
     let all_students = all_rows.map((r) => new StudentClass(r));
     let resize_req = all_students.map((s) =>
       s.request_gallery_thumbnail(SeriesId.series0101)
@@ -244,10 +211,10 @@ const map_data: MapDataModel = {
       imgs.forEach((img, i) => {
         if (img) {
           all_students[i].create_gallery_image(SeriesId.series0101, img);
-          // all_students[i].create_gallery_image(SeriesId.series0101, img);
           new_students.push(all_students[i]);
         }
       });
+      console.log(new_students);
       let student_stats = new StudentStats(new_students);
       console.log(student_stats);
       actions.set_all_students(new_students);
@@ -270,44 +237,38 @@ const map_data: MapDataModel = {
   set_validation_errors: action((state, payload) => {
     state.validation_errors = payload;
   }),
-  request_all_spreadsheets: thunk(async (actions) => {
-    console.log("requesting all my spreadhsheets");
-  }),
   fetch_event_spreadsheet: thunk(async (actions) => {
-    get_sheet<RawEventRowValues>(DOC_KEY, 1)
-      .then((event_sheet: GoolgeSheet<RawEventRowValues>) => {
+    get_sheet<RawEventRowValues>(SHEET_KEY, 1)
+      .then((event_sheet: GoogleSheet<RawEventRowValues>) => {
         let timeline_events = event_sheet.data.map((r) => new TimelineEvent(r));
         actions.set_timelineData(timeline_events);
-
-        //
         const typed_event_rows = type_event_rows(event_sheet.data);
         actions.set_event_spreadsheet(typed_event_rows);
         const timeline_series = make_time_series(typed_event_rows);
         actions.set_timeline_series(timeline_series);
       })
       .catch((err: any) => {
-        console.error(`Error fetching DOC_KEY ${DOC_KEY}`);
+        console.error(`Error fetching DOC_KEY ${SHEET_KEY}`);
       });
   }),
   set_timelineData: action((state, payload) => {
     state.timlineData.set_data(payload);
   }),
   fetch_student_sheets: thunk(async (actions, _payload, { getState }) => {
-    let test_2016 = get_map_sheet(DOC_KEY, 2);
-    // let test_2018 = get_map_sheet(DOC_KEY, 3);
-    // console.log(test_2018);
-    // let student_sheet_requests = [test_2016, test_2018];
+    let test_2016 = get_sheet<RawStudentRowValues>(SHEET_KEY, 2);
     let student_sheet_requests = [test_2016];
-    console.log(student_sheet_requests);
     Promise.all(student_sheet_requests).then(
-      (raw_student_rows: (void | RawStudentRowValues[])[]) => {
-        raw_student_rows.forEach((sheet_payload) => {
-          if (Array.isArray(sheet_payload)) {
-            actions.add_student_sheet_raw_data(
-              sheet_payload as RawStudentRowValues[]
-            );
-          } else {
-            console.error("did not get map row array");
+      (student_sheet: (void | GoogleSheet<RawStudentRowValues>)[]) => {
+        student_sheet.forEach((sheet_payload) => {
+          if (sheet_payload) {
+            const raw_student_values = sheet_payload.data;
+            if (Array.isArray(raw_student_values)) {
+              actions.add_student_sheet_raw_data(
+                raw_student_values as RawStudentRowValues[]
+              );
+            } else {
+              console.error("did not get map row array");
+            }
           }
         });
         actions.process_raw_student_sheets(getState().raw_student_sheets);
@@ -396,7 +357,7 @@ function get_single_filter(f: FilterOption): FilterResult {
     let discipline = f.split("_")[0];
     let year = f.split("_")[1];
     filter_func = function (val: GalleryImage) {
-      return val.tags[0].year === year && val.tags[0].discipline == discipline;
+      return val.tags[0].year === year && val.tags[0].discipline === discipline;
     };
   }
   return {
@@ -410,15 +371,13 @@ function get_single_filter(f: FilterOption): FilterResult {
 function quick_get(group: FilterGroup, cat: keyof MapMetadata): FilterResult {
   const filter_set = filter_group_to_set(group);
   if (
-    // group instanceof
-    group == FilterGroup.STUDENTS_2016 ||
-    group == FilterGroup.STUDENTS_2018 ||
-    group == FilterGroup.STUDENTS_2020
+    group === FilterGroup.STUDENTS_2016 ||
+    group === FilterGroup.STUDENTS_2018 ||
+    group === FilterGroup.STUDENTS_2020
   ) {
     let splits = get_year_discipline(filter_set as AuthorDisciplineFilter[]);
     const filter_func = function (val: GalleryImage) {
       return splits.years.includes(val.tags[0].year);
-      // splits.discipline.includes(val.tags[0].discipline)
     };
     return {
       filter_func: filter_func,
@@ -426,13 +385,7 @@ function quick_get(group: FilterGroup, cat: keyof MapMetadata): FilterResult {
     } as FilterResult;
   } else {
     const filter_func = function (val: GalleryImage) {
-      console.log(cat);
-      console.log(filter_set);
-      console.log(val.tags[0]);
-      console.log(val.tags[0][cat]);
-      console.log(filter_set.includes(val.tags[0][cat]));
       return filter_set.includes(val.tags[0][cat]);
-      // return filter_set.includes(val.tags[0][cat]);
     };
     return {
       filter_func: filter_func,
@@ -515,7 +468,6 @@ function get_group_filter(f: FilterOption): FilterResult {
       );
       break;
   }
-  console.log(final_result);
   return final_result;
 }
 
@@ -541,10 +493,9 @@ function event_rows_to_time_range_events(
   console.log(rows);
   rows.forEach((event_row: EventRowValues) => {
     const time_range = new TimeRange(event_row.start, event_row.end);
-    const data: EventData = {
-      title: event_row.title,
-    };
-    const time_range_event = new TimeRangeEvent(time_range, [data]);
+    const time_range_event = new TimeRangeEvent(time_range, [
+      { title: event_row.title },
+    ]);
     all_events.push(time_range_event);
   });
   console.log(all_events);
@@ -555,8 +506,8 @@ function event_rows_to_time_range_events(
 function time_range_events_to_time_series(
   events: TimeRangeEvent[]
 ): TimeSeries[] {
-  let array_set: { [key: string]: any[] } = {};
-  let row_count = 0;
+  // let array_set: { [key: string]: any[] } = {};
+  // let row_count = 0;
   // for (let index = 0; index < events.length; index++) {
   //   console.log(index);
   //   const element = events[index];
@@ -674,8 +625,8 @@ function type_event_rows(rows: any[]): EventRowValues[] {
   return rows;
 }
 
-function get_sheet<T>(key: string, sheet_num: number): Promise<GoolgeSheet<T>> {
-  const promise = new Promise<GoolgeSheet<T>>(function (resolve, reject) {
+function get_sheet<T>(key: string, sheet_num: number): Promise<GoogleSheet<T>> {
+  const promise = new Promise<GoogleSheet<T>>(function (resolve, reject) {
     GetSheetDone.labeledCols(key, sheet_num)
       .then((sheet: any) => {
         resolve(sheet);
@@ -687,22 +638,6 @@ function get_sheet<T>(key: string, sheet_num: number): Promise<GoolgeSheet<T>> {
       });
   });
   return promise;
-}
-
-function get_map_sheet(
-  key: string,
-  sheet_index: number
-): Promise<void | RawStudentRowValues[]> {
-  // function get_map_sheet(key: string, sheet_index: number): Promise<LabeledCols<MapRow[]>>{
-  var to_get = get_sheet<RawStudentRowValues>(key, sheet_index)
-    .then((map_sheet: GoolgeSheet<RawStudentRowValues>) => {
-      // const typed_map_rows = type_map_rows(map_sheet.data);
-      // return typed_map_rows;
-    })
-    .catch((err: any) => {
-      console.error(`Error fetching DOC_KEY ${key}`);
-    });
-  return to_get;
 }
 
 function get_year_discipline(

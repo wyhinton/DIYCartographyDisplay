@@ -1,20 +1,19 @@
-// import {v4 as uuid} from 'uuid';
-import type { EventRowValues } from "../../model/map_data";
 // https://codesandbox.io/s/l28vmvp2n9?from-embed
-import { useState, useEffect, useRef } from "react";
-import { useTheme, Theme } from "@material-ui/core/styles";
-import { useStoreState } from "../../hooks";
-import { Text } from "evergreen-ui";
-import Grid from "@material-ui/core/Grid";
-import EventInfoDisplay from "./EventInfoDisplay";
-import ChartContainer from "./TimeSeries/components/ChartContainer";
-import Charts from "./TimeSeries/components/Charts";
-import Resizable from "./TimeSeries/components/Resizable";
-import ChartRow from "./TimeSeries/components/ChartRow";
-import EventChart from "./TimeSeries/components/EventChart";
-import { TimeSeries, TimeRange } from "pondjs";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
 import "../../css/timeline.css";
+import ChartContainer from "./TimeSeries/components/ChartContainer";
+import ChartRow from "./TimeSeries/components/ChartRow";
+import Charts from "./TimeSeries/components/Charts";
+import EventChart from "./TimeSeries/components/EventChart";
+import EventInfoDisplay from "./EventInfoDisplay";
+import Grid from "@material-ui/core/Grid";
+import Resizable from "./TimeSeries/components/Resizable";
+import type { EventRowValues } from "../../model/map_data";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
+import { Text } from "evergreen-ui";
+import { TimeSeries, TimeRange } from "pondjs";
+import { useState, useEffect, useRef } from "react";
+import { useStoreState } from "../../hooks";
+import { useTheme, Theme } from "@material-ui/core/styles";
 
 interface Seperator {
   pos: number;
@@ -23,24 +22,29 @@ interface Seperator {
 
 const Timeline = function () {
   const theme = useTheme();
-  const time_series = useStoreState((state) => state.map_data.timeline_series);
+  const is_sm = useMediaQuery(theme.breakpoints.up("sm"));
+
   const timeline_offset = "6em";
+  const initial_width = 2000;
+
+  const time_series = useStoreState((state) => state.map_data.timeline_series);
   const event_rows: EventRowValues[] = useStoreState(
     (state) => state.map_data.event_spreadsheet
   );
-  const initial_width = 2000;
-  const timeline_container = useRef<HTMLDivElement | null>(null);
+
   const [eventInfo, setEventInfo] =
     useState<EventRowValues | undefined>(undefined);
   const [resizeWidth, setResizeWidth] = useState(initial_width);
   const [selectedEvent, setSelectedEvent] =
     useState<TimeSeries | undefined>(undefined);
   const [seperators, setSeperators] = useState<Seperator[]>([]);
+  const timeline_container = useRef<HTMLDivElement | null>(null);
 
   const row_height = 15;
+
+  //defines the range of the timeline
   const start_date = new Date(1763, 0, 1);
   const end_date = new Date(2020, 0, 1);
-  const is_sm = useMediaQuery(theme.breakpoints.up("sm"));
 
   useEffect(() => {
     let tot = 0;
@@ -71,10 +75,9 @@ const Timeline = function () {
     }
   }, [time_series]);
   useEffect(() => {}, [seperators]);
+
   const timelineSection = {
-    // height: 'fit-content',
     height: 200,
-    // height
     width: "100%",
     borderTop: `1px solid ${theme.palette.primary.main}`,
     display: is_sm ? "inline-flex" : "none",
@@ -87,6 +90,7 @@ const Timeline = function () {
     console.log(test_number);
     setResizeWidth(parseInt(test ?? "2000"));
   }, [timeline_container]);
+
   const linesContainer = {
     position: "absolute",
     width: "100%",
@@ -100,7 +104,6 @@ const Timeline = function () {
   const seperatorText = {
     fontSize: "12px",
     position: "absolute",
-    // color: "lightgrey",
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.primary.main,
     textAlilgn: "right",
@@ -125,7 +128,6 @@ const Timeline = function () {
       };
 
       function style_func(s: any, state: any) {
-        // console.log(state);
         let style: any;
 
         switch (state) {
@@ -146,7 +148,6 @@ const Timeline = function () {
           default:
             style = base_style;
         }
-        // e.data().first().get("title"));
         if (s.data().first().get("title") === selectedEvent) {
           console.log("got selected");
           style = {
@@ -261,8 +262,8 @@ const Timeline = function () {
 export default Timeline;
 
 function getAllFuncs(toCheck: any) {
-  var props: any[] = [];
-  var obj = toCheck;
+  let props: any[] = [];
+  let obj = toCheck;
   do {
     props = props.concat(Object.getOwnPropertyNames(obj));
   } while ((obj = Object.getPrototypeOf(obj)));

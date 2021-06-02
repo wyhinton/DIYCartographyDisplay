@@ -1,5 +1,4 @@
-import { Heading, Paragraph } from "evergreen-ui";
-import Grid from "@material-ui/core/Grid";
+import { Paragraph } from "evergreen-ui";
 import { useTheme } from "@material-ui/core/styles";
 
 const SideText = ({
@@ -10,6 +9,7 @@ const SideText = ({
   description: string;
 }) => {
   const theme = useTheme();
+
   const textStyle = {
     color: "White",
     fontSize: "12pt",

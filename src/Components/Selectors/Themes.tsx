@@ -1,31 +1,16 @@
 // import Grid from '@material-ui/core/Grid';
-import { Link, Paragraph, Text, Icon, ArrowRightIcon } from "evergreen-ui";
-import { useTheme, withStyles } from "@material-ui/core/styles";
+import { useTheme } from "@material-ui/core/styles";
 import SelectorGroup from "./Containers/SelectorGroup";
 import SelectorParent from "./Containers/SelectorParent";
-import { useStoreActions, useStoreState } from "../../hooks";
+import { useStoreState } from "../../hooks";
 import GridChunk from "./Grid/GridChunk";
-import {
-  AuthorDisciplineFilter,
-  MapSubTopic,
-  ThemeCategoryFilter,
-  FilterGroup,
-} from "../../model/enums";
-
-interface GridChunkProps {
-  count: number;
-  rows: number;
-  cols: number;
-  filter: MapSubTopic | AuthorDisciplineFilter | ThemeCategoryFilter | null;
-}
+import { ThemeCategoryFilter, FilterGroup } from "../../model/enums";
 
 const Themes = () => {
   const theme = useTheme();
   const theme_stats = useStoreState(
     (state) => state.map_data?.studentStats?.theme
-    // (state) => state.map_data?.map_stats?.theme
   );
-  // const theme_stats = map_stats.theme;
   return (
     <>
       <SelectorParent>

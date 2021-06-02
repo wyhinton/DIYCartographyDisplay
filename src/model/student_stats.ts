@@ -20,7 +20,7 @@ export class StudentStats {
 
 function get_year_breakdown(students: StudentClass[]) {
   let year_groups = groupBy(students, "year");
-  var new_obj = {};
+  let new_obj = {};
   for (const [key, value] of Object.entries(year_groups)) {
     let test = groupBy(value as StudentClass[], "discipline");
     test = object_values_to_array_lengths(test);
@@ -32,7 +32,7 @@ function get_year_breakdown(students: StudentClass[]) {
 
 function get_topic_breakdown(students: StudentClass[]) {
   let topic_groups = groupBy(students, "topic");
-  var student_map_stats = {};
+  let student_map_stats = {};
   for (const [key, value] of Object.entries(topic_groups)) {
     let subtopic_group = groupBy(value as StudentClass[], "subtopic");
     let all_subtopics = topic_to_array_of_subtopics(
