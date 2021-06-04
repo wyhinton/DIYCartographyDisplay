@@ -11,9 +11,14 @@ inspiration and reference for future classes.
 
 # Table of Contents
 - [Quick Start](#quick-start)
+- [Dev Environment](#dev-environment)
+  - [Chrome Plugins](#chrome-plugins)
+  - [VSCode](#vs-code)
+  - [CLIs](#clis)
 - [Available Scripts](#available-scripts)
 - [Components](#components)
 - [Configs](#configs)
+- [Documentation](#documentation)
 
 # Quick Start
 
@@ -36,11 +41,18 @@ yarn install
 yarn start
 ```
 
+# Dev Environment
+## Chrome Plugins 
+- [Redux DevTool](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en) - for debugging application's state
+- [React Developer Tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) - inspect the React component hierarchies 
+## VSCode
+## CLIs 
+- git
+- yarn
+
 # Available Scripts
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
 
 In the project directory, you can run:
 
@@ -66,6 +78,9 @@ The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `yarn doc`
+Outputs a README.md via the jsdoc-to-markdown package. See [Documentation](#documentation) for more information.
 
 ## Learn More
 
@@ -97,7 +112,7 @@ Specifies the deploy target for our app, in this case, my personal project in my
 ### ```jsdoc.conf.json```
 Configures jsdoc settings.
 ### ```README_TEMPLATE.hbs```
-Provides jsdoc-to-markdown with templat markdown. See [Create a README template](https://github.com/jsdoc2md/jsdoc-to-markdown/wiki/Create-a-README-template) from the jsdoc-to-markdown wiki.
+Provides jsdoc-to-markdown with template markdown. See [Create a README template](https://github.com/jsdoc2md/jsdoc-to-markdown/wiki/Create-a-README-template) from the jsdoc-to-markdown wiki. Documentation not generated via JSDoc Comments is added.
 
 # Components
 
@@ -112,5 +127,7 @@ Provides jsdoc-to-markdown with templat markdown. See [Create a README template]
 **Kind**: global function  
 
 * * *
+
+# Documentation
 
 &copy; 2016-Present NCSU
