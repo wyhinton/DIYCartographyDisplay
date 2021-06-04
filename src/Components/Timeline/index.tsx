@@ -27,9 +27,9 @@ const Timeline = function () {
   const timeline_offset = "6em";
   const initial_width = 2000;
 
-  const time_series = useStoreState((state) => state.map_data.timeline_series);
+  const time_series = useStoreState((state) => state.map_data.timelineSeries);
   const event_rows: EventRowValues[] = useStoreState(
-    (state) => state.map_data.event_spreadsheet
+    (state) => state.map_data.eventSpreadsheet
   );
 
   const [eventInfo, setEventInfo] =

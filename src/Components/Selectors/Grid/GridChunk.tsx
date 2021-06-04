@@ -43,7 +43,7 @@ const GridChunk = ({ count, filter, base_color }: GridChunkProps) => {
 
   const cur_state_filters = useStoreState((state) => state.map_data.filter);
   const set_filter = useStoreActions(
-    (actions) => actions.map_data.thunk_set_filter
+    (actions) => actions.map_data.thunkSetFilter
   );
   const set_row_color = (
     cur_filters: FilterOption[],

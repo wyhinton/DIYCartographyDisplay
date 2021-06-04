@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Components/Timeline/TimeSeries/components/ValueList.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Components/Timeline/TimeSeries/components/ValueList.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ *  Copyright (c) 2015-present, The Regents of the University of California,
+ *  through Lawrence Berkeley National Laboratory (subject to receipt
+ *  of any required approvals from the U.S. Dept. of Energy).
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the BSD-style license found in the
+ *  LICENSE file in the root directory of this source tree.
+ */
+
+import React from "react";
+import PropTypes from "prop-types";
+import merge from "merge";
+
+const defaultBoxStyle = {
+    fill: "#FEFEFE",
+    stroke: "#DDD",
+    opacity: 0.8
+};
+
+const defaultTextStyle = {
+    fontSize: 11,
+    textAnchor: "left",
+    fill: "#b0b0b0",
+    pointerEvents: "none"
+};
+
+const defaultTextStyleCentered = {
+    fontSize: 11,
+    textAnchor: "middle",
+    fill: "#bdbdbd",
+    pointerEvents: "none"
+};
+
+function mergeStyles(style, isCentered) {
+    return {
+        boxStyle: merge(true, defaultBoxStyle, style.box ? style.box : {}),
+        labelStyle: merge(
+            true,
+            isCentered ? defaultTextStyleCentered : defaultTextStyle,
+            style.label ? style.label : {}
+        )
+    };
+}
+
+/**
+ * Renders a list of values in svg
+ *
+ *      +----------------+
+ *      | Max 100 Gbps   |
+ *      | Avg 26 Gbps    |
+ *      +----------------+
+ */
+const ValueList = props => {
+    const { align, style, width, height } = props;
+    const { boxStyle, labelStyle } = mergeStyles(style, align === "center");
+
+    if (!props.values.length) {
+        return &lt;g />;
+    }
+
+    const values = props.values.map((item, i) => {
+        if (align === "left") {
+            return (
+                &lt;g key={i}>
+                    &lt;text x={10} y={5} dy={`${(i + 1) * 1.2}em`} style={labelStyle}>
+                        &lt;tspan style={{ fontWeight: 700 }}>{`${item.label}: `}&lt;/tspan>
+                        &lt;tspan>{`${item.value}`}&lt;/tspan>
+                    &lt;/text>
+                &lt;/g>
+            );
+        }
+
+        const posx = parseInt(props.width / 2, 10);
+        return (
+            &lt;g key={i}>
+                &lt;text x={posx} y={5} dy={`${(i + 1) * 1.2}em`} style={labelStyle}>
+                    &lt;tspan style={{ fontWeight: 700 }}>{`${item.label}: `}&lt;/tspan>
+                    &lt;tspan>{`${item.value}`}&lt;/tspan>
+                &lt;/text>
+            &lt;/g>
+        );
+    });
+
+    const box = &lt;rect style={boxStyle} x={0} y={0} width={width} height={height} />;
+
+    return (
+        &lt;g>
+            {box}
+            {values}
+        &lt;/g>
+    );
+};
+
+ValueList.defaultProps = {
+    align: "center",
+    width: 100,
+    height: 100,
+    pointerEvents: "none",
+    style: { fill: "#FEFEFE", stroke: "#DDD", opacity: 0.8 }
+};
+
+ValueList.propTypes = {
+    /**
+     * Where to position the label, either "left" or "center" within the box
+     */
+    align: PropTypes.oneOf(["center", "left"]),
+
+    /**
+     * An array of label value pairs to render
+     */
+    values: PropTypes.arrayOf(
+        PropTypes.shape({
+            label: PropTypes.string, // eslint-disable-line
+            value: PropTypes.oneOfType([
+                // eslint-disable-line
+                PropTypes.number,
+                PropTypes.string
+            ])
+        })
+    ).isRequired,
+
+    /**
+     * CSS object to be applied to the ValueList surrounding box and the label (text).
+     */
+    style: PropTypes.object, // eslint-disable-line
+
+    /**
+     * The width of the rectangle to render into
+     */
+    width: PropTypes.number,
+
+    /**
+     * The height of the rectangle to render into
+     */
+    height: PropTypes.number
+};
+
+export default ValueList;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LegendItem.html">LegendItem</a></li><li><a href="module.exports.html">exports</a></li><li><a href="Styler.html">Styler</a></li></ul><h3>Interfaces</h3><ul><li><a href="GalleryImage.html">GalleryImage</a></li><li><a href="GoogleSheet.html">GoogleSheet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#componentWillReceiveProps">componentWillReceiveProps</a></li><li><a href="global.html#handleClick">handleClick</a></li><li><a href="global.html#handleTimeRangeChanged">handleTimeRangeChanged</a></li><li><a href="global.html#Label">Label</a></li><li><a href="global.html#latestScale">latestScale</a></li><li><a href="global.html#onMouseLeave">onMouseLeave</a></li><li><a href="global.html#onMouseOver">onMouseOver</a></li><li><a href="global.html#pathStyle">pathStyle</a></li><li><a href="global.html#providedStyle">providedStyle</a></li><li><a href="global.html#scaleAsString">scaleAsString</a></li><li><a href="global.html#scaler">scaler</a></li><li><a href="global.html#setScale">setScale</a></li><li><a href="global.html#style">style</a></li><li><a href="global.html#styleMode">styleMode</a></li><li><a href="global.html#transition">transition</a></li><li><a href="global.html#ValueAxis">ValueAxis</a></li><li><a href="global.html#ValueList">ValueList</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Thu Jun 03 2021 20:43:44 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

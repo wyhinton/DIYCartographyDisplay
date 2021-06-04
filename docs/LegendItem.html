@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: LegendItem</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: LegendItem</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>LegendItem<span class="signature">()</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>Legends are simple to define.</p>
+<p>First specify the styles you want each item to have. This is either
+the CSS that should be appied to rendered symbol. Or you can provide
+a Styler object. See below for full styling details.</p>
+<pre class="prettyprint source"><code>const style = Styler([
+    {key: &quot;aud&quot;, color: &quot;steelblue&quot;, width: 1, dashed: true},
+    {key: &quot;euro&quot;, color: &quot;#F68B24&quot;, width: 2}
+]);
+</code></pre>
+<p>Next build a list of categories you want in the legend.</p>
+<pre class="prettyprint source"><code>const categories = [
+    {key: &quot;aust&quot;, label: &quot;AUD&quot;, value: &quot;1.52&quot;, disabled: true},
+    {key: &quot;usa&quot;, label: &quot;USD&quot;, value: &quot;1.43&quot;, disabled: false}
+];
+</code></pre>
+<p>For each category to display you must provide a key, a label and
+if it should be displayed disabled or not.</p>
+<p>Then render the legend, with type either &quot;line&quot;, &quot;swatch&quot; or &quot;dot&quot;:</p>
+<pre class="prettyprint source"><code>&lt;Legend type=&quot;line&quot; style={style} categories={categories} />
+</code></pre>
+<p>Optionally you can also display a value below the label. This is
+useful when hovering over another chart on the page, or to display
+the current value of live data. You can see this defined in the
+above categories.</p>
+<p>The legend can also be supplied with callback functions which will
+tell you if the user has clicked or hovered over on one of the legend
+items. You can use this to sync highlighting and selection to a
+chart.</p>
+<h2>Styling</h2>
+<p>There are three methods of styling a legend:</p>
+<ul>
+<li>using a Styler object</li>
+<li>using an object containing inline styles</li>
+<li>using a function which returns an inline style</li>
+</ul>
+<p>A Styler object can be supplied directly to the <code>style</code> prop
+of the legend. This is the simplest approach, since you can
+usually just use the same Styler as you use for your chart.</p>
+<p>Supplying an object to the <code>style</code> prop gives you more control
+than the Styler, since you can provide the actual CSS properties
+for each element of the legend. The format for the object is:</p>
+<pre class="prettyprint source"><code>{
+    columnName1: {
+      symbol: {
+        normal: {...styleSymbol},
+        highlighted: {...styleSymbol},
+        selected: {...styleSymbol},
+        muted: {...styleSymbol}
+      },
+      label: {
+        normal: {...labelStyle},
+        highlighted: {...labelStyle},
+        selected: {...labelStyle},
+        muted: {...labelStyle}
+      },
+      value: {
+        normal: {...valueStyle},
+        highlighted: {...valueStyle},
+        selected: {...valueStyle},
+        muted: {...valueStyle}
+      }
+    },
+    columnName2 : {
+        ...
+    },
+    ...
+ }
+
+ - symbolStyle is the CSS properties for the symbol, which
+is either a swatch, dot or line. For a line, you'd want to
+provide the SVG &lt;line> properties, for a swatch you'd provide
+the SVG &lt;rect> properties and for a dot the &lt;ellipse> properties.
+ - labelStyle is the main label for the legend item. It is a
+ SVG &lt;text> element, so you can control the font properties.
+ - valueStyle is the optional value. As with the labelStyle you
+ this is an SVG &lt;text> element.
+
+Finally, you can provide a function to the `style` prop. This
+is similar to providing an object, except your function will
+be called with the columnName and you should return the map
+containing symbol, label and value styles.</code></pre></div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="LegendItem"><span class="type-signature"></span>new LegendItem<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Components_Timeline_TimeSeries_components_Legend.js.html">Components/Timeline/TimeSeries/components/Legend.js</a>, <a href="Components_Timeline_TimeSeries_components_Legend.js.html#line138">line 138</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LegendItem.html">LegendItem</a></li><li><a href="module.exports.html">exports</a></li><li><a href="Styler.html">Styler</a></li></ul><h3>Interfaces</h3><ul><li><a href="GalleryImage.html">GalleryImage</a></li><li><a href="GoogleSheet.html">GoogleSheet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#componentWillReceiveProps">componentWillReceiveProps</a></li><li><a href="global.html#handleClick">handleClick</a></li><li><a href="global.html#handleTimeRangeChanged">handleTimeRangeChanged</a></li><li><a href="global.html#Label">Label</a></li><li><a href="global.html#latestScale">latestScale</a></li><li><a href="global.html#onMouseLeave">onMouseLeave</a></li><li><a href="global.html#onMouseOver">onMouseOver</a></li><li><a href="global.html#pathStyle">pathStyle</a></li><li><a href="global.html#providedStyle">providedStyle</a></li><li><a href="global.html#scaleAsString">scaleAsString</a></li><li><a href="global.html#scaler">scaler</a></li><li><a href="global.html#setScale">setScale</a></li><li><a href="global.html#style">style</a></li><li><a href="global.html#styleMode">styleMode</a></li><li><a href="global.html#transition">transition</a></li><li><a href="global.html#ValueAxis">ValueAxis</a></li><li><a href="global.html#ValueList">ValueList</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Thu Jun 03 2021 20:43:44 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

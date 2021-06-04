@@ -70,7 +70,7 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
   const [hovered, setHovered] = useState(false);
   const real_filter = useStoreState((state) => state.map_data.filter);
   const thunk_set_filter = useStoreActions(
-    (actions) => actions.map_data.thunk_set_filter
+    (actions) => actions.map_data.thunkSetFilter
   );
   useEffect(() => {}, [real_filter]);
   useEffect(() => {}, [hovered]);

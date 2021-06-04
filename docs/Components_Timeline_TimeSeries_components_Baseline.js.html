@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Components/Timeline/TimeSeries/components/Baseline.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Components/Timeline/TimeSeries/components/Baseline.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ *  Copyright (c) 2015-present, The Regents of the University of California,
+ *  through Lawrence Berkeley National Laboratory (subject to receipt
+ *  of any required approvals from the U.S. Dept. of Energy).
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the BSD-style license found in the
+ *  LICENSE file in the root directory of this source tree.
+ */
+
+import merge from "merge";
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "underscore";
+
+const defaultStyle = {
+    label: {
+        fill: "#8B7E7E", // Default label color
+        fontWeight: 100,
+        fontSize: 11,
+        pointerEvents: "none"
+    },
+    line: {
+        stroke: "#626262",
+        strokeWidth: 1,
+        strokeDasharray: "5,3",
+        pointerEvents: "none"
+    }
+};
+
+/**
+ *
+ * The BaseLine component displays a simple horizontal line at a value.
+ *
+ * For example the following code overlays Baselines for the mean and stdev
+ * of a series on top of another chart.
+ *
+ * ```
+ * &lt;ChartContainer timeRange={series.timerange()} >
+ *     &lt;ChartRow height="150">
+ *         &lt;YAxis
+ *           id="price"
+ *           label="Price ($)"
+ *           min={series.min()} max={series.max()}
+ *           width="60" format="$,.2f"
+ *         />
+ *         &lt;Charts>
+ *             &lt;LineChart axis="price" series={series} style={style} />
+ *             &lt;Baseline axis="price" value={series.avg()} label="Avg" position="right" />
+ *             &lt;Baseline axis="price" value={series.avg()-series.stdev()} />
+ *             &lt;Baseline axis="price" value={series.avg()+series.stdev()} />
+ *         &lt;/Charts>
+ *     &lt;/ChartRow>
+ * &lt;/ChartContainer>
+ * ```
+ */
+export default class Baseline extends React.Component {
+    render() {
+        const { vposition, yScale, value, position, style, width } = this.props;
+
+        if (!yScale || _.isUndefined(value)) {
+            return null;
+        }
+
+        const y = yScale(value);
+        const transform = `translate(0 ${y})`;
+        let textAnchor;
+        let textPositionX;
+        const pts = [];
+
+        const labelBelow = (vposition === "auto" &amp;&amp; y &lt; 15) || vposition === "below";
+        const textPositionY = labelBelow ? 2 : -2;
+        const alignmentBaseline = labelBelow ? "hanging" : "auto";
+
+        if (position === "left") {
+            textAnchor = "start";
+            textPositionX = 5;
+        }
+        if (position === "right") {
+            textAnchor = "end";
+            textPositionX = width - 5;
+        }
+
+        pts.push("0 0");
+        pts.push(`${width} 0`);
+        const points = pts.join(" ");
+
+        //
+        // Style
+        //
+
+        const baseLabelStyle = { ...defaultStyle.label, alignmentBaseline };
+
+        const labelStyle = merge(true, baseLabelStyle, style.label ? style.label : {});
+        const lineStyle = merge(true, defaultStyle.line, style.line ? style.line : {});
+
+        return (
+            &lt;g className="baseline" transform={transform}>
+                &lt;polyline points={points} style={lineStyle} />
+                &lt;text
+                    style={labelStyle}
+                    x={textPositionX}
+                    y={textPositionY}
+                    textAnchor={textAnchor}
+                >
+                    {this.props.label}
+                &lt;/text>
+            &lt;/g>
+        );
+    }
+}
+
+Baseline.defaultProps = {
+    visible: true,
+    value: 0,
+    label: "",
+    position: "left",
+    vposition: "auto",
+    style: defaultStyle
+};
+
+Baseline.propTypes = {
+    /**
+     * Show or hide this chart
+     */
+    visible: PropTypes.bool,
+
+    /**
+     * Reference to the axis which provides the vertical scale for drawing. e.g.
+     * specifying axis="trafficRate" would refer the y-scale to the YAxis of id="trafficRate".
+     */
+    axis: PropTypes.string.isRequired, // eslint-disable-line
+
+    /**
+     * An object describing the style of the baseline of the form
+     * { label, line }. "label" and "line" are both objects containing
+     * the inline CSS for that part of the baseline.
+     */
+    style: PropTypes.shape({
+        label: PropTypes.object, // eslint-disable-line
+        line: PropTypes.object // eslint-disable-line
+    }),
+
+    /**
+     * The y-value to display the line at.
+     */
+    value: PropTypes.number,
+
+    /**
+     * The label to display with the axis.
+     */
+    label: PropTypes.string,
+
+    /**
+     * Whether to display the label on the "left" or "right".
+     */
+    position: PropTypes.oneOf(["left", "right"]),
+
+    /**
+     * Whether to display the label above or below the line. The default is "auto",
+     * which will show it above the line unless the position is near to the top
+     * of the chart.
+     */
+    vposition: PropTypes.oneOf(["above", "below", "auto"]),
+
+    /**
+     * [Internal] The yScale supplied by the associated YAxis
+     */
+    yScale: PropTypes.func,
+
+    /**
+     * [Internal] The width supplied by the surrounding ChartContainer
+     */
+    width: PropTypes.number
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="LegendItem.html">LegendItem</a></li><li><a href="module.exports.html">exports</a></li><li><a href="Styler.html">Styler</a></li></ul><h3>Interfaces</h3><ul><li><a href="GalleryImage.html">GalleryImage</a></li><li><a href="GoogleSheet.html">GoogleSheet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#componentWillReceiveProps">componentWillReceiveProps</a></li><li><a href="global.html#handleClick">handleClick</a></li><li><a href="global.html#handleTimeRangeChanged">handleTimeRangeChanged</a></li><li><a href="global.html#Label">Label</a></li><li><a href="global.html#latestScale">latestScale</a></li><li><a href="global.html#onMouseLeave">onMouseLeave</a></li><li><a href="global.html#onMouseOver">onMouseOver</a></li><li><a href="global.html#pathStyle">pathStyle</a></li><li><a href="global.html#providedStyle">providedStyle</a></li><li><a href="global.html#scaleAsString">scaleAsString</a></li><li><a href="global.html#scaler">scaler</a></li><li><a href="global.html#setScale">setScale</a></li><li><a href="global.html#style">style</a></li><li><a href="global.html#styleMode">styleMode</a></li><li><a href="global.html#transition">transition</a></li><li><a href="global.html#ValueAxis">ValueAxis</a></li><li><a href="global.html#ValueList">ValueList</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Thu Jun 03 2021 20:43:44 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

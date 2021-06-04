@@ -25,13 +25,19 @@ function request_image(image_url: string): Promise<HTMLImageElement> {
   const promise = new Promise<HTMLImageElement>(function (resolve, reject) {
     let img = new Image();
     img.src = image_url as string;
+
     // img.src = image.thumbnail;
     img.onload = () => {
-      // image.thumbnailHeight = img.height;
-      // image.thumbnailWidth = img.width;
       resolve(img);
     };
+    // img.onerror = () =>{
+    //   resolve()
+    // }
+    // if (error){
+
+    // }
   });
+  console.log(image_url, promise);
   return promise;
 }
 

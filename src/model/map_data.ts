@@ -92,44 +92,39 @@ export interface FilterResult {
 
 export interface MapDataModel {
   //STATE
-  active_images: GalleryImage[];
-  all_images: GalleryImage[];
+  activeImages: GalleryImage[];
+  allImages: GalleryImage[];
   filter: FilterOption[];
-  filter_function: any;
-  gallery_images: GalleryImage[];
-  group_filter: FilterGroup;
+  filterFunction: any;
+  galleryImages: GalleryImage[];
+  groupFilter: FilterGroup;
   lightBoxData: LightBoxData;
   loaded: boolean;
   studentStats: StudentStats | undefined;
   studentsClass: StudentClass[];
-  timeline_series: TimelineData;
+  timelineSeries: TimelineData;
   timlineData: Timeline;
 
   //COMPUTED FROM EXTERNAL DATA
-  computed_active_images: Computed<MapDataModel, GalleryImage[]>;
+  computedActiveImages: Computed<MapDataModel, GalleryImage[]>;
   computed_all_gallery_images: Computed<MapDataModel, GalleryImage[]>;
 
   //THUNKS - FETCH EXTERNAL
-  fetch_event_spreadsheet: Thunk<MapDataModel>;
-  fetch_student_sheets: Thunk<MapDataModel>;
-  request_student_assets: Action<
-    MapDataModel,
-    [RawStudentRowValues, Promise<HTMLImageElement>]
-  >;
-  student_asset_requests: [RawStudentRowValues, Promise<HTMLImageElement>][];
+  fetchEventSpreadsheet: Thunk<MapDataModel>;
+  fetchStudentSheets: Thunk<MapDataModel>;
 
   //THUNKS - UI
-  thunk_set_filter: Thunk<MapDataModel, FilterOption>;
-  process_raw_student_sheets: Thunk<MapDataModel, RawStudentRowValues[][]>;
+  thunkSetFilter: Thunk<MapDataModel, FilterOption>;
+  processRawStudentSheets: Thunk<MapDataModel, RawStudentRowValues[][]>;
   //STORE RAW GOOGLE SHEETS INFO FOR DEBUGGING
-  raw_student_sheets: RawStudentRowValues[][];
-  map_spreadsheet: RawStudentRowValues[];
-  event_spreadsheet: EventRowValues[];
-  add_student_sheet_raw_data: Action<MapDataModel, RawStudentRowValues[]>;
-  set_event_spreadsheet: Action<MapDataModel, EventRowValues[]>;
+  rawStudentSheets: RawStudentRowValues[][];
+  mapSpreadsheet: RawStudentRowValues[];
+  eventSpreadsheet: EventRowValues[];
+  addStudentSheetRawData: Action<MapDataModel, RawStudentRowValues[]>;
+  setEventSpreadsheet: Action<MapDataModel, EventRowValues[]>;
 
   //VALIDATION
-  validation_errors: ValidationError[];
+  validationErrors: ValidationError[];
 
   //SETTERS
   // set_LightBoxData: Action<MapDataModel, StudentClass>;
@@ -169,56 +164,53 @@ const map_data: MapDataModel = {
   timlineData: new Timeline(),
   studentsClass: [],
   lightBoxData: new LightBoxData(),
-  group_filter: FilterGroup.NONE,
-  active_images: [],
-  filter_function: (gi: GalleryImage) => true,
-  computed_active_images: computed((state) => {
-    console.log(state.filter_function);
-    let active = state.computed_all_gallery_images.filter(
-      state.filter_function
-    );
+  groupFilter: FilterGroup.NONE,
+  activeImages: [],
+  filterFunction: (gi: GalleryImage) => true,
+  computedActiveImages: computed((state) => {
+    console.log(state.filterFunction);
+    let active = state.computed_all_gallery_images.filter(state.filterFunction);
     console.log(active);
     return active;
   }),
-  raw_student_sheets: [],
-  gallery_images: [],
-  all_images: [],
-  timeline_series: initial_empty_timeline,
+  rawStudentSheets: [],
+  galleryImages: [],
+  allImages: [],
+  timelineSeries: initial_empty_timeline,
   loaded: false,
-  map_spreadsheet: [],
+  mapSpreadsheet: [],
   studentStats: undefined,
-  event_spreadsheet: [],
-  validation_errors: [],
-  student_asset_requests: [],
+  eventSpreadsheet: [],
+  validationErrors: [],
+  // student_asset_requests: [],
   set_all_students: action((state, payload) => {
     state.studentsClass = payload;
   }),
-  request_student_assets: action((state, payload) => {
-    state.student_asset_requests.push(payload);
+  addStudentSheetRawData: action((state, payload) => {
+    state.rawStudentSheets.push(payload);
   }),
-  add_student_sheet_raw_data: action((state, payload) => {
-    state.raw_student_sheets.push(payload);
-  }),
-  process_raw_student_sheets: thunk(async (actions, payload) => {
-    const all_rows = payload.flat();
-    console.log(all_rows);
-    let all_students = all_rows.map((r) => new StudentClass(r));
-    let resize_req = all_students.map((s) =>
+  processRawStudentSheets: thunk(async (actions, payload) => {
+    const allRows = payload.flat();
+    console.log(allRows);
+    const allStudents = allRows.map((r) => new StudentClass(r));
+    console.log(allStudents);
+    const resizeReq = allStudents.map((s) =>
       s.request_gallery_thumbnail(SeriesId.series0101)
     );
-    Promise.all(resize_req).then((imgs) => {
-      let new_students: StudentClass[] = [];
+    console.log(resizeReq);
+    Promise.all(resizeReq).then((imgs) => {
+      const newStudents: StudentClass[] = [];
       imgs.forEach((img, i) => {
         if (img) {
-          all_students[i].create_gallery_image(SeriesId.series0101, img);
-          new_students.push(all_students[i]);
+          allStudents[i].create_gallery_image(SeriesId.series0101, img);
+          newStudents.push(allStudents[i]);
         }
       });
-      console.log(new_students);
-      let student_stats = new StudentStats(new_students);
-      console.log(student_stats);
-      actions.set_all_students(new_students);
-      actions.set_StudentStats(student_stats);
+      console.log(newStudents);
+      const studentStats = new StudentStats(newStudents);
+      console.log(studentStats);
+      actions.set_all_students(newStudents);
+      actions.set_StudentStats(studentStats);
     });
   }),
   set_StudentStats: action((state, payload) => {
@@ -226,24 +218,24 @@ const map_data: MapDataModel = {
   }),
   set_filter_function: action((state, payload) => {
     console.log("setting filter func");
-    state.filter_function = payload;
+    state.filterFunction = payload;
   }),
   computed_all_gallery_images: computed((state) => {
     return state.studentsClass.map((s) => s.get_gallery_images()).flat();
   }),
   add_validation_error: action((state, payload) => {
-    state.validation_errors.push(payload);
+    state.validationErrors.push(payload);
   }),
   set_validation_errors: action((state, payload) => {
-    state.validation_errors = payload;
+    state.validationErrors = payload;
   }),
-  fetch_event_spreadsheet: thunk(async (actions) => {
+  fetchEventSpreadsheet: thunk(async (actions) => {
     get_sheet<RawEventRowValues>(SHEET_KEY, 1)
       .then((event_sheet: GoogleSheet<RawEventRowValues>) => {
         let timeline_events = event_sheet.data.map((r) => new TimelineEvent(r));
         actions.set_timelineData(timeline_events);
         const typed_event_rows = type_event_rows(event_sheet.data);
-        actions.set_event_spreadsheet(typed_event_rows);
+        actions.setEventSpreadsheet(typed_event_rows);
         const timeline_series = make_time_series(typed_event_rows);
         actions.set_timeline_series(timeline_series);
       })
@@ -254,16 +246,19 @@ const map_data: MapDataModel = {
   set_timelineData: action((state, payload) => {
     state.timlineData.set_data(payload);
   }),
-  fetch_student_sheets: thunk(async (actions, _payload, { getState }) => {
+  fetchStudentSheets: thunk(async (actions, _payload, { getState }) => {
     let test_2016 = get_sheet<RawStudentRowValues>(SHEET_KEY, 2);
-    let student_sheet_requests = [test_2016];
+    let test_2018 = get_sheet<RawStudentRowValues>(SHEET_KEY, 3);
+    let student_sheet_requests = [test_2016, test_2018];
     Promise.all(student_sheet_requests).then(
       (student_sheet: (void | GoogleSheet<RawStudentRowValues>)[]) => {
         student_sheet.forEach((sheet_payload) => {
           if (sheet_payload) {
+            console.log(sheet_payload);
             const raw_student_values = sheet_payload.data;
             if (Array.isArray(raw_student_values)) {
-              actions.add_student_sheet_raw_data(
+              console.log(raw_student_values);
+              actions.addStudentSheetRawData(
                 raw_student_values as RawStudentRowValues[]
               );
             } else {
@@ -271,42 +266,42 @@ const map_data: MapDataModel = {
             }
           }
         });
-        actions.process_raw_student_sheets(getState().raw_student_sheets);
+        actions.processRawStudentSheets(getState().rawStudentSheets);
       }
     );
   }),
-  set_event_spreadsheet: action((state, event_rows) => {
-    state.event_spreadsheet = event_rows;
+  setEventSpreadsheet: action((state, event_rows) => {
+    state.eventSpreadsheet = event_rows;
   }),
   set_gallery_images: action((state, payload) => {
-    state.gallery_images = payload;
+    state.galleryImages = payload;
   }),
   filter_gallery_2: action((state, filter_result) => {
     if (arraysEqual(filter_result.filters, debug(state.filter))) {
       state.filter = [];
-      state.active_images = state.gallery_images;
+      state.activeImages = state.galleryImages;
       console.log("got the same filte ");
     } else {
-      state.active_images = state.gallery_images.filter(
+      state.activeImages = state.galleryImages.filter(
         filter_result.filter_func
       );
       state.filter = filter_result.filters;
     }
   }),
   set_timeline_series: action((state, timeline_series) => {
-    state.timeline_series = timeline_series;
+    state.timelineSeries = timeline_series;
   }),
   set_group_filter: action((state, group_filter) => {
     console.log("setting group filter", group_filter);
-    if (state.group_filter === group_filter) {
+    if (state.groupFilter === group_filter) {
       console.log("GOT SAME");
-      state.group_filter = FilterGroup.NONE;
+      state.groupFilter = FilterGroup.NONE;
       state.filter = [];
     } else {
-      state.group_filter = group_filter;
+      state.groupFilter = group_filter;
     }
   }),
-  thunk_set_filter: thunk((actions, filter) => {
+  thunkSetFilter: thunk((actions, filter) => {
     console.log("doing thunk set filter");
     let group_options = Object.values(FilterGroup);
 

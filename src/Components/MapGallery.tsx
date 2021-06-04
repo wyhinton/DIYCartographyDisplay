@@ -20,7 +20,7 @@ function getRandomNumber(min: number, max: number) {
 
 const MapGallery = () => {
   const gallery_images = useStoreState(
-    (state) => state.map_data?.computed_active_images
+    (state) => state.map_data?.computedActiveImages
   );
   const [showLightbox, setShowLightBox] = useState(false);
   const set_active_lightbox = useStoreActions(

@@ -18,10 +18,10 @@ export type SelectorGroupProps = {
 const SelectorGroup = ({ title, children, filter }: SelectorGroupProps) => {
   const theme = useTheme();
   const set_filter = useStoreActions(
-    (actions) => actions.map_data.thunk_set_filter
+    (actions) => actions.map_data.thunkSetFilter
   );
   const active_group_filter = useStoreState(
-    (state) => state.map_data?.group_filter
+    (state) => state.map_data?.groupFilter
   );
   const [hovered, SetHovered] = useState(false);
   const [active, setActive] = useState(FilterState.DEFAULT);
