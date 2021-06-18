@@ -7,68 +7,63 @@ import { useTheme } from "@material-ui/core/styles";
 import { useStoreActions, useStoreState } from "../hooks";
 import { Scrollbars } from "react-custom-scrollbars";
 import LightBox from "./LightBox";
+import type { GalleryImage } from "../model/map_data";
 import "../css/GridGallery.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import "../css/SlickSlide.css";
-
-function getRandomNumber(min: number, max: number) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.random() * (max - min) + min; //The maximum is exclusive and the minimum is inclusive
-}
+import { getRandomNumber } from "../utils";
+import LoadingBar from "./LoadingBar";
 
 const MapGallery = () => {
-  const gallery_images = useStoreState(
+  const galleryImages = useStoreState(
     (state) => state.map_data?.computedActiveImages
   );
   const [showLightbox, setShowLightBox] = useState(false);
-  const set_active_lightbox = useStoreActions(
-    (actions) => actions.map_data.set_lightboxData
+  const setActiveLightbox = useStoreActions(
+    (actions) => actions.map_data.setLightboxData
   );
-  const active_lightbox = useStoreState((state) => state.map_data.lightBoxData);
-  const data_loaded = useStoreState((state) => state.map_data.loaded);
+  const dataLoaded = useStoreState((state) => state.map_data.loaded);
   const theme = useTheme();
 
   useEffect(() => {
-    console.log(gallery_images);
-  }, [gallery_images, active_lightbox]);
-
-  useEffect(() => {
-    console.log("data loaded changd, val is", data_loaded);
-  }, [data_loaded]);
+    console.log(galleryImages);
+  }, [galleryImages]);
 
   const containerStyle = {
     backgroundColor: "white",
     height: "100%",
     margin: "auto",
     flexDirection: "column",
+    position: "relative",
   } as React.CSSProperties;
 
-  function get_lightbox_tb_2(this: any) {
-    console.log(this.props);
+  /**Set the active lightbox to the clicked gallery image */
+  function getLightboxTb2(this: any) {
     setShowLightBox((showLightbox) => !showLightbox);
-    console.log(showLightbox);
-    set_active_lightbox(this.props.item);
+    setActiveLightbox(this.props.item);
   }
 
   const scrollContainer = {
     overflow: "hidden",
     height: "100%",
     border: `1px solid ${theme.palette.primary.main}`,
+    minWidth: "100%",
+    minHeight: "200px",
   };
-
-  function thumbnail_style(props: any, z: any, q: any) {
-    const duration = getRandomNumber(0.5, 4);
-    if (data_loaded) {
-      return {
-        animation: `fadein ${duration}s normal`,
-        animationIterationCound: 1,
-      };
-    }
+  let test = 0;
+  function thumbnailStyle() {
+    const duration = getRandomNumber(0.5, 1.0) + test * 0.1;
+    test = test + 1;
+    return {
+      animation: `fadein ${duration}s normal`,
+      aniamtionTimingFunction: "cubic-bezier(.03,.91,.53,.92)",
+      // aniamtionTimingFunction: "cubic-bezier(0.1, 0.7, 1.0, 0.1);",
+      animationIterationCound: 1,
+    };
   }
   return (
     <div style={containerStyle}>
+      <LoadingBar visible={!dataLoaded} />
       <div>
         <LightBox show={showLightbox} onClick={() => setShowLightBox(false)} />
       </div>
@@ -77,14 +72,14 @@ const MapGallery = () => {
           <div style={{ height: "100%", paddingTop: "0", width: "100%" }}>
             <Gallery
               tagStyle={{ display: "none" }}
-              images={gallery_images}
+              images={galleryImages}
               customOverlay={<div style={{ backgroundColor: "red" }}></div>}
               rowHeight={120}
               maxRows={10}
               enableLightbox={false}
               enableImageSelection={false}
-              onClickThumbnail={get_lightbox_tb_2}
-              tileViewportStyle={thumbnail_style}
+              onClickThumbnail={getLightboxTb2}
+              tileViewportStyle={dataLoaded ? thumbnailStyle : undefined}
             ></Gallery>
           </div>
         </Scrollbars>

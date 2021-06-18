@@ -1,6 +1,6 @@
 import { Paragraph } from "evergreen-ui";
 import { useTheme } from "@material-ui/core/styles";
-
+import { Scrollbars } from "react-custom-scrollbars";
 const SideText = ({
   author,
   description,
@@ -16,11 +16,15 @@ const SideText = ({
     lineHeight: "12pt",
     fontFamily: theme.typography.fontFamily,
   };
-
+  const scrollBarStyle = {
+    maxHeight: "90vh",
+  };
   return (
     <>
-      <Paragraph style={textStyle}>{description}</Paragraph>
-      <Paragraph style={textStyle}></Paragraph>
+      <Scrollbars style={scrollBarStyle}>
+        <Paragraph style={textStyle}>{description}</Paragraph>
+        <Paragraph style={textStyle}></Paragraph>
+      </Scrollbars>
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
 import { TimelineEvent } from "./timeline_event";
-import { groupBy } from "./utils";
+import { groupBy } from "../utils";
 
 export class Timeline {
   national!: TimeSeries[];

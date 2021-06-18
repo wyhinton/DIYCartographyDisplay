@@ -1,4 +1,5 @@
-import { EventLevel } from "./enums";
+import { EventLevel } from "../enums";
+import GetSheetDone from "get-sheet-done";
 
 export interface RawStudentRowValues {
   author: string;
@@ -45,4 +46,22 @@ export interface GoogleSheet<T> {
   data: Array<T>;
   title: string;
   updated: string;
+}
+
+export function getSheet<T>(
+  key: string,
+  sheet_num: number
+): Promise<GoogleSheet<T>> {
+  const promise = new Promise<GoogleSheet<T>>(function (resolve, reject) {
+    GetSheetDone.labeledCols(key, sheet_num)
+      .then((sheet: any) => {
+        resolve(sheet);
+      })
+      .catch((err: any) => {
+        console.error(
+          `Error fetching DOC_KEY ${key}, sheet number ${sheet_num}`
+        );
+      });
+  });
+  return promise;
 }

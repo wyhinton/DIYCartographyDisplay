@@ -2,7 +2,7 @@ import { useStoreActions, useStoreState } from "../../../hooks";
 import { useTheme } from "@material-ui/core/styles";
 import { useState, useEffect } from "react";
 import GridUnit from "./GridUnit";
-import { MapSubTopic } from "../../../model/enums";
+import { MapSubTopic } from "../../../enums";
 import { FilterOption } from "../../../model/types";
 import blue from "@material-ui/core/colors/blue";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -103,11 +103,13 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
     >
       {Array.from(Array(count)).map((r, i) => {
         console.log(count);
+        console.log(i);
         return (
           <GridUnit
             key={i}
             color={set_row_color(real_filter, hovered)}
             is_active_filter={real_filter.some((f) => f == filter)}
+            index={i}
           ></GridUnit>
         );
       })}

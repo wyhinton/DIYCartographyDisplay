@@ -1,6 +1,5 @@
-
-.ReactGridGallery{
-    margin: auto;
+.ReactGridGallery {
+  margin: auto;
 }
 
 @keyframes fadein {
@@ -12,3 +11,9 @@
   }
 }
 
+/* FIXES ISSUES WITH SLICK SLIDE IMAGE SIZING */
+.slick-track img {
+  color: red;
+  object-fit: contain;
+  height: 80vh;
+}

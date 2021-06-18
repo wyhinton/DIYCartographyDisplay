@@ -3,7 +3,7 @@ import {
   AuthorDisciplineFilter,
   MapSubTopic,
   ThemeCategoryFilter,
-} from "./enums";
+} from "../enums";
 
 export type FilterOption =
   | AuthorDisciplineFilter

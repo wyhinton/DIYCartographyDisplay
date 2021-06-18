@@ -1,0 +1,12 @@
+.info-text {
+  animation: TextColor 1s linear infinite;
+}
+
+@keyframes TextColor {
+  0% {
+    color: #5794a5;
+  }
+  100% {
+    color: #bcd4db;
+  }
+}

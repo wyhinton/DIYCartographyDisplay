@@ -4,12 +4,32 @@ export interface LightboxImage {
   src: string;
   title: string;
 }
+/**
+ * Holds data for the active lightbox.
+ * Initializes to any empty lightbox, ingests a Student.
+ */
 export class LightBoxData {
+  /**
+   * The images to display
+   */
   images!: LightboxImage[];
+  /**
+   * Text about the map
+   */
   description!: string;
+  /**
+   * Student who created the map
+   */
   author!: string;
+  /**
+   * Title of the series01 map
+   */
   title!: string;
+  /**
+   * Year of the student
+   */
   year!: string;
+  /**Disciplien of the student */
   discipline!: string;
 
   constructor() {
@@ -21,7 +41,7 @@ export class LightBoxData {
     this.discipline = "";
   }
   set_student(student: StudentClass) {
-    this.images = student.get_lightbox_images();
+    this.images = student.getLightboxImages();
     this.author = student.author;
     this.title = student.title;
     this.description = student.description;

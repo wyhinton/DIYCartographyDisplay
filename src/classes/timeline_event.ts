@@ -1,5 +1,5 @@
-import { EventLevel } from "./enums";
-import { RawEventRowValues } from "./sheet_data_models";
+import { EventLevel } from "../enums";
+import { RawEventRowValues } from "../model/sheet_data_models";
 
 export class TimelineEvent {
   start!: Date;

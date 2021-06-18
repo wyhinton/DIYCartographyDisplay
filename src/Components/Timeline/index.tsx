@@ -7,7 +7,7 @@ import EventChart from "./TimeSeries/components/EventChart";
 import EventInfoDisplay from "./EventInfoDisplay";
 import Grid from "@material-ui/core/Grid";
 import Resizable from "./TimeSeries/components/Resizable";
-import type { EventRowValues } from "../../model/map_data";
+import type { EventRowValues } from "../../model/timeline_model";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { Text } from "evergreen-ui";
 import { TimeSeries, TimeRange } from "pondjs";
@@ -27,9 +27,10 @@ const Timeline = function () {
   const timeline_offset = "6em";
   const initial_width = 2000;
 
-  const time_series = useStoreState((state) => state.map_data.timelineSeries);
+  const time_series = useStoreState((state) => state.timeline.timelineSeries);
+  // const time_series = useStoreState((state) => state.timeline.timelineSeries);
   const event_rows: EventRowValues[] = useStoreState(
-    (state) => state.map_data.eventSpreadsheet
+    (state) => state.timeline.eventSpreadsheet
   );
 
   const [eventInfo, setEventInfo] =
@@ -77,7 +78,7 @@ const Timeline = function () {
   useEffect(() => {}, [seperators]);
 
   const timelineSection = {
-    height: 200,
+    height: "10%",
     width: "100%",
     borderTop: `1px solid ${theme.palette.primary.main}`,
     display: is_sm ? "inline-flex" : "none",
@@ -248,8 +249,6 @@ const Timeline = function () {
                 {make_series(time_series.national, theme, row_height)}
                 {make_series(time_series.state, theme, row_height)}
                 {make_series(time_series.city, theme, row_height)}
-                {make_series(time_series.international, theme, row_height)}
-                {make_series(time_series.NA, theme, row_height)}
               </ChartContainer>
             </Resizable>
           </div>
@@ -272,3 +271,10 @@ function getAllFuncs(toCheck: any) {
     if (e != arr[i + 1] && typeof toCheck[e] == "function") return true;
   });
 }
+
+// {
+//   /* {make_series(time_series.international, theme, row_height)} */
+// }
+// {
+//   /* {make_series(time_series.NA, theme, row_height)} */
+// }

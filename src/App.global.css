@@ -1,0 +1,25 @@
+.slick-slide {
+  display: none;
+  float: left;
+  height: auto;
+  min-height: 1px;
+}
+
+/* img {
+  height: 100%;
+  max-width: 100%;
+} */
+
+.slick-slide img {
+  display: block;
+  width: auto !important;
+  height: 80vh;
+}
+
+.ReactGridGallery_tile-viewport:hover {
+  outline: 1px solid #739eae;
+}
+
+.slick-slider .slick-initialized {
+  height: 100%;
+}

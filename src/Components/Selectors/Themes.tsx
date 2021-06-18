@@ -4,7 +4,7 @@ import SelectorGroup from "./Containers/SelectorGroup";
 import SelectorParent from "./Containers/SelectorParent";
 import { useStoreState } from "../../hooks";
 import GridChunk from "./Grid/GridChunk";
-import { ThemeCategoryFilter, FilterGroup } from "../../model/enums";
+import { ThemeCategoryFilter, FilterGroup } from "../../enums";
 
 const Themes = () => {
   const theme = useTheme();

@@ -3,11 +3,12 @@ import {
   ThemeCategoryFilter,
   MapSubTopic,
   Topic,
-} from "./enums";
-import type { RawStudentRowValues } from "./sheet_data_models";
+} from "../enums";
+import type { RawStudentRowValues } from "../model/sheet_data_models";
 import type { LightboxImage } from "./lightbox";
-import type { GalleryImage } from "./map_data";
+import type { GalleryImage } from "../model/map_data";
 import { idText } from "typescript";
+import { CustomError } from "../enums";
 interface ImageData {
   src: string;
   title: string;
@@ -30,6 +31,10 @@ function request_image(image_url: string): Promise<HTMLImageElement> {
     img.onload = () => {
       resolve(img);
     };
+    img.onerror = (err) => {
+      reject(err);
+      // console.log("got an error");
+    };
     // img.onerror = () =>{
     //   resolve()
     // }
@@ -50,21 +55,22 @@ export class StudentClass {
   topic!: Topic;
   subtopic!: MapSubTopic;
   theme!: ThemeCategoryFilter;
-  image_data!: Map<SeriesId, string>;
-  gallery_images!: GalleryImage[];
+  imageData!: Map<SeriesId, string>;
+  galleryImages!: GalleryImage[];
 
-  request_gallery_thumbnail(
+  requestGalleryThumbnail(
     id: SeriesId
-  ): Promise<HTMLImageElement> | undefined {
-    if (this.image_data.has(id)) {
-      let test = this.image_data.get(id) ?? ("" as string);
+  ): Promise<HTMLImageElement> | CustomError {
+    if (this.imageData.has(id)) {
+      let test = this.imageData.get(id) ?? ("" as string);
       let req = request_image(test);
       return req;
     }
+    return CustomError.STUDENT_MAP_SERIES_NOT_FOUND;
   }
-  get_lightbox_images(): LightboxImage[] {
+  getLightboxImages(): LightboxImage[] {
     let lightbox_image_arr: LightboxImage[] = [];
-    for (let elem of this.image_data.entries()) {
+    for (let elem of this.imageData.entries()) {
       const new_img = {
         title: elem[0],
         src: elem[1] as string,
@@ -73,11 +79,11 @@ export class StudentClass {
     }
     return lightbox_image_arr;
   }
-  get_gallery_images(): GalleryImage[] {
-    return this.gallery_images;
+  getGalleryImages(): GalleryImage[] {
+    return this.galleryImages;
   }
-  create_gallery_image(key: SeriesId, full_size_img: HTMLImageElement) {
-    const src = this.image_data.get(key);
+  createGalleryImage(key: SeriesId, full_size_img: HTMLImageElement) {
+    const src = this.imageData.get(key);
     const thumbnail_src = src;
 
     let gallery_image = {
@@ -107,14 +113,14 @@ export class StudentClass {
         },
       ],
     };
-    this.gallery_images.push(gallery_image);
+    this.galleryImages.push(gallery_image);
     // );
     // return gallery_image;
   }
   // first_image.thumbnailWidth = img.width * 0.1;
   // first_image.thumbnailHeight = img.height * 0.1;
   set_gallery_images(gi: GalleryImage[]) {
-    this.gallery_images = gi;
+    this.galleryImages = gi;
   }
   constructor(row: RawStudentRowValues) {
     let pairArr: [SeriesId, string][] = [];
@@ -149,7 +155,7 @@ export class StudentClass {
       ];
     this.subtopic =
       MapSubTopic[row.subtopic as unknown as keyof typeof MapSubTopic];
-    this.image_data = image_map;
-    this.gallery_images = [];
+    this.imageData = image_map;
+    this.galleryImages = [];
   }
 }

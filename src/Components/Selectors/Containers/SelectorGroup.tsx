@@ -3,7 +3,7 @@ import { useTheme } from "@material-ui/core/styles";
 import { useStoreActions, useStoreState } from "../../../hooks";
 import { useState, useEffect } from "react";
 import type { FilterOption } from "../../../model/types";
-import { FilterState, FilterGroup } from "../../../model/enums";
+import { FilterState, FilterGroup } from "../../../enums";
 
 import React from "react";
 

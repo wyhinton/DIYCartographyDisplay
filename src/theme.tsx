@@ -31,6 +31,11 @@ export const theme = createMuiTheme({
         // display: 'flex',
       },
     },
+    MuiTooltip: {
+      tooltip: {
+        backgroundColor: "#5794a5",
+      },
+    },
   },
   typography: {
     fontFamily: "Audimat",

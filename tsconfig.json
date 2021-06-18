@@ -3,7 +3,11 @@
   "compilerOptions": {
     "target": "es5",
     "downlevelIteration": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "incremental": true,
     "baseUrl": "src",
     "allowJs": true,
@@ -19,7 +23,14 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "typeRoots": ["./node_modules/@types/", "./extra_types/"]
+    "typeRoots": [
+      "./node_modules/@types/",
+      "./extra_types/"
+    ]
   },
-  "include": ["src", "decs.d.ts", "../LightBox.tsx"]
+  "include": [
+    "src",
+    "decs.d.ts",
+    "../LightBox.tsx"
+  ]
 }

@@ -12,16 +12,12 @@ import { merge } from "lodash";
 import React, { useEffect } from "react";
 import { useStoreActions } from "./hooks";
 
-/**
- * Core component, intializet request for sheet data via fetchStudentSheets and fetchEventSpreadsheet
- */
-
 const App = (): JSX.Element => {
   const fetchStudentSpreadsheet = useStoreActions(
     (actions) => actions.map_data.fetchStudentSheets
   );
   const fetchEventSpreadsheet = useStoreActions(
-    (actions) => actions.map_data.fetchEventSpreadsheet
+    (actions) => actions.timeline.fetchEventSpreadsheet
   );
 
   const myCustomTheme = merge({}, defaultTheme, {
@@ -55,7 +51,7 @@ const App = (): JSX.Element => {
           <Grid item md={12} lg={2}>
             <Sidebar />
           </Grid>
-          <Grid item md={12} lg={10}>
+          <Grid item md={12} lg={10} style={{ width: "100%" }}>
             <MapGallery />
           </Grid>
         </Grid>

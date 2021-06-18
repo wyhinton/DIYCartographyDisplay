@@ -16,25 +16,28 @@ const Header = ({
   const titleHeader = {
     fontSize: "xxx-large",
     fontFamily: theme.typography.fontFamily,
+    color: "white",
   } as React.CSSProperties;
   const authorInfo = {
     fontSize: "xx-large",
     fontFamily: theme.typography.fontFamily,
+    color: "white",
   } as React.CSSProperties;
+  const containerStyle = {
+    paddingTop: "1em",
+  };
 
   return (
-    <span>
-      <Grid container spacing={0}>
-        <Grid item xs={9} style={titleHeader}>
-          {title}
-        </Grid>
-        <Grid item xs={3} style={authorInfo}>
-          {author}
-          <br></br>
-          {discipline}, {year}
-        </Grid>
+    <Grid container spacing={0} style={containerStyle}>
+      <Grid item xs={9} style={titleHeader}>
+        {title}
       </Grid>
-    </span>
+      <Grid item xs={3} style={authorInfo}>
+        {author}
+        <br></br>
+        {discipline}, {year}
+      </Grid>
+    </Grid>
   );
 };
 export default Header;

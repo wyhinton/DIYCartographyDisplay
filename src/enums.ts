@@ -17,6 +17,9 @@ export enum AuthorDisciplineFilter {
   LANDSCAPE_2020 = "LANDSCAPE_2020",
 }
 
+export enum CustomError {
+  STUDENT_MAP_SERIES_NOT_FOUND = "STUDENT_MAP_SERIES_NOT_FOUND",
+}
 export enum FilterState {
   SOLO = "SOLO",
   DEACTIVATED = "DEACTIVATED",
@@ -28,8 +31,8 @@ export enum EventLevel {
   national = "national",
   state = "state",
   city = "city",
-  international = "international",
-  NA = "NA",
+  // international = "international",
+  // NA = "NA",
 }
 
 export enum FilterGroup {

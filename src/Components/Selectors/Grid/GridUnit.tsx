@@ -7,9 +7,10 @@ import { useStoreState } from "../../../hooks";
 type UnitProps = {
   color: number;
   is_active_filter?: boolean;
+  index?: number;
 };
 
-export const GridUnit = ({ color, is_active_filter }: UnitProps) => {
+export const GridUnit = ({ color, is_active_filter, index }: UnitProps) => {
   const theme = useTheme();
   const size = 12;
   const [hover, setHover] = useState(false);
@@ -24,7 +25,9 @@ export const GridUnit = ({ color, is_active_filter }: UnitProps) => {
     marginTop: "auto",
   } as React.CSSProperties;
 
-  useEffect(() => {}, [mounted]);
+  useEffect(() => {
+    console.log(index);
+  }, [mounted]);
 
   const match_color = (ind: number) => {
     let col: any;
@@ -50,7 +53,7 @@ export const GridUnit = ({ color, is_active_filter }: UnitProps) => {
         col = theme.palette.secondary.main;
         break;
       case 4:
-        col = theme.palette.primary.dark;
+        col = theme.palette.secondary.dark;
         break;
     }
     return col;

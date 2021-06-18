@@ -7,42 +7,23 @@ import {
   Computed,
   computed,
 } from "easy-peasy";
-import GetSheetDone from "get-sheet-done";
-import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
+import { TimeSeries } from "pondjs";
 import {
   AuthorDisciplineFilter,
   MapSubTopic,
   ThemeCategoryFilter,
-  EventLevel,
-  GalleryFilterType,
   FilterGroup,
-} from "./enums";
-import type {
-  RawStudentRowValues,
-  GoogleSheet,
-  RawEventRowValues,
-} from "./sheet_data_models";
+  CustomError,
+} from "../enums";
+import type { GoogleSheet, RawStudentRowValues } from "./sheet_data_models";
+import { getSheet } from "./sheet_data_models";
 import type { FilterOption } from "./types";
-import {
-  handle_validation,
-  lengthAtLeastFour,
-  ValidationError,
-} from "./validation";
-import { arraysEqual, groupBy } from "./utils";
-import { StudentClass, SeriesId } from "./student";
-import { StudentStats } from "./student_stats";
-import { LightBoxData } from "./lightbox";
-import { TimelineEvent } from "./timeline_event";
-import { Timeline } from "./timeline";
-import SHEET_KEY from "./sheet_key";
-
-/**
-  tags can not be an object due to the Gallery Image API,
-  but it will accept an array of any type. So we get around 
-  this by putting our metadata object 
-  into an array. There
-  will never be more than one metadata object.
-*/
+import { ValidationError } from "../validation";
+import { arraysEqual } from "../utils";
+import { StudentClass, SeriesId } from "../classes/student";
+import { StudentStats } from "../classes/student_stats";
+import { LightBoxData } from "../classes/lightbox";
+import SHEET_KEY from "../static/sheet_key";
 
 export interface GalleryImage {
   src: string;
@@ -68,23 +49,6 @@ export interface YearSection {
   discipline: string[];
 }
 
-export interface EventRowValues {
-  start: Date;
-  end: Date;
-  title: string;
-  info: string;
-  tags: string;
-  category: EventLevel;
-}
-
-export interface TimelineData {
-  national: TimeSeries[];
-  state: TimeSeries[];
-  city: TimeSeries[];
-  international: TimeSeries[];
-  NA: TimeSeries[];
-}
-
 export interface FilterResult {
   filter_func: any;
   filters: FilterOption[];
@@ -102,225 +66,178 @@ export interface MapDataModel {
   loaded: boolean;
   studentStats: StudentStats | undefined;
   studentsClass: StudentClass[];
-  timelineSeries: TimelineData;
-  timlineData: Timeline;
+  studentGoogleSheets: GoogleSheet<RawStudentRowValues>[]; //
 
   //COMPUTED FROM EXTERNAL DATA
   computedActiveImages: Computed<MapDataModel, GalleryImage[]>;
-  computed_all_gallery_images: Computed<MapDataModel, GalleryImage[]>;
+  computedAvailableGalleryImages: Computed<MapDataModel, GalleryImage[]>;
 
   //THUNKS - FETCH EXTERNAL
-  fetchEventSpreadsheet: Thunk<MapDataModel>;
+  // fetchEventSpreadsheet: Thunk<MapDataModel>;
   fetchStudentSheets: Thunk<MapDataModel>;
 
   //THUNKS - UI
   thunkSetFilter: Thunk<MapDataModel, FilterOption>;
   processRawStudentSheets: Thunk<MapDataModel, RawStudentRowValues[][]>;
+
   //STORE RAW GOOGLE SHEETS INFO FOR DEBUGGING
-  rawStudentSheets: RawStudentRowValues[][];
+  setStudentGoogleSheets: Action<
+    MapDataModel,
+    GoogleSheet<RawStudentRowValues>[]
+  >;
   mapSpreadsheet: RawStudentRowValues[];
-  eventSpreadsheet: EventRowValues[];
-  addStudentSheetRawData: Action<MapDataModel, RawStudentRowValues[]>;
-  setEventSpreadsheet: Action<MapDataModel, EventRowValues[]>;
 
   //VALIDATION
   validationErrors: ValidationError[];
 
   //SETTERS
-  // set_LightBoxData: Action<MapDataModel, StudentClass>;
-  add_validation_error: Action<MapDataModel, ValidationError>;
+  addValidationError: Action<MapDataModel, ValidationError>;
   filter_gallery_2: Action<MapDataModel, FilterResult>;
-  set_StudentStats: Action<MapDataModel, StudentStats>;
-  set_active_filter: Action<MapDataModel, FilterOption[]>;
-  set_all_students: Action<MapDataModel, StudentClass[]>;
-  set_filter_function: Action<MapDataModel, any>;
-  set_gallery_images: Action<MapDataModel, GalleryImage[]>;
-  set_group_filter: Action<MapDataModel, FilterGroup>;
-  set_lightboxData: Action<MapDataModel, GalleryImage>;
-  set_loaded: Action<MapDataModel, boolean>;
-  set_timelineData: Action<MapDataModel, TimelineEvent[]>;
-  set_timeline_series: Action<MapDataModel, TimelineData>;
-  set_validation_errors: Action<MapDataModel, ValidationError[]>;
+  setStudentStats: Action<MapDataModel, StudentStats>;
+  setActiveFilter: Action<MapDataModel, FilterOption[]>;
+  setAllStudents: Action<MapDataModel, StudentClass[]>;
+  setFilterFunction: Action<MapDataModel, any>;
+  setGalleryImages: Action<MapDataModel, GalleryImage[]>;
+  setGroupFiler: Action<MapDataModel, FilterGroup>;
+  setLightboxData: Action<MapDataModel, GalleryImage>;
+  setLoaded: Action<MapDataModel, boolean>;
+  setValidationErrors: Action<MapDataModel, ValidationError[]>;
 }
-
-//______________________
-
-const empty_nat: TimeSeries[] = [];
-const empty_state: TimeSeries[] = [];
-const empty_city: TimeSeries[] = [];
-const empty_international: TimeSeries[] = [];
-const empty_NA: TimeSeries[] = [];
-
-const initial_empty_timeline: TimelineData = {
-  national: empty_nat,
-  state: empty_state,
-  city: empty_city,
-  international: empty_international,
-  NA: empty_NA,
-};
 
 const map_data: MapDataModel = {
   filter: [],
-  timlineData: new Timeline(),
   studentsClass: [],
   lightBoxData: new LightBoxData(),
   groupFilter: FilterGroup.NONE,
   activeImages: [],
   filterFunction: (gi: GalleryImage) => true,
   computedActiveImages: computed((state) => {
-    console.log(state.filterFunction);
-    let active = state.computed_all_gallery_images.filter(state.filterFunction);
-    console.log(active);
-    return active;
+    if (state.filter.length > 0) {
+      return state.computedAvailableGalleryImages.filter(state.filterFunction);
+    } else {
+      return state.computedAvailableGalleryImages;
+    }
+    // console.log(active);
+    // return active;
   }),
-  rawStudentSheets: [],
   galleryImages: [],
   allImages: [],
-  timelineSeries: initial_empty_timeline,
   loaded: false,
   mapSpreadsheet: [],
   studentStats: undefined,
-  eventSpreadsheet: [],
   validationErrors: [],
-  // student_asset_requests: [],
-  set_all_students: action((state, payload) => {
+  studentGoogleSheets: [],
+  setAllStudents: action((state, payload) => {
     state.studentsClass = payload;
-  }),
-  addStudentSheetRawData: action((state, payload) => {
-    state.rawStudentSheets.push(payload);
   }),
   processRawStudentSheets: thunk(async (actions, payload) => {
     const allRows = payload.flat();
-    console.log(allRows);
     const allStudents = allRows.map((r) => new StudentClass(r));
-    console.log(allStudents);
-    const resizeReq = allStudents.map((s) =>
-      s.request_gallery_thumbnail(SeriesId.series0101)
-    );
-    console.log(resizeReq);
-    Promise.all(resizeReq).then((imgs) => {
+    const goodConversions: Promise<HTMLImageElement>[] = [];
+    allStudents.forEach((element) => {
+      const res = element.requestGalleryThumbnail(SeriesId.series0101);
+      if (
+        !(Object.values(CustomError) as string[]).includes(
+          res as keyof typeof CustomError
+        )
+      ) {
+        goodConversions.push(res as Promise<HTMLImageElement>);
+      }
+    });
+    const requestResults = ingestPromises<HTMLImageElement>(goodConversions);
+    requestResults.then((value) => {
+      const imgs = value.results;
       const newStudents: StudentClass[] = [];
       imgs.forEach((img, i) => {
         if (img) {
-          allStudents[i].create_gallery_image(SeriesId.series0101, img);
+          allStudents[i].createGalleryImage(SeriesId.series0101, img);
           newStudents.push(allStudents[i]);
         }
       });
       console.log(newStudents);
       const studentStats = new StudentStats(newStudents);
       console.log(studentStats);
-      actions.set_all_students(newStudents);
-      actions.set_StudentStats(studentStats);
+      actions.setAllStudents(newStudents);
+      actions.setLoaded(true);
+      actions.setStudentStats(studentStats);
     });
   }),
-  set_StudentStats: action((state, payload) => {
+  setStudentStats: action((state, payload) => {
     state.studentStats = payload;
   }),
-  set_filter_function: action((state, payload) => {
+  setFilterFunction: action((state, payload) => {
     console.log("setting filter func");
     state.filterFunction = payload;
   }),
-  computed_all_gallery_images: computed((state) => {
-    return state.studentsClass.map((s) => s.get_gallery_images()).flat();
+  computedAvailableGalleryImages: computed((state) => {
+    return state.studentsClass.map((s) => s.getGalleryImages()).flat();
   }),
-  add_validation_error: action((state, payload) => {
+  addValidationError: action((state, payload) => {
     state.validationErrors.push(payload);
   }),
-  set_validation_errors: action((state, payload) => {
+  setValidationErrors: action((state, payload) => {
     state.validationErrors = payload;
   }),
-  fetchEventSpreadsheet: thunk(async (actions) => {
-    get_sheet<RawEventRowValues>(SHEET_KEY, 1)
-      .then((event_sheet: GoogleSheet<RawEventRowValues>) => {
-        let timeline_events = event_sheet.data.map((r) => new TimelineEvent(r));
-        actions.set_timelineData(timeline_events);
-        const typed_event_rows = type_event_rows(event_sheet.data);
-        actions.setEventSpreadsheet(typed_event_rows);
-        const timeline_series = make_time_series(typed_event_rows);
-        actions.set_timeline_series(timeline_series);
-      })
-      .catch((err: any) => {
-        console.error(`Error fetching DOC_KEY ${SHEET_KEY}`);
-      });
+  fetchStudentSheets: thunk(async (actions, _payload) => {
+    const test2016 = getSheet<RawStudentRowValues>(SHEET_KEY, 2);
+    const test2018 = getSheet<RawStudentRowValues>(SHEET_KEY, 3);
+    const test2020 = getSheet<RawStudentRowValues>(SHEET_KEY, 4);
+    const studentSheetRequests = [test2016, test2018, test2020];
+    const my_stuff =
+      ingestPromises<GoogleSheet<RawStudentRowValues>>(studentSheetRequests);
+    my_stuff.then((results) => {
+      const succesfulSheets = results.results;
+      const studentRowValues = results.results.map((r) => r.data);
+      actions.setStudentGoogleSheets(succesfulSheets);
+      actions.processRawStudentSheets(studentRowValues);
+    });
   }),
-  set_timelineData: action((state, payload) => {
-    state.timlineData.set_data(payload);
+  setStudentGoogleSheets: action((state, sheets) => {
+    state.studentGoogleSheets = sheets;
   }),
-  fetchStudentSheets: thunk(async (actions, _payload, { getState }) => {
-    let test_2016 = get_sheet<RawStudentRowValues>(SHEET_KEY, 2);
-    let test_2018 = get_sheet<RawStudentRowValues>(SHEET_KEY, 3);
-    let student_sheet_requests = [test_2016, test_2018];
-    Promise.all(student_sheet_requests).then(
-      (student_sheet: (void | GoogleSheet<RawStudentRowValues>)[]) => {
-        student_sheet.forEach((sheet_payload) => {
-          if (sheet_payload) {
-            console.log(sheet_payload);
-            const raw_student_values = sheet_payload.data;
-            if (Array.isArray(raw_student_values)) {
-              console.log(raw_student_values);
-              actions.addStudentSheetRawData(
-                raw_student_values as RawStudentRowValues[]
-              );
-            } else {
-              console.error("did not get map row array");
-            }
-          }
-        });
-        actions.processRawStudentSheets(getState().rawStudentSheets);
-      }
-    );
-  }),
-  setEventSpreadsheet: action((state, event_rows) => {
-    state.eventSpreadsheet = event_rows;
-  }),
-  set_gallery_images: action((state, payload) => {
+  setGalleryImages: action((state, payload) => {
     state.galleryImages = payload;
   }),
-  filter_gallery_2: action((state, filter_result) => {
-    if (arraysEqual(filter_result.filters, debug(state.filter))) {
+  filter_gallery_2: action((state, filterResult) => {
+    if (arraysEqual(filterResult.filters, debug(state.filter))) {
       state.filter = [];
       state.activeImages = state.galleryImages;
       console.log("got the same filte ");
     } else {
-      state.activeImages = state.galleryImages.filter(
-        filter_result.filter_func
-      );
-      state.filter = filter_result.filters;
+      state.activeImages = state.galleryImages.filter(filterResult.filter_func);
+      state.filter = filterResult.filters;
     }
   }),
-  set_timeline_series: action((state, timeline_series) => {
-    state.timelineSeries = timeline_series;
-  }),
-  set_group_filter: action((state, group_filter) => {
-    console.log("setting group filter", group_filter);
-    if (state.groupFilter === group_filter) {
+  setGroupFiler: action((state, groupFilter) => {
+    console.log("setting group filter", groupFilter);
+    if (state.groupFilter === groupFilter) {
       console.log("GOT SAME");
       state.groupFilter = FilterGroup.NONE;
       state.filter = [];
     } else {
-      state.groupFilter = group_filter;
+      state.groupFilter = groupFilter;
     }
   }),
   thunkSetFilter: thunk((actions, filter) => {
     console.log("doing thunk set filter");
-    let group_options = Object.values(FilterGroup);
+    let groupOptions = Object.values(FilterGroup);
 
-    if (group_options.includes(filter as FilterGroup)) {
+    if (groupOptions.includes(filter as FilterGroup)) {
       let group_filter = get_group_filter(filter);
-      actions.set_filter_function(group_filter.filter_func);
+      actions.setFilterFunction(group_filter.filter_func);
       actions.filter_gallery_2(group_filter);
-      actions.set_group_filter(filter as FilterGroup);
+      actions.setGroupFiler(filter as FilterGroup);
     } else {
       let single_filter = get_single_filter(filter);
-      actions.set_filter_function(single_filter.filter_func);
+      actions.setFilterFunction(single_filter.filter_func);
       actions.filter_gallery_2(single_filter);
     }
   }),
-  set_active_filter: action((state, active_filter) => {
+  setActiveFilter: action((state, active_filter) => {
     console.log(active_filter);
     state.filter = active_filter;
   }),
-  set_lightboxData: action((state, item) => {
+  setLightboxData: action((state, item) => {
     console.log(item);
     const tag_data: MapMetadata = item.tags[0];
     const selected_student = state.studentsClass.filter(
@@ -329,10 +246,35 @@ const map_data: MapDataModel = {
     console.log(debug(selected_student));
     state.lightBoxData.set_student(selected_student);
   }),
-  set_loaded: action((state, is_loaded) => {
+  setLoaded: action((state, is_loaded) => {
     state.loaded = is_loaded;
   }),
 };
+function ingestPromises<T>(promises: Promise<T>[]): Promise<{
+  results: T[];
+  failures: PromiseRejectedResult[];
+}> {
+  const goodResults: T[] = [];
+  const badResults: PromiseRejectedResult[] = [];
+  let test = Promise.allSettled(promises).then((values) => {
+    values.forEach((v) => {
+      if (v.status == "rejected") {
+        badResults.push(v);
+      } else {
+        if (v.value) {
+          console.log(v.value);
+          goodResults.push(v.value);
+        }
+      }
+    });
+    return {
+      results: goodResults,
+      failures: badResults,
+    };
+  });
+  return test;
+}
+
 function get_single_filter(f: FilterOption): FilterResult {
   let filter_func: any;
   if (Object.values(MapSubTopic).includes(f as MapSubTopic)) {
@@ -464,175 +406,6 @@ function get_group_filter(f: FilterOption): FilterResult {
       break;
   }
   return final_result;
-}
-
-function make_time_series(rows: EventRowValues[]): TimelineData {
-  const categorized_events = groupBy(rows, "category");
-  console.log(categorized_events);
-  Object.keys(categorized_events).forEach((key) => {
-    console.log(key);
-    const value: EventRowValues[] = categorized_events[key];
-    const events = event_rows_to_time_range_events(value);
-    const series = time_range_events_to_time_series(events);
-    categorized_events[key] = series;
-    console.log(series);
-  });
-  console.log(categorized_events);
-  return categorized_events;
-}
-
-function event_rows_to_time_range_events(
-  rows: EventRowValues[]
-): TimeRangeEvent[] {
-  let all_events: TimeRangeEvent[] = [];
-  console.log(rows);
-  rows.forEach((event_row: EventRowValues) => {
-    const time_range = new TimeRange(event_row.start, event_row.end);
-    const time_range_event = new TimeRangeEvent(time_range, [
-      { title: event_row.title },
-    ]);
-    all_events.push(time_range_event);
-  });
-  console.log(all_events);
-  return all_events;
-}
-
-//sorts events into rows so that rows don't contain overlapping time events
-function time_range_events_to_time_series(
-  events: TimeRangeEvent[]
-): TimeSeries[] {
-  // let array_set: { [key: string]: any[] } = {};
-  // let row_count = 0;
-  // for (let index = 0; index < events.length; index++) {
-  //   console.log(index);
-  //   const element = events[index];
-  //   if (Array.isArray(array_set[`row_${row_count}`]) == false) {
-  //     array_set[`row_${row_count}`] = [];
-  //   }
-  //   let test = array_set[`row_${row_count}`].every(
-  //     (d: TimeRangeEvent) =>
-  //       date_range_overlaps(
-  //         d.begin(),
-  //         d.end(),
-  //         element.begin(),
-  //         element.end()
-  //       ) == false
-  //   );
-  //   if (test) {
-  //     if (row_count > 0) {
-  //       array_set[`row_${row_count - 1}`].push(element);
-  //       // }
-  //     } else {
-  //       array_set[`row_${row_count}`].push(element);
-  //     }
-  //   } else {
-  //     row_count += 1;
-  //     array_set[`row_${row_count}`].push(element);
-  //   }
-  //   console.log(test);
-  //   console.log(array_set);
-  //   // if (
-  //   //   array_set[`row_${row_count}`].every(
-  //   //     (d: TimeRangeEvent) =>
-  //   //       date_range_overlaps(
-  //   //         d.begin(),
-  //   //         d.end(),
-  //   //         element.begin(),
-  //   //         element.end()
-  //   //       ) == false
-  //   //   )
-  //   // ) {
-  //   //   console.log("no overlap, going to push");
-  //   //   array_set[`row_${row_count}`].push(element);
-  //   //   console.log(array_set);
-  //   // } else {
-  //   //   // console.log("GOT overlap, MAKE NEW ROW");
-  //   //   // row_count += 1;
-  //   //   // array_set[`row_${row_count}`].push(element);
-  //   // }
-  //   // }
-  // }
-  // console.log(array_set);
-  let test_obj: any = {};
-  test_obj[0] = [];
-  (events as TimeRangeEvent[]).forEach(
-    (ev2: TimeRangeEvent, ind: number, array: TimeRangeEvent[]) => {
-      let row_count = 0;
-      if (
-        array.every((e3) => {
-          if (ev2 === e3) {
-            return true;
-          }
-          if (
-            date_range_overlaps(e3.begin(), e3.end(), ev2.begin(), ev2.end())
-          ) {
-            // console.log("ranges do overlap");
-            return false;
-          } else {
-            // console.log("ranges do not overlap");
-            return true;
-          }
-        })
-      ) {
-        test_obj[row_count].push(ev2);
-      } else {
-        row_count = row_count + 1;
-        test_obj[ind] = [ev2];
-      }
-    }
-  );
-  const sorted_events = Object.keys(test_obj).map((k) => {
-    test_obj[k] = test_obj[k].sort((a: any, b: any) => a.begin() - b.begin());
-  });
-  const row_arrays = Object.keys(sorted_events).map(
-    (k) =>
-      new TimeSeries({
-        name: "test",
-        events: test_obj[k],
-      })
-  );
-  return row_arrays;
-}
-
-function date_range_overlaps(
-  a_start: Date,
-  a_end: Date,
-  b_start: Date,
-  b_end: Date
-) {
-  if (a_start < b_start && b_start < a_end) return true; // b starts in a
-  if (a_start < b_end && b_end < a_end) return true; // b ends in a
-  if (b_start < a_start && a_end < b_end) return true; // a in b
-  return false;
-}
-
-function type_event_rows(rows: any[]): EventRowValues[] {
-  rows.forEach((r: any, ind: number) => {
-    const cat_string: string = rows[ind]["category"];
-    const type_cat: EventLevel =
-      EventLevel[cat_string as unknown as keyof typeof EventLevel];
-    rows[ind]["category"] = type_cat;
-    const start_date = new Date(rows[ind]["start"]);
-    const end_date = new Date(rows[ind]["end"]);
-    rows[ind]["start"] = start_date;
-    rows[ind]["end"] = end_date;
-  });
-  return rows;
-}
-
-function get_sheet<T>(key: string, sheet_num: number): Promise<GoogleSheet<T>> {
-  const promise = new Promise<GoogleSheet<T>>(function (resolve, reject) {
-    GetSheetDone.labeledCols(key, sheet_num)
-      .then((sheet: any) => {
-        resolve(sheet);
-      })
-      .catch((err: any) => {
-        console.error(
-          `Error fetching DOC_KEY ${key}, sheet number ${sheet_num}`
-        );
-      });
-  });
-  return promise;
 }
 
 function get_year_discipline(

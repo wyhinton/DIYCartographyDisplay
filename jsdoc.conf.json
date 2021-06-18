@@ -5,6 +5,7 @@
   },
   "source": {
     "include": ["src"],
+    "exclude": ["src/Components/Timeline/TimeSeries"],
     "includePattern": "\\.(jsx|js|ts|tsx)$",
     "excludePattern": "(^|\\/|\\\\)_"
   },

@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState, useRef, useImperativeHandle, Ref } from "react";
+import ReactDom from "react-dom";
 import { useTheme, withStyles } from "@material-ui/core/styles";
 import { CrossIcon } from "evergreen-ui";
 import Backdrop from "@material-ui/core/Backdrop";
@@ -14,26 +15,44 @@ interface LightBoxProps {
   onClick: any;
 }
 
+export interface RefObject {
+  SayHi: () => void;
+}
+
 const LightBox = ({ show, onClick }: LightBoxProps) => {
   const theme = useTheme();
+
+  const theDiv = useRef<RefObject>(null);
+  // const
   const active_lightbox = useStoreState((state) => state.map_data.lightBoxData);
   useEffect(() => {
     console.log(active_lightbox);
   }, [active_lightbox.author]);
 
   const galleryStyle = {
-    height: "90vh",
+    // height: "100vh",
+    height: "100%",
   };
+  // const [open, setOpen] = useState(false);
 
   const backDropContainer = {
-    width: "100%",
+    // width: "100%",
     height: "100%",
     paddingLeft: "2em",
-  };
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    maxHeight: "100vh",
+    overflow: "hidden",
+    paddingTop: "1em",
+  } as React.CSSProperties;
+
   const mainGrid = {
-    height: "100vh",
+    height: "90vh",
     width: "100vw",
     spacing: 0,
+    paddingTop: "1em",
     justify: "space-around",
   };
 
@@ -50,20 +69,29 @@ const LightBox = ({ show, onClick }: LightBoxProps) => {
       position: "absolute",
       zIndex: 1,
       boxSizing: "border-box",
-      paddingLeft: "2em",
-      paddingTop: "2em",
       opacity: 0.5,
       backgroundColor: "rgb(0 0 0 / 73%)",
+      overflow: "hidden",
+      transition: "opacity 1s",
+      // display: open ? "block" : "none",
+      // top: open ? -100 : 0,
     },
   })(Backdrop);
 
-  return (
+  return ReactDom.createPortal(
     <>
       <LimitedBackdrop open={show}>
         <div style={closeButtonContainer} onClick={onClick}>
           <CrossIcon></CrossIcon>
         </div>
-        <div style={backDropContainer}>
+        <div
+          style={backDropContainer}
+          onMouseUp={() => {
+            console.log("got click");
+            // setOpen(false);
+            onClick;
+          }}
+        >
           <Header
             author={active_lightbox.author}
             title={active_lightbox.title}
@@ -78,12 +106,13 @@ const LightBox = ({ show, onClick }: LightBoxProps) => {
               />
             </Grid>
             <Grid item xs={9} style={galleryStyle}>
-              <ImageSlider images={active_lightbox.images} />
+              <ImageSlider images={active_lightbox.images} ref={theDiv} />
             </Grid>
           </Grid>
         </div>
       </LimitedBackdrop>
-    </>
+    </>,
+    document.getElementById("overlay") as HTMLImageElement
   );
 };
 

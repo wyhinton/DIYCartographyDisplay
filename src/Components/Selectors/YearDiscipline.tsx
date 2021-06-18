@@ -7,7 +7,7 @@ import GridChunk from "./Grid/GridChunk";
 import GridUnit from "./Grid/GridUnit";
 import { useState, useEffect, useRef } from "react";
 import { useStoreState } from "../../hooks";
-import { AuthorDisciplineFilter, FilterGroup } from "../../model/enums";
+import { AuthorDisciplineFilter, FilterGroup } from "../../enums";
 
 function to_author_enum(
   discipline: string,

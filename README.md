@@ -19,6 +19,8 @@ inspiration and reference for future classes.
 - [Components](#components)
 - [Configs](#configs)
 - [Documentation](#documentation)
+- [Console Log](#console-logs)
+
 
 # Quick Start
 
@@ -119,13 +121,66 @@ Provides jsdoc-to-markdown with template markdown. See [Create a README template
 - `Lightbox`
 
 
-<a name="App"></a>
+## Classes
 
-## App()
-<p>Core component, intializet request for sheet data via fetchStudentSheets and fetchEventSpreadsheet</p>
+<dl>
+<dt><a href="#LightBoxData">LightBoxData</a></dt>
+<dd><p>Holds data for the active lightbox.
+Initializes to any empty lightbox, ingests a Student.</p></dd>
+</dl>
 
-**Kind**: global function  
+## Interfaces
 
+<dl>
+<dt><a href="#GalleryImage">GalleryImage</a></dt>
+<dd><p>tags can not be an object due to the Gallery Image API,
+but it will accept an array of any type. So we get around
+this by putting our metadata object
+into an array. There
+will never be more than one metadata object.</p></dd>
+<dt><a href="#GoogleSheet">GoogleSheet</a></dt>
+<dd><p>Generic GoogleSheet with type argument
+which we use only when fetching our sheets.
+Currently te</p></dd>
+<dt><a href="#TimelineModel">TimelineModel</a> : <code>Object</code></dt>
+<dd><p>State Model for the Timeline Component</p></dd>
+</dl>
+
+<a name="GalleryImage"></a>
+
+## GalleryImage
+<p>tags can not be an object due to the Gallery Image API,
+but it will accept an array of any type. So we get around
+this by putting our metadata object
+into an array. There
+will never be more than one metadata object.</p>
+
+**Kind**: global interface  
+<a name="GoogleSheet"></a>
+
+## GoogleSheet
+<p>Generic GoogleSheet with type argument
+which we use only when fetching our sheets.
+Currently te</p>
+
+**Kind**: global interface  
+<a name="TimelineModel"></a>
+
+## TimelineModel : <code>Object</code>
+<p>State Model for the Timeline Component</p>
+
+**Kind**: global interface  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| timelineSeries | <code>TimelineData</code> | <p>Timeline Series to display</p> |
+| fetchEventSpreadsheet | [<code>Thunk.&lt;TimelineModel&gt;</code>](#TimelineModel) | <p>Request to the event data sheet</p> |
+
+
+# Misc 
+- Slick slides handle images strangely, to get the images to fit correctly into the lightbox required adding some custom css in ```App.css```
+- 
 * * *
 
 # Documentation

@@ -1,6 +1,6 @@
 import { StudentClass } from "./student";
-import { groupBy, object_values_to_array_lengths } from "./utils";
-import { MapSubTopic, Topic } from "./enums";
+import { groupBy, object_values_to_array_lengths } from "../utils";
+import { MapSubTopic, Topic } from "../enums";
 export interface YearSection {
   years: string[];
   discipline: string[];
