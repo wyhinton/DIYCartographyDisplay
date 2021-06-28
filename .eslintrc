@@ -8,7 +8,7 @@
     // "prettier/@typescript-eslint"
   ],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "react", "react-class-naming"],
+  "plugins": ["@typescript-eslint", "react", "react-class-naming", "filenames"],
   "rules": {
     "react-class-naming/react-classnaming-convention": ["warn"],
     "linebreak-style": 0,
@@ -19,7 +19,20 @@
     "@typescript-eslint/naming-convention": "warn",
     "@typescript-eslint/no-empty-function": "warn",
     "react/prop-types": "off",
-    "react/boolean-prop-naming": ["warn", { "rule": "^is[A-Z]([A-Za-z0-9]?)+" }]
+    "react/boolean-prop-naming": [
+      "warn",
+      { "rule": "^is[A-Z]([A-Za-z0-9]?)+" }
+    ],
+    "react/destructuring-assignment": ["warn"],
+    "react/function-component-definition": [
+      "error",
+      {
+        "namedComponents": "arrow-function"
+      }
+    ],
+    "react/no-children-prop": ["error"],
+    "react/no-typos": ["error"],
+    "filenames/match-exported": ["error"]
   },
   "ignorePatterns": "[Components/Timeline/TimeSeries/js/*.js, Components/Timeline/TimeSeries/components/*.js]",
   "globals": {

@@ -24,7 +24,7 @@ function to_author_enum(
 const YearDiscipline = () => {
   const theme = useTheme();
   const year_data = useStoreState(
-    (state) => state.map_data?.studentStats?.year
+    (state) => state.studentsModel?.studentStats?.year
   );
   console.log(year_data);
   // useEffect(() => {}, [year_data]);3

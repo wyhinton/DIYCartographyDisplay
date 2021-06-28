@@ -1,8 +1,8 @@
 import { Paragraph, Text, Pane } from "evergreen-ui";
 import { useTheme } from "@material-ui/core/styles";
-import sideBarText from "../static/sidebar_text";
+import sideBarText from "../static/sideBarText";
 
-function Sidebar(): JSX.Element {
+const Sidebar = (): JSX.Element => {
   const theme = useTheme();
 
   const sidebarContainer = {
@@ -21,8 +21,8 @@ function Sidebar(): JSX.Element {
 
   const sidebarBold = {
     color: theme.palette.primary.main,
-    // lineHeight: "12pt",
-    fontSize: "large",
+    fontSize: "12pt",
+    // fontSize: "medium",
     fontFamily: theme.typography.fontFamily,
     fontWeight: 200,
   } as React.CSSProperties;
@@ -34,6 +34,6 @@ function Sidebar(): JSX.Element {
       </Text>
     </Pane>
   );
-}
+};
 
 export default Sidebar;

@@ -31,7 +31,7 @@ import { useStoreState } from "../../hooks";
 const MapLens = () => {
   const theme = useTheme();
   const tag_stats = useStoreState(
-    (state) => state.map_data?.studentStats?.subtopic
+    (state) => state.studentsModel?.studentStats?.subtopic
   );
   useEffect(() => {
     console.log(tag_stats);

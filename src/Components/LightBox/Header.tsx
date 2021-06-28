@@ -8,7 +8,19 @@ interface HeaderProps {
   discipline: string;
   onClick: () => void;
 }
-const Header = ({ title, author, year, discipline, onClick }: HeaderProps) => {
+
+/**
+ * Formats a heading for the lightbox based on the current student.
+ *
+ */
+
+const Header = ({
+  title,
+  author,
+  year,
+  discipline,
+  onClick,
+}: HeaderProps): JSX.Element => {
   const theme = useTheme();
   const titleHeader = {
     fontSize: "xxx-large",

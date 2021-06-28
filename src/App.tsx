@@ -14,7 +14,7 @@ import { useStoreActions } from "./hooks";
 
 const App = (): JSX.Element => {
   const fetchStudentSpreadsheet = useStoreActions(
-    (actions) => actions.map_data.fetchStudentSheets
+    (actions) => actions.studentsModel.fetchStudentSheets
   );
   const fetchEventSpreadsheet = useStoreActions(
     (actions) => actions.timeline.fetchEventSpreadsheet

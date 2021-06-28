@@ -6,7 +6,7 @@ import { getSheet } from "./sheet_data_models";
 // import { groupBy } from "../utils";
 import { TimelineEvent } from "../classes/timeline_event";
 import { Timeline } from "../classes/timeline";
-import SHEET_KEY from "../static/sheet_key";
+import SHEET_KEY from "../static/sheetKey";
 
 export interface EventRowValues {
   start: Date;

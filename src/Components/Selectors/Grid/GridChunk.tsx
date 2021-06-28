@@ -41,9 +41,11 @@ const GridChunk = ({ count, filter, base_color }: GridChunkProps) => {
     position: "relative",
   } as React.CSSProperties;
 
-  const cur_state_filters = useStoreState((state) => state.map_data.filter);
+  const cur_state_filters = useStoreState(
+    (state) => state.studentsModel.filter
+  );
   const set_filter = useStoreActions(
-    (actions) => actions.map_data.thunkSetFilter
+    (actions) => actions.studentsModel.thunkSetFilter
   );
   const set_row_color = (
     cur_filters: FilterOption[],

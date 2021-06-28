@@ -6,7 +6,7 @@ import {
 } from "../enums";
 import type { RawStudentRowValues } from "../model/sheet_data_models";
 import type { LightboxImage } from "./lightbox";
-import type { GalleryImage } from "../model/map_data";
+import type { GalleryImage } from "../model/studentsData";
 import { idText } from "typescript";
 import { CustomError } from "../enums";
 interface ImageData {

@@ -1,6 +1,6 @@
 import { Paragraph, Text } from "evergreen-ui";
 import { useTheme } from "@material-ui/core/styles";
-import type { EventRowValues } from "../../model/timeline_model";
+import type { EventRowValues } from "../../model/timelineModel";
 import { EventLevel } from "../../enums";
 import { useEffect } from "react";
 import { Scrollbars } from "react-custom-scrollbars";
@@ -9,7 +9,7 @@ type EventInfoDisplayProps = {
   info: EventRowValues | undefined;
 };
 
-function EventInfoDisplay({ info }: EventInfoDisplayProps) {
+const EventInfoDisplay = ({ info }: EventInfoDisplayProps): JSX.Element => {
   const theme = useTheme();
   const infoContainer = {
     height: "100%",
@@ -62,6 +62,6 @@ function EventInfoDisplay({ info }: EventInfoDisplayProps) {
       </Scrollbars>
     </div>
   );
-}
+};
 
 export default EventInfoDisplay;

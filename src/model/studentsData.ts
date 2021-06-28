@@ -7,7 +7,6 @@ import {
   Computed,
   computed,
 } from "easy-peasy";
-import { TimeSeries } from "pondjs";
 import {
   AuthorDisciplineFilter,
   MapSubTopic,
@@ -23,7 +22,7 @@ import { arraysEqual } from "../utils";
 import { StudentClass, SeriesId } from "../classes/student";
 import { StudentStats } from "../classes/student_stats";
 import { LightBoxData } from "../classes/lightbox";
-import SHEET_KEY from "../static/sheet_key";
+import SHEET_KEY from "../static/sheetKey";
 
 export interface GalleryImage {
   src: string;
@@ -50,7 +49,7 @@ export interface YearSection {
 }
 
 export interface FilterResult {
-  filter_func: any;
+  filter_func: (gi: GalleryImage) => boolean;
   filters: FilterOption[];
 }
 
@@ -59,10 +58,10 @@ export interface MapDataModel {
   activeImages: GalleryImage[];
   allImages: GalleryImage[];
   filter: FilterOption[];
-  filterFunction: any;
+  filterFunction: (gi: GalleryImage) => boolean;
   galleryImages: GalleryImage[];
   groupFilter: FilterGroup;
-  lightBoxData: LightBoxData;
+  activeLightBoxData: LightBoxData;
   loaded: boolean;
   studentStats: StudentStats | undefined;
   studentsClass: StudentClass[];
@@ -92,7 +91,7 @@ export interface MapDataModel {
 
   //SETTERS
   addValidationError: Action<MapDataModel, ValidationError>;
-  filter_gallery_2: Action<MapDataModel, FilterResult>;
+  applyFilter: Action<MapDataModel, FilterResult>;
   setStudentStats: Action<MapDataModel, StudentStats>;
   setActiveFilter: Action<MapDataModel, FilterOption[]>;
   setAllStudents: Action<MapDataModel, StudentClass[]>;
@@ -103,14 +102,17 @@ export interface MapDataModel {
   setLoaded: Action<MapDataModel, boolean>;
   setValidationErrors: Action<MapDataModel, ValidationError[]>;
 }
+const defaultFilter = (gi: GalleryImage) => {
+  return true;
+};
 
-const map_data: MapDataModel = {
+const studentsData: MapDataModel = {
   filter: [],
   studentsClass: [],
-  lightBoxData: new LightBoxData(),
+  activeLightBoxData: new LightBoxData(),
   groupFilter: FilterGroup.NONE,
   activeImages: [],
-  filterFunction: (gi: GalleryImage) => true,
+  filterFunction: defaultFilter,
   computedActiveImages: computed((state) => {
     if (state.filter.length > 0) {
       return state.computedAvailableGalleryImages.filter(state.filterFunction);
@@ -145,13 +147,6 @@ const map_data: MapDataModel = {
       ) {
         goodConversions.push(res as Promise<HTMLImageElement>);
       }
-      // if (
-      //   !(Object.values(CustomError) as string[]).includes(
-      //     res2 as keyof typeof CustomError
-      //   )
-      // ) {
-      //   goodConversions.push(res2 as Promise<HTMLImageElement>);
-      // }
     });
     const requestResults = ingestPromises<HTMLImageElement>(goodConversions);
     requestResults.then((value) => {
@@ -192,9 +187,9 @@ const map_data: MapDataModel = {
     const test2018 = getSheet<RawStudentRowValues>(SHEET_KEY, 3);
     const test2020 = getSheet<RawStudentRowValues>(SHEET_KEY, 4);
     const studentSheetRequests = [test2016, test2018, test2020];
-    const my_stuff =
+    const sheetRequestResults =
       ingestPromises<GoogleSheet<RawStudentRowValues>>(studentSheetRequests);
-    my_stuff.then((results) => {
+    sheetRequestResults.then((results) => {
       const succesfulSheets = results.results;
       const studentRowValues = results.results.map((r) => r.data);
       actions.setStudentGoogleSheets(succesfulSheets);
@@ -207,11 +202,13 @@ const map_data: MapDataModel = {
   setGalleryImages: action((state, payload) => {
     state.galleryImages = payload;
   }),
-  filter_gallery_2: action((state, filterResult) => {
+  applyFilter: action((state, filterResult) => {
+    //if the current active filter is the same as filterResult
     if (arraysEqual(filterResult.filters, debug(state.filter))) {
+      //then reset the fitler
       state.filter = [];
       state.activeImages = state.galleryImages;
-      console.log("got the same filte ");
+      console.log("supplied filter twice, removing filter");
     } else {
       state.activeImages = state.galleryImages.filter(filterResult.filter_func);
       state.filter = filterResult.filters;
@@ -229,43 +226,45 @@ const map_data: MapDataModel = {
   }),
   thunkSetFilter: thunk((actions, filter) => {
     console.log("doing thunk set filter");
-    let groupOptions = Object.values(FilterGroup);
-
+    const groupOptions = Object.values(FilterGroup);
+    //if we click on a FilterGroup selector, like Built, Economic, Natural, that will need to filter for multiple sub-categories
     if (groupOptions.includes(filter as FilterGroup)) {
-      let group_filter = get_group_filter(filter);
-      actions.setFilterFunction(group_filter.filter_func);
-      actions.filter_gallery_2(group_filter);
+      const groupFilter = getGroupFilter(filter);
+      actions.setFilterFunction(groupFilter.filter_func);
+      actions.applyFilter(groupFilter);
       actions.setGroupFiler(filter as FilterGroup);
+      //else get a filter function for just a single property
     } else {
-      let single_filter = get_single_filter(filter);
-      actions.setFilterFunction(single_filter.filter_func);
-      actions.filter_gallery_2(single_filter);
+      const singleFilter = getSingleFilter(filter);
+      actions.setFilterFunction(singleFilter.filter_func);
+      actions.applyFilter(singleFilter);
     }
   }),
-  setActiveFilter: action((state, active_filter) => {
-    console.log(active_filter);
-    state.filter = active_filter;
+  setActiveFilter: action((state, activeFilter) => {
+    console.log(activeFilter);
+    state.filter = activeFilter;
   }),
   setLightboxData: action((state, item) => {
     console.log(item);
-    const tag_data: MapMetadata = item.tags[0];
-    const selected_student = state.studentsClass.filter(
-      (s) => s.author === tag_data.author
+    const tagData: MapMetadata = item.tags[0];
+    const selectedStudent = state.studentsClass.filter(
+      (s) => s.author === tagData.author
     )[0];
-    console.log(debug(selected_student));
-    state.lightBoxData.set_student(selected_student);
+    console.log(debug(selectedStudent));
+    state.activeLightBoxData.set_student(selectedStudent);
   }),
-  setLoaded: action((state, is_loaded) => {
-    state.loaded = is_loaded;
+  setLoaded: action((state, contentIsLoaded) => {
+    state.loaded = contentIsLoaded;
   }),
 };
+
 function ingestPromises<T>(promises: Promise<T>[]): Promise<{
   results: T[];
   failures: PromiseRejectedResult[];
 }> {
   const goodResults: T[] = [];
   const badResults: PromiseRejectedResult[] = [];
-  let test = Promise.allSettled(promises).then((values) => {
+  const resultsFailures = Promise.allSettled(promises).then((values) => {
     values.forEach((v) => {
       if (v.status == "rejected") {
         badResults.push(v);
@@ -281,47 +280,50 @@ function ingestPromises<T>(promises: Promise<T>[]): Promise<{
       failures: badResults,
     };
   });
-  return test;
+  return resultsFailures;
 }
 
-function get_single_filter(f: FilterOption): FilterResult {
-  let filter_func: any;
+function getSingleFilter(f: FilterOption): FilterResult {
+  let filterFunc = (_gi: GalleryImage) => {
+    true;
+  };
+
   if (Object.values(MapSubTopic).includes(f as MapSubTopic)) {
-    filter_func = function (val: GalleryImage) {
+    filterFunc = function (val: GalleryImage) {
       return val.tags[0].subtopic === f;
     };
   } else if (
     Object.values(ThemeCategoryFilter).includes(f as ThemeCategoryFilter)
   ) {
-    filter_func = function (val: GalleryImage) {
+    filterFunc = function (val: GalleryImage) {
       return val.tags[0].theme === f;
     };
   } else if (
     Object.values(AuthorDisciplineFilter).includes(f as AuthorDisciplineFilter)
   ) {
     f = f as AuthorDisciplineFilter;
-    let discipline = f.split("_")[0];
-    let year = f.split("_")[1];
-    filter_func = function (val: GalleryImage) {
+    const discipline = f.split("_")[0];
+    const year = f.split("_")[1];
+    filterFunc = function (val: GalleryImage) {
       return val.tags[0].year === year && val.tags[0].discipline === discipline;
     };
   }
   return {
-    filter_func: filter_func,
+    filter_func: filterFunc,
     filters: [f],
   } as FilterResult;
 }
 
 ///END MODEL
 //TODO: RENAME
-function quick_get(group: FilterGroup, cat: keyof MapMetadata): FilterResult {
-  const filter_set = filter_group_to_set(group);
+function quickGet(group: FilterGroup, cat: keyof MapMetadata): FilterResult {
+  const filter_set = filterGroupToSet(group);
   if (
     group === FilterGroup.STUDENTS_2016 ||
     group === FilterGroup.STUDENTS_2018 ||
     group === FilterGroup.STUDENTS_2020
   ) {
-    let splits = get_year_discipline(filter_set as AuthorDisciplineFilter[]);
+    let splits = getYearDiscipline(filter_set as AuthorDisciplineFilter[]);
     const filter_func = function (val: GalleryImage) {
       return splits.years.includes(val.tags[0].year);
     };
@@ -340,86 +342,86 @@ function quick_get(group: FilterGroup, cat: keyof MapMetadata): FilterResult {
   }
 }
 
-function get_group_filter(f: FilterOption): FilterResult {
-  let final_result = {
-    filter_func: "aaa",
+function getGroupFilter(f: FilterOption): FilterResult {
+  let filterResult = {
+    filter_func: function (gi: GalleryImage) {
+      return true;
+    },
     filters: [],
   } as FilterResult;
 
   switch (f) {
     case FilterGroup.ACCESS_THEME:
-      final_result = quick_get(
+      filterResult = quickGet(
         FilterGroup.ACCESS_THEME,
         "theme" as keyof MapMetadata
       );
       break;
     case FilterGroup.EQUITY_THEME:
-      final_result = quick_get(
+      filterResult = quickGet(
         FilterGroup.EQUITY_THEME,
         "theme" as keyof MapMetadata
       );
       break;
     case FilterGroup.DIVERISTY_THEME:
-      final_result = quick_get(
+      filterResult = quickGet(
         FilterGroup.DIVERISTY_THEME,
         "theme" as keyof MapMetadata
       );
       break;
     case FilterGroup.STUDENTS_2016:
-      final_result = quick_get(
+      filterResult = quickGet(
         FilterGroup.STUDENTS_2016,
         "year" as keyof MapMetadata
       );
       break;
     case FilterGroup.STUDENTS_2018:
-      final_result = quick_get(
+      filterResult = quickGet(
         FilterGroup.STUDENTS_2018,
         "year" as keyof MapMetadata
       );
       break;
     case FilterGroup.STUDENTS_2020:
-      final_result = quick_get(
+      filterResult = quickGet(
         FilterGroup.STUDENTS_2020,
         "year" as keyof MapMetadata
       );
       break;
     case FilterGroup.BUILT_TOPIC:
-      final_result = quick_get(
+      filterResult = quickGet(
         FilterGroup.BUILT_TOPIC,
         "subtopic" as keyof MapMetadata
       );
       break;
     case FilterGroup.ECONOMIC_TOPIC:
-      final_result = quick_get(
+      filterResult = quickGet(
         FilterGroup.ECONOMIC_TOPIC,
         "subtopic" as keyof MapMetadata
       );
       break;
     case FilterGroup.NATURAL_TOPIC:
-      final_result = quick_get(
+      filterResult = quickGet(
         FilterGroup.NATURAL_TOPIC,
         "subtopic" as keyof MapMetadata
       );
       break;
     case FilterGroup.POLITICAL_TOPIC:
-      final_result = quick_get(
+      filterResult = quickGet(
         FilterGroup.POLITICAL_TOPIC,
         "subtopic" as keyof MapMetadata
       );
       break;
     case FilterGroup.SOCIAL_TOPIC:
-      final_result = quick_get(
+      filterResult = quickGet(
         FilterGroup.SOCIAL_TOPIC,
         "subtopic" as keyof MapMetadata
       );
       break;
   }
-  return final_result;
+  return filterResult;
 }
 
-function get_year_discipline(
-  author_enum: AuthorDisciplineFilter[]
-): YearSection {
+function getYearDiscipline(author_enum: AuthorDisciplineFilter[]): YearSection {
   const splits = author_enum.map((a) => a.split("_"));
   let yddata: YearSection = {
     years: [],
@@ -432,11 +434,11 @@ function get_year_discipline(
   return yddata;
 }
 
-function filter_group_to_set(group_enum: FilterGroup): FilterOption[] {
-  let my_filters: FilterOption[] = [];
+function filterGroupToSet(group_enum: FilterGroup): FilterOption[] {
+  let subFilters: FilterOption[] = [];
   switch (group_enum) {
     case FilterGroup.STUDENTS_2016:
-      my_filters = [
+      subFilters = [
         AuthorDisciplineFilter.ARTDESIGN_2016,
         AuthorDisciplineFilter.ARCHITECTURE_2016,
         AuthorDisciplineFilter.OTHER_2016,
@@ -444,7 +446,7 @@ function filter_group_to_set(group_enum: FilterGroup): FilterOption[] {
       ];
       break;
     case FilterGroup.STUDENTS_2018:
-      my_filters = [
+      subFilters = [
         AuthorDisciplineFilter.ARTDESIGN_2018,
         AuthorDisciplineFilter.ARCHITECTURE_2018,
         AuthorDisciplineFilter.OTHER_2018,
@@ -452,7 +454,7 @@ function filter_group_to_set(group_enum: FilterGroup): FilterOption[] {
       ];
       break;
     case FilterGroup.STUDENTS_2020:
-      my_filters = [
+      subFilters = [
         AuthorDisciplineFilter.ARTDESIGN_2020,
         AuthorDisciplineFilter.ARCHITECTURE_2020,
         AuthorDisciplineFilter.OTHER_2020,
@@ -460,28 +462,28 @@ function filter_group_to_set(group_enum: FilterGroup): FilterOption[] {
       ];
       break;
     case FilterGroup.BUILT_TOPIC:
-      my_filters = [
+      subFilters = [
         MapSubTopic.INFRASTR,
         MapSubTopic.BUILDINGS,
         MapSubTopic.TRANSPORTATION,
       ];
       break;
     case FilterGroup.ECONOMIC_TOPIC:
-      my_filters = [
+      subFilters = [
         MapSubTopic.WORK,
         MapSubTopic.PROPERTY,
         MapSubTopic.URBANDEV,
       ];
       break;
     case FilterGroup.NATURAL_TOPIC:
-      my_filters = [
+      subFilters = [
         MapSubTopic.GREENSPACE,
         MapSubTopic.POLLUTION,
         MapSubTopic.HYDROLOGY,
       ];
       break;
     case FilterGroup.POLITICAL_TOPIC:
-      my_filters = [
+      subFilters = [
         MapSubTopic.CIVICENG,
         MapSubTopic.GOVERMENT,
         MapSubTopic.POLICY,
@@ -489,23 +491,23 @@ function filter_group_to_set(group_enum: FilterGroup): FilterOption[] {
       // my_filters = [MapSubTopic.CIVICENG, MapSubTopic.GOV, MapSubTopic.POLICY];
       break;
     case FilterGroup.SOCIAL_TOPIC:
-      my_filters = [
+      subFilters = [
         MapSubTopic.EDUCATION,
         MapSubTopic.HEALTHSAFETY,
         MapSubTopic.RACEGEN,
       ];
       break;
     case FilterGroup.EQUITY_THEME:
-      my_filters = [ThemeCategoryFilter.EQUITY];
+      subFilters = [ThemeCategoryFilter.EQUITY];
       break;
     case FilterGroup.ACCESS_THEME:
-      my_filters = [ThemeCategoryFilter.ACCESS];
+      subFilters = [ThemeCategoryFilter.ACCESS];
       break;
     case FilterGroup.DIVERISTY_THEME:
-      my_filters = [ThemeCategoryFilter.DIVERSITY];
+      subFilters = [ThemeCategoryFilter.DIVERSITY];
       break;
   }
-  return my_filters;
+  return subFilters;
 }
 
-export default map_data;
+export default studentsData;

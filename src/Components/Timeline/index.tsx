@@ -7,7 +7,7 @@ import EventChart from "./TimeSeries/components/EventChart";
 import EventInfoDisplay from "./EventInfoDisplay";
 import Grid from "@material-ui/core/Grid";
 import Resizable from "./TimeSeries/components/Resizable";
-import type { EventRowValues } from "../../model/timeline_model";
+import type { EventRowValues } from "../../model/timelineModel";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { Text } from "evergreen-ui";
 import { TimeSeries, TimeRange } from "pondjs";
@@ -20,7 +20,7 @@ interface Seperator {
   name: string;
 }
 
-const Timeline = function () {
+const Timeline = (): JSX.Element => {
   const theme = useTheme();
   const isSm = useMediaQuery(theme.breakpoints.up("sm"));
 
@@ -33,11 +33,13 @@ const Timeline = function () {
     (state) => state.timeline.eventSpreadsheet
   );
 
-  const [eventInfo, setEventInfo] =
-    useState<EventRowValues | undefined>(undefined);
+  const [eventInfo, setEventInfo] = useState<EventRowValues | undefined>(
+    undefined
+  );
   const [resizeWidth, setResizeWidth] = useState(initialWidth);
-  const [selectedEvent, setSelectedEvent] =
-    useState<TimeSeries | undefined>(undefined);
+  const [selectedEvent, setSelectedEvent] = useState<TimeSeries | undefined>(
+    undefined
+  );
   const [seperators, setSeperators] = useState<Seperator[]>([]);
 
   //use this ref for resizing the timeline

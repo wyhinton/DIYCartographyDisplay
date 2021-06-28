@@ -15,7 +15,7 @@ export const GridUnit = ({ color, is_active_filter, index }: UnitProps) => {
   const size = 12;
   const [hover, setHover] = useState(false);
   const mounted = true;
-  const data_loaded = useStoreState((state) => state.map_data.loaded);
+  const data_loaded = useStoreState((state) => state.studentsModel.loaded);
   const duration = getRandomNumber(0.5, 4);
   const containerStyle = {
     display: "block",

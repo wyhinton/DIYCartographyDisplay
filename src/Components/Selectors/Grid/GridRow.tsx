@@ -68,9 +68,9 @@ function filterToToolTip(filter: FilterOption): string {
 const GridRow = ({ count, icon, filter }: GridRowProps) => {
   const theme = useTheme();
   const [hovered, setHovered] = useState(false);
-  const real_filter = useStoreState((state) => state.map_data.filter);
+  const real_filter = useStoreState((state) => state.studentsModel.filter);
   const thunk_set_filter = useStoreActions(
-    (actions) => actions.map_data.thunkSetFilter
+    (actions) => actions.studentsModel.thunkSetFilter
   );
   useEffect(() => {}, [real_filter]);
   useEffect(() => {}, [hovered]);

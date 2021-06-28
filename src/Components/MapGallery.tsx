@@ -12,27 +12,30 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { getRandomNumber } from "../utils";
 import LoadingBar from "./LoadingBar";
-import type { GalleryImage } from "../model/map_data";
+import type { GalleryImage } from "../model/studentsData";
 
-const MapGallery = () => {
-  const galleryImages = useStoreState(
-    (state) => state.map_data?.computedActiveImages
-  );
-  const [toShowGalleryImages, setToShowGalleryImages] = useState<
-    GalleryImage[]
-  >([]);
-  const galleryFilter = useStoreState((state) => state.map_data.filterFunction);
-  const [showLightbox, setShowLightBox] = useState(false);
-  const setActiveLightbox = useStoreActions(
-    (actions) => actions.map_data.setLightboxData
-  );
-  const dataLoaded = useStoreState((state) => state.map_data.loaded);
+/**
+ * Gallery of the student maps. Wraps around a react-grid-gallery Gallery, providing a means for scrolling the gallery via a react-custom-scrollbars.
+ * Clickin on an image brings up a LightBox.
+ * Accesses the list of computedActiveImages, and can set activeLightBox
+ * a list of our current active
+ *
+ */
+const MapGallery = (): JSX.Element => {
   const theme = useTheme();
+  const galleryImages = useStoreState(
+    (state) => state.studentsModel?.computedActiveImages
+  );
+  const setActiveLightbox = useStoreActions(
+    (actions) => actions.studentsModel.setLightboxData
+  );
+  const [showLightbox, setShowLightBox] = useState(false);
+
+  const dataLoaded = useStoreState((state) => state.studentsModel.loaded);
 
   useEffect(() => {
     console.log(galleryImages);
-    setToShowGalleryImages(galleryImages);
-  }, [galleryFilter]);
+  }, [galleryImages]);
 
   const containerStyle = {
     backgroundColor: "white",
@@ -42,23 +45,24 @@ const MapGallery = () => {
     position: "relative",
   } as React.CSSProperties;
 
-  /**Set the active lightbox to the clicked gallery image */
-  function getLightboxTb2(this: any) {
-    setShowLightBox((showLightbox) => !showLightbox);
-    setActiveLightbox(this.props.item);
-  }
-
   const scrollContainer = {
     overflow: "hidden",
     height: "100%",
     border: `1px solid ${theme.palette.primary.main}`,
     minWidth: "100%",
     minHeight: "200px",
-  };
-  let test = 0;
+  } as React.CSSProperties;
+
+  /**Set the active lightbox to the clicked gallery image */
+  function getLightboxTb2(this: any) {
+    setShowLightBox((showLightbox) => !showLightbox);
+    setActiveLightbox(this.props.item);
+  }
+
+  let animationOffset = 0;
   function thumbnailStyle() {
-    const duration = getRandomNumber(0.5, 1.0) + test * 0.1;
-    test = test + 1;
+    const duration = getRandomNumber(0.5, 1.0) + animationOffset * 0.1;
+    animationOffset = animationOffset + 1;
     return {
       animation: `fadein ${duration}s normal`,
       aniamtionTimingFunction: "cubic-bezier(.03,.91,.53,.92)",
@@ -76,10 +80,9 @@ const MapGallery = () => {
           <div style={{ height: "100%", paddingTop: "0", width: "100%" }}>
             <Gallery
               tagStyle={{ display: "none" }}
-              images={galleryImages}
+              images={dataLoaded ? galleryImages : []}
               customOverlay={<div style={{ backgroundColor: "red" }}></div>}
-              rowHeight={120}
-              maxRows={10}
+              rowHeight={180}
               enableLightbox={false}
               enableImageSelection={false}
               onClickThumbnail={getLightboxTb2}
@@ -93,4 +96,3 @@ const MapGallery = () => {
 };
 
 export default React.memo(MapGallery);
-// export default MapGallery;

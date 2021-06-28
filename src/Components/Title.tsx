@@ -9,7 +9,7 @@ import useMediaQuery from "@material-ui/core/useMediaQuery";
  * @returns
  */
 
-function Title(): JSX.Element {
+const Title = (): JSX.Element => {
   const theme = useTheme();
   const isMd = useMediaQuery(theme.breakpoints.up("lg"));
   const titleHeader = {
@@ -57,6 +57,6 @@ function Title(): JSX.Element {
       </Grid>
     </Grid>
   );
-}
+};
 
 export default Title;

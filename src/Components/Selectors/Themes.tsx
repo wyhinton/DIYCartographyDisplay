@@ -9,7 +9,7 @@ import { ThemeCategoryFilter, FilterGroup } from "../../enums";
 const Themes = () => {
   const theme = useTheme();
   const theme_stats = useStoreState(
-    (state) => state.map_data?.studentStats?.theme
+    (state) => state.studentsModel?.studentStats?.theme
   );
   return (
     <>
