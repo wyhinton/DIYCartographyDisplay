@@ -4,12 +4,19 @@ import { useTheme } from "@material-ui/core/styles";
 import "../css/App.css";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 
-function Title() {
+/**
+ * Simple staic container for the pages title text.
+ * @returns
+ */
+
+function Title(): JSX.Element {
   const theme = useTheme();
-  const is_md = useMediaQuery(theme.breakpoints.up("lg"));
+  const isMd = useMediaQuery(theme.breakpoints.up("lg"));
   const titleHeader = {
     fontSize: "xxx-large",
     fontFamily: theme.typography.fontFamily,
+    color: "#3b6470",
+    lineHeight: "normal",
   } as React.CSSProperties;
 
   const titleSubHeader = {
@@ -17,15 +24,25 @@ function Title() {
     fontFamily: theme.typography.fontFamily,
     paddingBottom: "1em",
     paddingTop: "1em",
+    color: "#3b6470",
   } as React.CSSProperties;
   const titleContainer = {
     paddingBottom: "1em",
     paddingTop: ".5em",
+    color: theme.palette.primary.main,
   };
 
   return (
     <Grid container spacing={0} style={titleContainer}>
-      <Grid item xs={2} style={{ display: is_md ? "flex" : "none" }}>
+      <Grid
+        item
+        xs={2}
+        style={
+          //div acts as a margin on the left side of the text, in order to keep the text lerf aligned with the image gallery
+          //below a mD display size we remove this paddign
+          { display: isMd ? "flex" : "none" }
+        }
+      >
         <div></div>
       </Grid>
       <Grid item xs={10}>

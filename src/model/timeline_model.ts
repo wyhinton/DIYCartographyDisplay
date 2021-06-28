@@ -3,7 +3,7 @@ import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
 import { EventLevel } from "../enums";
 import type { GoogleSheet, RawEventRowValues } from "./sheet_data_models";
 import { getSheet } from "./sheet_data_models";
-import { groupBy } from "../utils";
+// import { groupBy } from "../utils";
 import { TimelineEvent } from "../classes/timeline_event";
 import { Timeline } from "../classes/timeline";
 import SHEET_KEY from "../static/sheet_key";
@@ -242,4 +242,11 @@ function date_range_overlaps(
   if (a_start < b_end && b_end < a_end) return true; // b ends in a
   if (b_start < a_start && a_end < b_end) return true; // a in b
   return false;
+}
+
+export function groupBy(arr: any[], property: any) {
+  return arr.reduce((acc, cur) => {
+    acc[cur[property]] = [...(acc[cur[property]] || []), cur];
+    return acc;
+  }, {});
 }

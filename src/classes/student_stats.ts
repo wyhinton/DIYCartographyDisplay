@@ -1,6 +1,7 @@
 import { StudentClass } from "./student";
-import { groupBy, object_values_to_array_lengths } from "../utils";
+import { groupBy, fieldsToFieldLengths } from "../utils";
 import { MapSubTopic, Topic } from "../enums";
+
 export interface YearSection {
   years: string[];
   discipline: string[];
@@ -12,34 +13,34 @@ export class StudentStats {
   theme!: any;
 
   constructor(students: StudentClass[]) {
-    this.year = get_year_breakdown(students);
-    this.subtopic = get_topic_breakdown(students);
-    this.theme = object_values_to_array_lengths(groupBy(students, "theme"));
+    this.year = getYearBreakdown(students);
+    this.subtopic = getTopicBreakdown(students);
+    this.theme = fieldsToFieldLengths(groupBy(students, (s) => s.theme));
   }
 }
 
-function get_year_breakdown(students: StudentClass[]) {
-  let year_groups = groupBy(students, "year");
+function getYearBreakdown(students: StudentClass[]) {
+  const yearGroups = groupBy(students, (s) => s.year);
   let new_obj = {};
-  for (const [key, value] of Object.entries(year_groups)) {
-    let test = groupBy(value as StudentClass[], "discipline");
-    test = object_values_to_array_lengths(test);
-    (new_obj as any)[key] = test;
+  for (const [key, value] of Object.entries(yearGroups)) {
+    let yearBreakdown = groupBy(value as StudentClass[], (s) => s.discipline);
+    yearBreakdown = fieldsToFieldLengths(yearBreakdown);
+    (new_obj as any)[key] = yearBreakdown;
     console.log(new_obj);
   }
   return new_obj;
 }
 
-function get_topic_breakdown(students: StudentClass[]) {
-  let topic_groups = groupBy(students, "topic");
+function getTopicBreakdown(students: StudentClass[]) {
+  let topic_groups = groupBy(students, (s) => s.topic);
   let student_map_stats = {};
   for (const [key, value] of Object.entries(topic_groups)) {
-    let subtopic_group = groupBy(value as StudentClass[], "subtopic");
-    let all_subtopics = topic_to_array_of_subtopics(
+    let subtopic_group = groupBy(value as StudentClass[], (s) => s.subtopic);
+    let all_subtopics = subtopicsFromTopic(
       Topic[key as unknown as keyof typeof Topic]
     );
 
-    subtopic_group = object_values_to_array_lengths(subtopic_group);
+    subtopic_group = fieldsToFieldLengths(subtopic_group);
     all_subtopics.forEach((st) => {
       if (!(st in subtopic_group)) {
         (subtopic_group as any)[st] = 0;
@@ -50,32 +51,32 @@ function get_topic_breakdown(students: StudentClass[]) {
   return student_map_stats;
 }
 
-function topic_to_array_of_subtopics(topic: Topic): MapSubTopic[] {
-  let topic_subtopics: MapSubTopic[] = [];
+function subtopicsFromTopic(topic: Topic): MapSubTopic[] {
+  let topicSubtopics: MapSubTopic[] = [];
   switch (topic) {
     case Topic.BE:
-      topic_subtopics = [
+      topicSubtopics = [
         MapSubTopic.INFRASTR,
         MapSubTopic.BUILDINGS,
         MapSubTopic.TRANSPORTATION,
       ];
       break;
     case Topic.EE:
-      topic_subtopics = [
+      topicSubtopics = [
         MapSubTopic.WORK,
         MapSubTopic.PROPERTY,
         MapSubTopic.URBANDEV,
       ];
       break;
     case Topic.NE:
-      topic_subtopics = [
+      topicSubtopics = [
         MapSubTopic.GREENSPACE,
         MapSubTopic.POLLUTION,
         MapSubTopic.HYDROLOGY,
       ];
       break;
     case Topic.PE:
-      topic_subtopics = [
+      topicSubtopics = [
         MapSubTopic.CIVICENG,
         MapSubTopic.GOVERMENT,
         MapSubTopic.POLICY,
@@ -83,14 +84,14 @@ function topic_to_array_of_subtopics(topic: Topic): MapSubTopic[] {
       // topic_subtopics = [MapSubTopic.CIVICENG, MapSubTopic.GOV, MapSubTopic.POLICY];
       break;
     case Topic.SE:
-      topic_subtopics = [
+      topicSubtopics = [
         MapSubTopic.EDUCATION,
         MapSubTopic.HEALTHSAFETY,
         MapSubTopic.RACEGEN,
       ];
       break;
   }
-  return topic_subtopics;
+  return topicSubtopics;
 }
 
 export interface TagStats {

@@ -1,17 +1,14 @@
 import Grid from "@material-ui/core/Grid";
 import { useTheme } from "@material-ui/core/styles";
 
-const Header = ({
-  title,
-  author,
-  year,
-  discipline,
-}: {
+interface HeaderProps {
   title: string;
   author: string;
   year: string;
   discipline: string;
-}) => {
+  onClick: () => void;
+}
+const Header = ({ title, author, year, discipline, onClick }: HeaderProps) => {
   const theme = useTheme();
   const titleHeader = {
     fontSize: "xxx-large",
@@ -28,7 +25,7 @@ const Header = ({
   };
 
   return (
-    <Grid container spacing={0} style={containerStyle}>
+    <Grid container spacing={0} style={containerStyle} onClick={onClick}>
       <Grid item xs={9} style={titleHeader}>
         {title}
       </Grid>

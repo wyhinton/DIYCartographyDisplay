@@ -23,3 +23,7 @@
 .slick-slider .slick-initialized {
   height: 100%;
 }
+
+.html {
+  overflow: hidden;
+}

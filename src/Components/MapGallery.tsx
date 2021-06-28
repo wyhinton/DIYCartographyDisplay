@@ -1,23 +1,27 @@
 // https://codesandbox.io/s/react-grid-gallery-ztf4n?file=/src/index.js:358-880
 // https://codesandbox.io/s/r48lm1jopq
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Gallery from "react-grid-gallery";
 import { useTheme } from "@material-ui/core/styles";
 import { useStoreActions, useStoreState } from "../hooks";
 import { Scrollbars } from "react-custom-scrollbars";
 import LightBox from "./LightBox";
-import type { GalleryImage } from "../model/map_data";
 import "../css/GridGallery.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { getRandomNumber } from "../utils";
 import LoadingBar from "./LoadingBar";
+import type { GalleryImage } from "../model/map_data";
 
 const MapGallery = () => {
   const galleryImages = useStoreState(
     (state) => state.map_data?.computedActiveImages
   );
+  const [toShowGalleryImages, setToShowGalleryImages] = useState<
+    GalleryImage[]
+  >([]);
+  const galleryFilter = useStoreState((state) => state.map_data.filterFunction);
   const [showLightbox, setShowLightBox] = useState(false);
   const setActiveLightbox = useStoreActions(
     (actions) => actions.map_data.setLightboxData
@@ -27,7 +31,8 @@ const MapGallery = () => {
 
   useEffect(() => {
     console.log(galleryImages);
-  }, [galleryImages]);
+    setToShowGalleryImages(galleryImages);
+  }, [galleryFilter]);
 
   const containerStyle = {
     backgroundColor: "white",
@@ -57,8 +62,7 @@ const MapGallery = () => {
     return {
       animation: `fadein ${duration}s normal`,
       aniamtionTimingFunction: "cubic-bezier(.03,.91,.53,.92)",
-      // aniamtionTimingFunction: "cubic-bezier(0.1, 0.7, 1.0, 0.1);",
-      animationIterationCound: 1,
+      animationIterationCount: 1,
     };
   }
   return (
@@ -88,4 +92,5 @@ const MapGallery = () => {
   );
 };
 
-export default MapGallery;
+export default React.memo(MapGallery);
+// export default MapGallery;

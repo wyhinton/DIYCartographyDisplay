@@ -4,10 +4,15 @@ import { Heading } from "evergreen-ui";
 type SelectorSectionProps = {
   title: string;
   children: JSX.Element;
+  style?: React.CSSProperties;
 };
 
 //wraps header and selection widgets
-export const SelectorSection = ({ title, children }: SelectorSectionProps) => {
+export const SelectorSection = ({
+  title,
+  children,
+  style,
+}: SelectorSectionProps) => {
   const theme = useTheme();
   const container = {
     height: "100%",
@@ -17,6 +22,7 @@ export const SelectorSection = ({ title, children }: SelectorSectionProps) => {
     border: `1px solid ${theme.palette.primary.main}`,
     marginRight: "1em",
     maxWidth: "fit-content",
+    minWidth: "fit-content",
   } as React.CSSProperties;
 
   const headerContainer = {
@@ -36,7 +42,7 @@ export const SelectorSection = ({ title, children }: SelectorSectionProps) => {
   } as React.CSSProperties;
 
   return (
-    <div style={container}>
+    <div style={style}>
       <div style={headerContainer}>
         <Heading size={300} style={header}>
           {title}

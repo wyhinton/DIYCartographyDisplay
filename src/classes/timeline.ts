@@ -1,6 +1,6 @@
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
 import { TimelineEvent } from "./timeline_event";
-import { groupBy } from "../utils";
+// import { groupBy } from "../utils";
 
 export class Timeline {
   national!: TimeSeries[];
@@ -18,6 +18,7 @@ export class Timeline {
   }
   set_data(events: TimelineEvent[]) {
     const categorized_events = groupBy(events, "category");
+    // const categorized_events = groupBy(events, "category");
     console.log(categorized_events);
     Object.keys(categorized_events).forEach((key) => {
       console.log(key);
@@ -112,4 +113,11 @@ function date_range_overlaps(
   if (a_start < b_end && b_end < a_end) return true; // b ends in a
   if (b_start < a_start && a_end < b_end) return true; // a in b
   return false;
+}
+
+export function groupBy(arr: any[], property: any) {
+  return arr.reduce((acc, cur) => {
+    acc[cur[property]] = [...(acc[cur[property]] || []), cur];
+    return acc;
+  }, {});
 }

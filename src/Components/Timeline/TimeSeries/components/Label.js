@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /**
  *  Copyright (c) 2016, The Regents of the University of California,
  *  through Lawrence Berkeley National Laboratory (subject to receipt
@@ -13,34 +15,34 @@ import PropTypes from "prop-types";
 import merge from "merge";
 
 const defaultBoxStyle = {
-    fill: "#FEFEFE",
-    stroke: "#DDD",
-    opacity: 0.8
+  fill: "#FEFEFE",
+  stroke: "#DDD",
+  opacity: 0.8,
 };
 
 const defaultTextStyle = {
-    fontSize: 11,
-    textAnchor: "left",
-    fill: "#b0b0b0",
-    pointerEvents: "none"
+  fontSize: 11,
+  textAnchor: "left",
+  fill: "#b0b0b0",
+  pointerEvents: "none",
 };
 
 const defaultTextStyleCentered = {
-    fontSize: 11,
-    textAnchor: "middle",
-    fill: "#bdbdbd",
-    pointerEvents: "none"
+  fontSize: 11,
+  textAnchor: "middle",
+  fill: "#bdbdbd",
+  pointerEvents: "none",
 };
 
 function mergeStyles(style, isCentered) {
-    return {
-        boxStyle: merge(true, defaultBoxStyle, style.box ? style.box : {}),
-        labelStyle: merge(
-            true,
-            isCentered ? defaultTextStyleCentered : defaultTextStyle,
-            style.label ? style.label : {}
-        )
-    };
+  return {
+    boxStyle: merge(true, defaultBoxStyle, style.box ? style.box : {}),
+    labelStyle: merge(
+      true,
+      isCentered ? defaultTextStyleCentered : defaultTextStyle,
+      style.label ? style.label : {}
+    ),
+  };
 }
 
 /**
@@ -53,59 +55,61 @@ function mergeStyles(style, isCentered) {
  */
 
 const Label = ({ label, style, align, width, height }) => {
-    const { boxStyle, labelStyle } = mergeStyles(style, align === "center");
+  const { boxStyle, labelStyle } = mergeStyles(style, align === "center");
 
-    const posx = align === "center" ? parseInt(width / 2, 10) : 10;
+  const posx = align === "center" ? parseInt(width / 2, 10) : 10;
 
-    const text = (
-        <text x={posx} y={5} dy="1.2em" style={labelStyle}>
-            {label}
-        </text>
-    );
+  const text = (
+    <text x={posx} y={5} dy="1.2em" style={labelStyle}>
+      {label}
+    </text>
+  );
 
-    const box = <rect x={0} y={0} style={boxStyle} width={width} height={height} />;
+  const box = (
+    <rect x={0} y={0} style={boxStyle} width={width} height={height} />
+  );
 
-    return (
-        <g>
-            {box}
-            {text}
-        </g>
-    );
+  return (
+    <g>
+      {box}
+      {text}
+    </g>
+  );
 };
 
 Label.defaultProps = {
-    align: "center",
-    width: 100,
-    height: 100,
-    pointerEvents: "none"
+  align: "center",
+  width: 100,
+  height: 100,
+  pointerEvents: "none",
 };
 
 Label.propTypes = {
-    /**
-     * Where to position the label, either "left" or "center" within the box
-     */
-    align: PropTypes.oneOf(["center", "left"]),
+  /**
+   * Where to position the label, either "left" or "center" within the box
+   */
+  align: PropTypes.oneOf(["center", "left"]),
 
-    /**
-     * The label to render
-     */
-    label: PropTypes.string.isRequired,
+  /**
+   * The label to render
+   */
+  label: PropTypes.string.isRequired,
 
-    /**
-     * The style of the label. This is the inline CSS applied directly
-     * to the label box
-     */
-    style: PropTypes.object, // eslint-disable-line
+  /**
+   * The style of the label. This is the inline CSS applied directly
+   * to the label box
+   */
+  style: PropTypes.object, // eslint-disable-line
 
-    /**
-     * The width of the rectangle to render into
-     */
-    width: PropTypes.number,
+  /**
+   * The width of the rectangle to render into
+   */
+  width: PropTypes.number,
 
-    /**
-     * The height of the rectangle to render into
-     */
-    height: PropTypes.number
+  /**
+   * The height of the rectangle to render into
+   */
+  height: PropTypes.number,
 };
 
 export default Label;

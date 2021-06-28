@@ -22,49 +22,52 @@ interface Seperator {
 
 const Timeline = function () {
   const theme = useTheme();
-  const is_sm = useMediaQuery(theme.breakpoints.up("sm"));
+  const isSm = useMediaQuery(theme.breakpoints.up("sm"));
 
-  const timeline_offset = "6em";
-  const initial_width = 2000;
+  const timelineOffset = "6em";
+  const initialWidth = 2000;
 
-  const time_series = useStoreState((state) => state.timeline.timelineSeries);
+  const timeSeries = useStoreState((state) => state.timeline.timelineSeries);
   // const time_series = useStoreState((state) => state.timeline.timelineSeries);
-  const event_rows: EventRowValues[] = useStoreState(
+  const eventRows: EventRowValues[] = useStoreState(
     (state) => state.timeline.eventSpreadsheet
   );
 
   const [eventInfo, setEventInfo] =
     useState<EventRowValues | undefined>(undefined);
-  const [resizeWidth, setResizeWidth] = useState(initial_width);
+  const [resizeWidth, setResizeWidth] = useState(initialWidth);
   const [selectedEvent, setSelectedEvent] =
     useState<TimeSeries | undefined>(undefined);
   const [seperators, setSeperators] = useState<Seperator[]>([]);
-  const timeline_container = useRef<HTMLDivElement | null>(null);
 
-  const row_height = 15;
+  //use this ref for resizing the timeline
+  const timelineContainer = useRef<HTMLDivElement | null>(null);
+
+  //height in pixels of the event series rows
+  const rowHeight = 15;
 
   //defines the range of the timeline
-  const start_date = new Date(1763, 0, 1);
-  const end_date = new Date(2020, 0, 1);
+  const startDate = new Date(1763, 0, 1);
+  const endDate = new Date(2020, 0, 1);
 
   useEffect(() => {
     let tot = 0;
-    Object.values(time_series).forEach((f) => {
+    Object.values(timeSeries).forEach((f) => {
       tot += f.length;
     });
     console.log(tot);
-    let seperators: Seperator[] = [];
-    let keys = Object.keys(time_series);
+    const seperators: Seperator[] = [];
+    const keys = Object.keys(timeSeries);
 
     let test = 0;
     if (tot > 0) {
       let top = 1.0;
-      Object.values(time_series).forEach((f, i) => {
+      Object.values(timeSeries).forEach((f, i) => {
         console.log(f.length / tot);
         top -= f.length / tot;
         console.log(top);
         test += f.length / tot;
-        let sep = {
+        const sep = {
           pos: top,
           name: keys[i],
         } as Seperator;
@@ -74,23 +77,24 @@ const Timeline = function () {
       console.log(seperators);
       console.log(test);
     }
-  }, [time_series]);
+  }, [timeSeries]);
   useEffect(() => {}, [seperators]);
 
   const timelineSection = {
     height: "10%",
     width: "100%",
     borderTop: `1px solid ${theme.palette.primary.main}`,
-    display: is_sm ? "inline-flex" : "none",
+    display: isSm ? "inline-flex" : "none",
+    paddingTop: "1em",
   } as React.CSSProperties;
 
   useEffect(() => {
-    let test = timeline_container?.current?.style?.width;
+    let test = timelineContainer?.current?.style?.width;
     console.log(test);
     let test_number = parseInt(test ?? "2000");
     console.log(test_number);
     setResizeWidth(parseInt(test ?? "2000"));
-  }, [timeline_container]);
+  }, [timelineContainer]);
 
   const linesContainer = {
     position: "absolute",
@@ -116,7 +120,7 @@ const Timeline = function () {
     },
   };
 
-  let timerange = new TimeRange(start_date, end_date);
+  let timerange = new TimeRange(startDate, endDate);
   const make_series = (
     series: TimeSeries[],
     theme: Theme,
@@ -165,7 +169,7 @@ const Timeline = function () {
       function handle_click(e: any) {
         console.log(e.data().first().get("title"));
         let title = e.data().first().get("title");
-        let found_row = event_rows.filter((r) => r.title === title)[0];
+        let found_row = eventRows.filter((r) => r.title === title)[0];
 
         setEventInfo(found_row);
         setSelectedEvent(title);
@@ -217,7 +221,7 @@ const Timeline = function () {
                       borderTop: `1px solid ${theme.palette.primary.main}`,
                       top: `${sep.pos * 100}%`,
                       position: "relative",
-                      marginLeft: timeline_offset,
+                      marginLeft: timelineOffset,
                     }}
                   ></div>
                   <div
@@ -236,7 +240,7 @@ const Timeline = function () {
           </div>
           <div
             style={{ height: "100%", width: "1000", marginLeft: "6em" }}
-            ref={timeline_container}
+            ref={timelineContainer}
           >
             <Resizable width={resizeWidth}>
               <ChartContainer
@@ -246,9 +250,9 @@ const Timeline = function () {
                 timeAxisStyle={timeAxis}
                 timeAxisTickCount={5}
               >
-                {make_series(time_series.national, theme, row_height)}
-                {make_series(time_series.state, theme, row_height)}
-                {make_series(time_series.city, theme, row_height)}
+                {make_series(timeSeries.national, theme, rowHeight)}
+                {make_series(timeSeries.state, theme, rowHeight)}
+                {make_series(timeSeries.city, theme, rowHeight)}
               </ChartContainer>
             </Resizable>
           </div>

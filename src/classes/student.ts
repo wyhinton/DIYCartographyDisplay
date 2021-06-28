@@ -27,20 +27,12 @@ function request_image(image_url: string): Promise<HTMLImageElement> {
     let img = new Image();
     img.src = image_url as string;
 
-    // img.src = image.thumbnail;
     img.onload = () => {
       resolve(img);
     };
     img.onerror = (err) => {
       reject(err);
-      // console.log("got an error");
     };
-    // img.onerror = () =>{
-    //   resolve()
-    // }
-    // if (error){
-
-    // }
   });
   console.log(image_url, promise);
   return promise;
@@ -62,9 +54,13 @@ export class StudentClass {
     id: SeriesId
   ): Promise<HTMLImageElement> | CustomError {
     if (this.imageData.has(id)) {
-      let test = this.imageData.get(id) ?? ("" as string);
-      let req = request_image(test);
-      return req;
+      if (!this.imageData.get(id)) {
+        return CustomError.STUDENT_MAP_SERIES_NOT_FOUND;
+      } else {
+        let test = this.imageData.get(id) ?? ("" as string);
+        let req = request_image(test);
+        return req;
+      }
     }
     return CustomError.STUDENT_MAP_SERIES_NOT_FOUND;
   }
@@ -82,15 +78,15 @@ export class StudentClass {
   getGalleryImages(): GalleryImage[] {
     return this.galleryImages;
   }
-  createGalleryImage(key: SeriesId, full_size_img: HTMLImageElement) {
+  createGalleryImage(key: SeriesId, full_size_img: HTMLImageElement): void {
     const src = this.imageData.get(key);
-    const thumbnail_src = src;
+    const thumbnailSrc = src;
 
-    let gallery_image = {
+    let galleryImages = {
       src: src as string,
-      thumbnail: thumbnail_src as string,
+      thumbnail: thumbnailSrc as string,
       isSelected: false,
-      caption: "Im in this other file",
+      caption: "",
       thumbnailWidth: full_size_img.width * 0.1,
       thumbnailHeight: full_size_img.height * 0.1,
       tags: [
@@ -113,13 +109,11 @@ export class StudentClass {
         },
       ],
     };
-    this.galleryImages.push(gallery_image);
-    // );
-    // return gallery_image;
+    this.galleryImages.push(galleryImages);
   }
   // first_image.thumbnailWidth = img.width * 0.1;
   // first_image.thumbnailHeight = img.height * 0.1;
-  set_gallery_images(gi: GalleryImage[]) {
+  setGalleryImages(gi: GalleryImage[]) {
     this.galleryImages = gi;
   }
   constructor(row: RawStudentRowValues) {
@@ -140,6 +134,7 @@ export class StudentClass {
     }
 
     const image_map = new Map(pairArr);
+    console.log(row.author);
     this.author = row.author;
     this.year = row.year;
     this.title = row.title;

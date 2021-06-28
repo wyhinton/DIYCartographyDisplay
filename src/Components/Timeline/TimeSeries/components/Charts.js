@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  *  Copyright (c) 2015-present, The Regents of the University of California,
  *  through Lawrence Berkeley National Laboratory (subject to receipt
@@ -56,8 +57,8 @@ import React from "react";
  * A the width your chart will render into
  */
 export default class Charts extends React.Component {
-    render() {
-        return `${this.constructor.name} elements are for configuration only
+  render() {
+    return `${this.constructor.name} elements are for configuration only
 and should not be rendered`;
-    }
+  }
 }

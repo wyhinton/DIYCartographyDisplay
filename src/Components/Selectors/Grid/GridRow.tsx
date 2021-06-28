@@ -75,7 +75,7 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
   useEffect(() => {}, [real_filter]);
   useEffect(() => {}, [hovered]);
 
-  const set_row_color = (cur_filters: FilterOption[], is_hovered: boolean) => {
+  const setRowColro = (cur_filters: FilterOption[], is_hovered: boolean) => {
     if (cur_filters.some((f) => f == filter)) {
       return 4;
     } else {
@@ -83,7 +83,7 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
     }
   };
   //T:SET ICON COLOR ON HOVER
-  const set_icon_color = (is_active_filter: boolean, is_hovered: boolean) => {
+  const setIconColor = (is_active_filter: boolean, is_hovered: boolean) => {
     return is_hovered ? blue[100] : theme.palette.primary;
   };
 
@@ -93,28 +93,30 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
   } as React.CSSProperties;
 
   return (
-    <div
-      style={rowGrid}
-      onMouseEnter={() => setHovered(!hovered)}
-      onMouseLeave={() => setHovered(!hovered)}
-      onMouseUp={() => {
-        thunk_set_filter(filter);
-      }}
-    >
-      {Array.from(Array(count)).map((r, i) => {
-        console.log(count);
-        console.log(i);
-        return (
-          <GridUnit
-            key={i}
-            color={set_row_color(real_filter, hovered)}
-            is_active_filter={real_filter.some((f) => f == filter)}
-            index={i}
-          ></GridUnit>
-        );
-      })}
-      {<Tooltip title={filterToToolTip(filter)}>{icon}</Tooltip>}
-    </div>
+    <Tooltip title={filterToToolTip(filter)}>
+      <div
+        style={rowGrid}
+        onMouseEnter={() => setHovered(!hovered)}
+        onMouseLeave={() => setHovered(!hovered)}
+        onMouseUp={() => {
+          thunk_set_filter(filter);
+        }}
+      >
+        {Array.from(Array(count)).map((r, i) => {
+          console.log(count);
+          console.log(i);
+          return (
+            <GridUnit
+              key={i}
+              color={setRowColro(real_filter, hovered)}
+              is_active_filter={real_filter.some((f) => f == filter)}
+              index={i}
+            ></GridUnit>
+          );
+        })}
+        {icon}
+      </div>
+    </Tooltip>
   );
 };
 

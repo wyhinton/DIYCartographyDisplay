@@ -43,7 +43,7 @@ const App = (): JSX.Element => {
         <Grid
           container
           spacing={0}
-          style={{ paddingTop: "1em", paddingBottom: "2em" }}
+          style={{ paddingTop: "1em", paddingBottom: "0em" }}
         >
           <Grid item md={12} lg={12}>
             <Title />
@@ -55,7 +55,7 @@ const App = (): JSX.Element => {
             <MapGallery />
           </Grid>
         </Grid>
-        <Grid item xs={12} style={{ height: "25%", padding: 0 }}>
+        <Grid item xs={12} style={{ height: "25%" }}>
           <Timeline />
         </Grid>
       </Grid>

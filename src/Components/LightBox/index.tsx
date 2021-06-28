@@ -12,22 +12,15 @@ import Header from "./Header";
 
 interface LightBoxProps {
   show: boolean;
-  onClick: any;
-}
-
-export interface RefObject {
-  SayHi: () => void;
+  onClick: () => void;
 }
 
 const LightBox = ({ show, onClick }: LightBoxProps) => {
   const theme = useTheme();
-
-  const theDiv = useRef<RefObject>(null);
-  // const
-  const active_lightbox = useStoreState((state) => state.map_data.lightBoxData);
+  const activeLightbox = useStoreState((state) => state.map_data.lightBoxData);
   useEffect(() => {
-    console.log(active_lightbox);
-  }, [active_lightbox.author]);
+    console.log(activeLightbox);
+  }, [activeLightbox.author]);
 
   const galleryStyle = {
     // height: "100vh",
@@ -80,10 +73,10 @@ const LightBox = ({ show, onClick }: LightBoxProps) => {
 
   return ReactDom.createPortal(
     <>
-      <LimitedBackdrop open={show}>
-        <div style={closeButtonContainer} onClick={onClick}>
+      <LimitedBackdrop open={show} transitionDuration={1000}>
+        {/* <div style={closeButtonContainer} onClick={onClick}>
           <CrossIcon></CrossIcon>
-        </div>
+        </div> */}
         <div
           style={backDropContainer}
           onMouseUp={() => {
@@ -93,20 +86,21 @@ const LightBox = ({ show, onClick }: LightBoxProps) => {
           }}
         >
           <Header
-            author={active_lightbox.author}
-            title={active_lightbox.title}
-            discipline={active_lightbox.discipline}
-            year={active_lightbox.year}
+            author={activeLightbox.author}
+            title={activeLightbox.title}
+            discipline={activeLightbox.discipline}
+            year={activeLightbox.year}
+            onClick={onClick}
           />
           <Grid container spacing={3} style={mainGrid}>
-            <Grid item xs={3}>
+            <Grid item xs={3} onClick={onClick}>
               <SideText
-                author={active_lightbox.author}
-                description={active_lightbox.description}
+                author={activeLightbox.author}
+                description={activeLightbox.description}
               />
             </Grid>
             <Grid item xs={9} style={galleryStyle}>
-              <ImageSlider images={active_lightbox.images} ref={theDiv} />
+              <ImageSlider images={activeLightbox.images} />
             </Grid>
           </Grid>
         </div>

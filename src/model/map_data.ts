@@ -136,6 +136,8 @@ const map_data: MapDataModel = {
     const goodConversions: Promise<HTMLImageElement>[] = [];
     allStudents.forEach((element) => {
       const res = element.requestGalleryThumbnail(SeriesId.series0101);
+      const res2 = element.requestGalleryThumbnail(SeriesId.series0102);
+      console.log(res2);
       if (
         !(Object.values(CustomError) as string[]).includes(
           res as keyof typeof CustomError
@@ -143,6 +145,13 @@ const map_data: MapDataModel = {
       ) {
         goodConversions.push(res as Promise<HTMLImageElement>);
       }
+      // if (
+      //   !(Object.values(CustomError) as string[]).includes(
+      //     res2 as keyof typeof CustomError
+      //   )
+      // ) {
+      //   goodConversions.push(res2 as Promise<HTMLImageElement>);
+      // }
     });
     const requestResults = ingestPromises<HTMLImageElement>(goodConversions);
     requestResults.then((value) => {

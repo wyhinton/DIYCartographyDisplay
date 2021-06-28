@@ -12,9 +12,12 @@ import blue from "@material-ui/core/colors/blue";
 export const theme = createMuiTheme({
   palette: {
     primary: {
+      //architechture
       dark: "#335761",
+      //landscape
       main: "#5794a5",
-      light: "#bcd4db",
+      //art design
+      light: "#8ab4c0",
     },
     //light
     secondary: {

@@ -1,6 +1,6 @@
 {
   "tags": {
-    "allowUnknownTags": ["optional"],
+    "allowUnknownTags": ["optional", "component"],
     "dictionaries": ["jsdoc", "closure"]
   },
   "source": {

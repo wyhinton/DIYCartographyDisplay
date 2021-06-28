@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /**
  *  Copyright (c) 2015-present, The Regents of the University of California,
  *  through Lawrence Berkeley National Laboratory (subject to receipt

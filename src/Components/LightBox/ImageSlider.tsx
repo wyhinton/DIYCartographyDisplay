@@ -1,5 +1,5 @@
 import ReactSlick from "react-slick";
-import { Ref } from "react";
+// import { Ref } from "react";
 import {
   GlassMagnifier,
   MagnifierContainer,
@@ -8,14 +8,12 @@ import {
 import type { LightboxImage } from "classes/lightbox";
 import Magnifier from "react-magnifier";
 import { useTheme } from "@material-ui/core/styles";
-import type { RefObject } from "./index";
+// import type { RefObject } from "./index";
 
-const ImageSlider = ({
-  images,
-}: {
+interface ImagerSliderProps {
   images: LightboxImage[];
-  ref: Ref<RefObject>;
-}) => {
+}
+const ImageSlider = ({ images }: ImagerSliderProps) => {
   const theme = useTheme();
 
   const slickSlide = {

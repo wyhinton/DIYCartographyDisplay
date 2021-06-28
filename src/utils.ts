@@ -14,34 +14,33 @@ export function arraysEqual(a: any[], b: any[]): boolean {
   return true;
 }
 
-export function getAllFuncs(toCheck: any) {
-  let props: any[] = [];
-  let obj = toCheck;
-  do {
-    props = props.concat(Object.getOwnPropertyNames(obj));
-  } while ((obj = Object.getPrototypeOf(obj)));
+// export function groupBy(arr: any[], property: any) {
+//   return arr.reduce((acc, cur) => {
+//     acc[cur[property]] = [...(acc[cur[property]] || []), cur];
+//     return acc;
+//   }, {});
+// }
 
-  return props.sort().filter(function (e, i, arr) {
-    if (e !== arr[i + 1] && typeof toCheck[e] == "function") return true;
-  });
-}
+export const groupBy = <T, K extends keyof any>(
+  list: T[],
+  getKey: (item: T) => K
+) =>
+  list.reduce((previous, currentItem) => {
+    const group = getKey(currentItem);
+    if (!previous[group]) previous[group] = [];
+    previous[group].push(currentItem);
+    return previous;
+  }, {} as Record<K, T[]>);
 
-export function groupBy(arr: any[], property: any) {
-  return arr.reduce((acc, cur) => {
-    acc[cur[property]] = [...(acc[cur[property]] || []), cur];
-    return acc;
-  }, {});
-}
-
-export function object_values_to_array_lengths(obj: any): any {
-  let keys = Object.keys(obj);
+export function fieldsToFieldLengths(obj: any): any {
+  const keys = Object.keys(obj);
   keys.forEach((key) => {
     obj[key] = obj[key].length;
   });
   return obj;
 }
 
-export function getRandomNumber(min: number, max: number) {
+export function getRandomNumber(min: number, max: number): number {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.random() * (max - min) + min; //The maximum is exclusive and the minimum is inclusive
