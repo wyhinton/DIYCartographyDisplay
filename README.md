@@ -3,6 +3,8 @@
 [![Language: Typescript](https://badges.aleen42.com/src/typescript.svg)](https://badges.aleen42.com/src/typescript.svg)
 [![Framework: React](https://badges.aleen42.com/src/react.svg)](https://badges.aleen42.com/src/react.svg)
 
+![College of Design](/.github/images/cod.jpg)
+
 # 🗺️ Mapping Urban Change: DIY Cartography
 
 Interactive display and archive of students' work from NCSU's Art and Design course, DIY Cartography. Includes a dynamic timeline and sortable database of student-made maps of North Carolina, Wake County, and Raleigh.
