@@ -15,19 +15,6 @@ inspiration and reference for future classes.
 Live demo:
 [https://studentmapdisplay.web.app/](https://studentmapdisplay.web.app/)
 
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [Dev Environment](#dev-environment)
-  - [Chrome Plugins](#chrome-plugins)
-  - [VSCode](#vs-code)
-  - [CLIs](#clis)
-- [Available Scripts](#available-scripts)
-- [Components](#components)
-- [Configs](#configs)
-- [Documentation](#documentation)
-- [Console Log](#console-logs)
-
 ## Quick Start
 
 1. Clone the repository and change directory.
