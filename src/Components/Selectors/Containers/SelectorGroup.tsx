@@ -90,9 +90,11 @@ const SelectorGroup = ({ title, children, filter }: SelectorGroupProps) => {
 
   const headerAndChild = {
     height: "fit-content",
-    marginTop: "auto",
-    marginBottom: "auto",
-    paddingRight: "1em",
+    // paddingLeft: "0.5em",
+    // paddingRight: "0.5em",
+    // marginTop: "auto",
+    // marginBottom: "auto",
+    // paddingRight: "1em",
     fontFamily: theme.typography.fontFamily,
   } as React.CSSProperties;
   return (

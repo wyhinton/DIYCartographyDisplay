@@ -83,24 +83,10 @@ const YearDiscipline = (): JSX.Element => {
     <>
       <SelectorParent>
         <SelectorGroup title={null} size={3} filter={FilterGroup.NONE}>
-          <div style={legendContainer}>
-            <GridUnit color={0} />
-            <Paragraph style={disciplineStyle}>ARCHITECTURE</Paragraph>
-          </div>
-          <div style={rowContainer}>
-            <GridUnit color={1} />
-            <Text style={disciplineStyle}>
-              <Paragraph style={disciplineStyle}>LANDSCAPE </Paragraph>
-            </Text>
-          </div>
-          <div style={rowContainer}>
-            <GridUnit color={2} />
-            <Paragraph style={disciplineStyle}>ART + DESIGN</Paragraph>
-          </div>
-          <div style={rowContainer}>
-            <GridUnit color={3} />
-            <Paragraph style={disciplineStyle}>OTHER</Paragraph>
-          </div>
+          <LegendEntry title={"ARCHITECTURE"} gridUnitColorCode={0} />
+          <LegendEntry title={"LANDSCAPE"} gridUnitColorCode={1} />
+          <LegendEntry title={"ART + DESIGN"} gridUnitColorCode={2} />
+          <LegendEntry title={"OTHER"} gridUnitColorCode={3} />
         </SelectorGroup>
         <SelectorGroup
           title={"2016"}
@@ -129,3 +115,36 @@ const YearDiscipline = (): JSX.Element => {
 };
 
 export default YearDiscipline;
+
+const LegendEntry = ({
+  title,
+  gridUnitColorCode,
+}: {
+  title: string;
+  gridUnitColorCode: number;
+}): JSX.Element => {
+  const theme = useTheme();
+
+  const disciplineStyle = {
+    color: theme.palette.primary.main,
+    fontSize: "8pt",
+    justifyContent: "space-between",
+    fontFamily: theme.typography.fontFamily,
+  } as React.CSSProperties;
+
+  const rowContainer = {
+    display: "flex",
+    fontSize: "8pt",
+    height: 20,
+    marginTop: -4,
+  } as React.CSSProperties;
+
+  return (
+    <div style={rowContainer} className={"legend item container"}>
+      <GridUnit color={gridUnitColorCode} />
+      <Text style={disciplineStyle}>
+        <Paragraph style={disciplineStyle}>{title}</Paragraph>
+      </Text>
+    </div>
+  );
+};
