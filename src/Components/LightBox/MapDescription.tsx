@@ -7,16 +7,15 @@ interface MapDescriptionProps {
 }
 
 /**
- * Formats map description text for the lightbox. Wraps text in a Scrollbars in case text excedes page height
+ * Formats map description text for the lightbox. Wraps text in a Scrollbars in case text excedes page height.
  */
 const MapDescription = ({ description }: MapDescriptionProps): JSX.Element => {
   const theme = useTheme();
 
   const textStyle = {
-    color: "White",
+    color: "white",
     fontSize: "12pt",
     lineHeight: "15pt",
-    // lineHeight: "12pt",
     fontFamily: theme.typography.fontFamily,
   };
   const scrollBarStyle = {

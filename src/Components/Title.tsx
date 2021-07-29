@@ -15,8 +15,10 @@ const Title = (): JSX.Element => {
   const titleHeader = {
     fontSize: "xxx-large",
     fontFamily: theme.typography.fontFamily,
-    color: "#3b6470",
+    // color: "#3b6470",
     lineHeight: "normal",
+    backgroundColor: theme.palette.primary.main,
+    color: "white",
   } as React.CSSProperties;
 
   const titleSubHeader = {
@@ -27,9 +29,11 @@ const Title = (): JSX.Element => {
     color: "#3b6470",
   } as React.CSSProperties;
   const titleContainer = {
+    // backgroundColor: theme.palette.primary.main,
+    color: "white",
     paddingBottom: "1em",
     paddingTop: ".5em",
-    color: theme.palette.primary.main,
+    // color: theme.palette.primary.main,
   };
 
   return (
@@ -47,13 +51,15 @@ const Title = (): JSX.Element => {
       </Grid>
       <Grid item xs={10}>
         <div style={titleContainer}>
-          <Text style={titleHeader}>DIY CARTOGRAPHY: </Text>
+          <Text style={titleHeader}>
+            DIY CARTOGRAPHY: MAPPING THE IMPACT OF URBAN DEVELOPMENT
+          </Text>
         </div>
-        <div>
+        {/* <div>
           <Text style={titleSubHeader}>
             MAPPING THE IMPACT OF URBAN DEVELOPMENT
           </Text>
-        </div>
+        </div> */}
       </Grid>
     </Grid>
   );

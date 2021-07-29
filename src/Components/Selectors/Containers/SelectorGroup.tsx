@@ -15,98 +15,82 @@ export type SelectorGroupProps = {
   filter: FilterOption;
 };
 
+/**Container for all the selection widgets, i.e 2016/2018/Political/Social/
+ * Provides a header text for the widget, that when clicked sets the store's group filter function.
+ */
 const SelectorGroup = ({ title, children, filter }: SelectorGroupProps) => {
   const theme = useTheme();
-  const set_filter = useStoreActions(
+  const setFilterAction = useStoreActions(
     (actions) => actions.studentsModel.thunkSetFilter
   );
-  const active_group_filter = useStoreState(
+  const groupFilterState = useStoreState(
     (state) => state.studentsModel?.groupFilter
   );
-  const [hovered, SetHovered] = useState(false);
-  const [active, setActive] = useState(FilterState.DEFAULT);
+  const [isHeaderHovered, setIsHeaderHovered] = useState(false);
+  const [groupState, setGroupState] = useState(FilterState.DEFAULT);
 
   useEffect(() => {
-    // console.log(active_group_filter);
-    // dbb!()
-    // console.log(active_group_filter === filter);
-    if (active_group_filter === filter) {
-      setActive(FilterState.SOLO);
-    }
-    if (active_group_filter === FilterGroup.NONE) {
-      setActive(FilterState.DEFAULT);
-    }
-    // if (active_group_filter )
-    switch (active_group_filter) {
+    switch (groupFilterState) {
       case filter:
-        setActive(FilterState.SOLO);
+        setGroupState(FilterState.SOLO);
         break;
       case FilterGroup.NONE:
-        setActive(FilterState.DEFAULT);
+        setGroupState(FilterState.DEFAULT);
         break;
       default:
-        setActive(FilterState.DEACTIVATED);
+        setGroupState(FilterState.DEACTIVATED);
         break;
     }
-    // console.log(active);
-  }, [active_group_filter, hovered]);
+  }, [groupFilterState, isHeaderHovered]);
 
-  const set_style = (fs: FilterState, hovered: boolean) => {
-    const base_style = {
+  const setGroupStyle = (fs: FilterState, hovered: boolean) => {
+    const baseStyle = {
       height: "fit-content",
       textDecoration: "underline",
       marginTop: "auto",
       marginBottom: "auto",
       paddingRight: "1em",
       fontFamily: theme.typography.fontFamily,
-      // color: theme.colorShades.main_0,
       color: theme.palette.primary.main,
     };
     switch (fs) {
       case FilterState.SOLO:
-        base_style.color = theme.palette.primary.light;
+        baseStyle.color = theme.palette.primary.light;
         break;
       case FilterState.DEACTIVATED:
-        base_style.color = theme.palette.primary.dark;
-        // base_style.color = "yellow";
+        baseStyle.color = theme.palette.primary.dark;
         break;
       case FilterState.DEFAULT:
-        base_style.color = theme.palette.primary.main;
-
-        // base_style.color = "green";
+        baseStyle.color = theme.palette.primary.main;
         break;
     }
     if (hovered) {
-      base_style.color = theme.palette.primary.light;
+      baseStyle.color = theme.palette.primary.light;
     }
-    return base_style;
+    return baseStyle;
   };
 
-  // const groupStyle = {
-  //   fontFamily: theme.typography.fontFamily,
-  //   textDecoration: "underline",
-  //   color: hovered ? theme.palette.primary.light : theme.palette.primary.main,
-  // } as React.CSSProperties;
-
-  const headerAndChild = {
+  const selectorGroupContainerStyle = {
     height: "fit-content",
-    // paddingLeft: "0.5em",
-    // paddingRight: "0.5em",
-    // marginTop: "auto",
-    // marginBottom: "auto",
-    // paddingRight: "1em",
     fontFamily: theme.typography.fontFamily,
   } as React.CSSProperties;
+
   return (
-    <div style={headerAndChild} className={"selector group container"}>
+    <div
+      style={selectorGroupContainerStyle}
+      className={"selector group container"}
+    >
       <div
         className={"selector group text container"}
-        onMouseUp={() => set_filter(filter)}
-        onMouseEnter={() => SetHovered(true)}
-        onMouseLeave={() => SetHovered(false)}
+        onMouseUp={() => setFilterAction(filter)}
+        onMouseEnter={() => setIsHeaderHovered(true)}
+        onMouseLeave={() => setIsHeaderHovered(false)}
       >
         <Text>
-          <Heading size={100} style={set_style(active, hovered)}>
+          <Heading
+            size={100}
+            style={setGroupStyle(groupState, isHeaderHovered)}
+          >
             {title}
           </Heading>
         </Text>

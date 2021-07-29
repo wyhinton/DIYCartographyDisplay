@@ -19,7 +19,6 @@ function toAuthorEnum(
 }
 
 const YearDiscipline = (): JSX.Element => {
-  const theme = useTheme();
   const yearDataState = useStoreState(
     (state) => state.studentsModel?.studentStats?.year
   );
@@ -29,25 +28,6 @@ const YearDiscipline = (): JSX.Element => {
     height: "100%",
   } as React.CSSProperties;
 
-  const disciplineStyle = {
-    color: theme.palette.primary.main,
-    fontSize: "8pt",
-    justifyContent: "space-between",
-    fontFamily: theme.typography.fontFamily,
-  } as React.CSSProperties;
-  const rowContainer = {
-    display: "flex",
-    fontSize: "8pt",
-    height: 20,
-    marginTop: -4,
-  } as React.CSSProperties;
-  const legendContainer = {
-    display: "flex",
-    fontSize: "8pt",
-    height: 20,
-    marginTop: -4,
-    paddingTop: ".25em",
-  } as React.CSSProperties;
   /**For each year create a GridChunk which reflects the number of students in a given discipline */
   const makeYearChunks = (year: string, year_breakdown?: any): JSX.Element => {
     console.log(year_breakdown);

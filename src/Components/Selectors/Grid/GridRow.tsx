@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import GridUnit from "./GridUnit";
 import { MapSubTopic } from "../../../enums";
 import { FilterOption } from "../../../model/types";
-import blue from "@material-ui/core/colors/blue";
 import Tooltip from "@material-ui/core/Tooltip";
 
 interface GridRowProps {
@@ -12,106 +11,62 @@ interface GridRowProps {
   filter: FilterOption;
   icon: JSX.Element;
 }
-function filterToToolTip(filter: FilterOption): string {
-  let tooltip_title;
-  switch (filter) {
-    case MapSubTopic.BUILDINGS:
-      tooltip_title = "Buildings";
-      break;
-    case MapSubTopic.TRANSPORTATION:
-      tooltip_title = "Transportation";
-      break;
-    case MapSubTopic.INFRASTR:
-      tooltip_title = "Infrastructure";
-      break;
-    case MapSubTopic.PROPERTY:
-      tooltip_title = "Property";
-      break;
-    case MapSubTopic.URBANDEV:
-      tooltip_title = "Urban Development";
-      break;
-    case MapSubTopic.WORK:
-      tooltip_title = "Work";
-      break;
-    case MapSubTopic.GREENSPACE:
-      tooltip_title = "Greenspace";
-      break;
-    case MapSubTopic.POLLUTION:
-      tooltip_title = "Pollution";
-      break;
-    case MapSubTopic.HYDROLOGY:
-      tooltip_title = "Hydrology";
-      break;
-    case MapSubTopic.GOVERMENT:
-      tooltip_title = "Government";
-      break;
-    case MapSubTopic.POLICY:
-      tooltip_title = "Policy";
-      break;
-    case MapSubTopic.CIVICENG:
-      tooltip_title = "Civic Engagment";
-      break;
-    case MapSubTopic.EDUCATION:
-      tooltip_title = "Education";
-      break;
-    case MapSubTopic.HEALTHSAFETY:
-      tooltip_title = "Health";
-      break;
-    case MapSubTopic.RACEGEN:
-      tooltip_title = "Race and Gender";
-      break;
-    default:
-      tooltip_title = "Default";
-  }
-  return tooltip_title;
-}
+
 const GridRow = ({ count, icon, filter }: GridRowProps) => {
   const theme = useTheme();
   const [hovered, setHovered] = useState(false);
-  const real_filter = useStoreState((state) => state.studentsModel.filter);
-  const thunk_set_filter = useStoreActions(
+  const activeFilterState = useStoreState(
+    (state) => state.studentsModel.filter
+  );
+  const setFilterAction = useStoreActions(
     (actions) => actions.studentsModel.thunkSetFilter
   );
-  useEffect(() => {}, [real_filter]);
-  useEffect(() => {}, [hovered]);
 
-  const setRowColro = (cur_filters: FilterOption[], is_hovered: boolean) => {
-    if (cur_filters.some((f) => f == filter)) {
+  useEffect(() => {}, [activeFilterState]);
+  // useEffect(()=>{
+  // },[activeFilterState]);
+  const setRowColor = (
+    currentFilter: FilterOption[],
+    rowIsHovered: boolean
+  ) => {
+    if (currentFilter.some((f) => f == filter)) {
       return 4;
     } else {
-      return is_hovered ? 4 : 0;
+      return rowIsHovered ? 4 : 0;
     }
   };
-  //T:SET ICON COLOR ON HOVER
-  const setIconColor = (is_active_filter: boolean, is_hovered: boolean) => {
-    return is_hovered ? blue[100] : theme.palette.primary;
-  };
 
-  const rowGrid = {
+  const rowGridStyle = {
     width: "100%",
     display: "flex",
+    // display: "grid",
+    // gridTemplateColumns: `repeat(${count + 1}, 1fr)`,
+    // gridAutoRows: 20,
+    // gridAutoFlow: "column",
   } as React.CSSProperties;
 
   return (
     <Tooltip title={filterToToolTip(filter)}>
       <div
-        style={rowGrid}
+        style={rowGridStyle}
         onMouseEnter={() => setHovered(!hovered)}
         onMouseLeave={() => setHovered(!hovered)}
         onMouseUp={() => {
-          thunk_set_filter(filter);
+          setFilterAction(filter);
         }}
       >
         {Array.from(Array(count)).map((r, i) => {
           console.log(count);
           console.log(i);
           return (
-            <GridUnit
-              key={i}
-              color={setRowColro(real_filter, hovered)}
-              is_active_filter={real_filter.some((f) => f == filter)}
-              index={i}
-            ></GridUnit>
+            <div style={{ paddingRight: "0.25em" }} key={i}>
+              <GridUnit
+                key={i}
+                color={setRowColor(activeFilterState, hovered)}
+                isActiveFilter={activeFilterState.some((f) => f == filter)}
+                index={i}
+              ></GridUnit>
+            </div>
           );
         })}
         {icon}
@@ -121,3 +76,57 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
 };
 
 export default GridRow;
+
+function filterToToolTip(filter: FilterOption): string {
+  let tooltipText;
+  switch (filter) {
+    case MapSubTopic.BUILDINGS:
+      tooltipText = "Buildings";
+      break;
+    case MapSubTopic.TRANSPORTATION:
+      tooltipText = "Transportation";
+      break;
+    case MapSubTopic.INFRASTR:
+      tooltipText = "Infrastructure";
+      break;
+    case MapSubTopic.PROPERTY:
+      tooltipText = "Property";
+      break;
+    case MapSubTopic.URBANDEV:
+      tooltipText = "Urban Development";
+      break;
+    case MapSubTopic.WORK:
+      tooltipText = "Work";
+      break;
+    case MapSubTopic.GREENSPACE:
+      tooltipText = "Greenspace";
+      break;
+    case MapSubTopic.POLLUTION:
+      tooltipText = "Pollution";
+      break;
+    case MapSubTopic.HYDROLOGY:
+      tooltipText = "Hydrology";
+      break;
+    case MapSubTopic.GOVERMENT:
+      tooltipText = "Government";
+      break;
+    case MapSubTopic.POLICY:
+      tooltipText = "Policy";
+      break;
+    case MapSubTopic.CIVICENG:
+      tooltipText = "Civic Engagment";
+      break;
+    case MapSubTopic.EDUCATION:
+      tooltipText = "Education";
+      break;
+    case MapSubTopic.HEALTHSAFETY:
+      tooltipText = "Health";
+      break;
+    case MapSubTopic.RACEGEN:
+      tooltipText = "Race and Gender";
+      break;
+    default:
+      tooltipText = "Default";
+  }
+  return tooltipText;
+}

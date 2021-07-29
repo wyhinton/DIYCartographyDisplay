@@ -56,7 +56,7 @@ const MapGallery = (): JSX.Element => {
   const scrollContainer = {
     overflow: "hidden",
     height: "100%",
-    border: `1px solid ${theme.palette.primary.main}`,
+    // border: `1px solid ${theme.palette.primary.main}`,
     minWidth: "100%",
     minHeight: "200px",
   } as React.CSSProperties;

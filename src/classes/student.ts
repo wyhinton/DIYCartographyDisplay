@@ -19,6 +19,8 @@ export enum SeriesId {
   series0102 = "series0102",
   series0201 = "series0201",
   series0202 = "series0202",
+  series0301 = "series0301",
+  series0302 = "series0302",
 }
 
 function requestImage(imageUrl: string): Promise<HTMLImageElement> {
@@ -64,15 +66,15 @@ export class StudentClass {
     return CustomError.STUDENT_MAP_SERIES_NOT_FOUND;
   }
   getLightboxImages(): LightboxImage[] {
-    const lightbox_image_arr: LightboxImage[] = [];
+    const lightBoxImageArr: LightboxImage[] = [];
     for (const elem of this.imageData.entries()) {
-      const new_img = {
+      const newImg = {
         title: elem[0],
         src: elem[1] as string,
       };
-      lightbox_image_arr.push(new_img);
+      lightBoxImageArr.push(newImg);
     }
-    return lightbox_image_arr;
+    return lightBoxImageArr;
   }
   getGalleryImages(): GalleryImage[] {
     return this.galleryImages;
@@ -113,46 +115,12 @@ export class StudentClass {
         this.galleryImages.push(galleryImages);
       }
     });
-    // const src = this.imageData.get(key);
-    // const thumbnailSrc = src;
-
-    // const galleryImages = {
-    //   src: src as string,
-    //   thumbnail: thumbnailSrc as string,
-    //   isSelected: false,
-    //   caption: "",
-    //   thumbnailWidth: fullSizeImg.width * 0.1,
-    //   thumbnailHeight: fullSizeImg.height * 0.1,
-    //   tags: [
-    //     {
-    //       author: this.author,
-    //       discipline:
-    //         AuthorDisciplineFilter[
-    //           this.discipline as unknown as keyof typeof AuthorDisciplineFilter
-    //         ],
-    //       subtopic:
-    //         MapSubTopic[
-    //           // (single_row.tags + "_" +
-    //           this.subtopic as unknown as keyof typeof MapSubTopic
-    //         ],
-    //       theme:
-    //         ThemeCategoryFilter[
-    //           this.theme as unknown as keyof typeof ThemeCategoryFilter
-    //         ],
-    //       year: this.year,
-    //     },
-    //   ],
-    // };
-    // this.galleryImages.push(galleryImages);
   }
-  // first_image.thumbnailWidth = img.width * 0.1;
-  // first_image.thumbnailHeight = img.height * 0.1;
   setGalleryImages(gi: GalleryImage[]): void {
     this.galleryImages = gi;
   }
   constructor(row: RawStudentRowValues) {
     const pairArr: [SeriesId, string][] = [];
-
     //get all the image seriesfields
     for (const key of Object.keys(row)) {
       if (Object.keys(SeriesId).includes(key)) {
@@ -167,7 +135,7 @@ export class StudentClass {
       }
     }
 
-    const image_map = new Map(pairArr);
+    const imageMap = new Map(pairArr);
     console.log(row.author);
     this.author = row.author;
     this.year = row.year;
@@ -184,7 +152,7 @@ export class StudentClass {
       ];
     this.subtopic =
       MapSubTopic[row.subtopic as unknown as keyof typeof MapSubTopic];
-    this.imageData = image_map;
+    this.imageData = imageMap;
     this.galleryImages = [];
   }
 }

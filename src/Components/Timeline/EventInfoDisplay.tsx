@@ -17,8 +17,8 @@ const EventInfoDisplay = ({ info }: EventInfoDisplayProps): JSX.Element => {
 
   const infoHeader = {
     color: theme.palette.primary.main,
-    fontSize: "16pt",
-    lineHeight: "16pt",
+    fontSize: "12pt",
+    lineHeight: "12pt",
     fontFamily: theme.typography.fontFamily,
     textDecoration: "underline",
   } as React.CSSProperties;

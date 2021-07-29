@@ -21,15 +21,15 @@ const Sidebar = (): JSX.Element => {
 
   const sidebarBold = {
     color: theme.palette.primary.main,
-    fontSize: "12pt",
-    // fontSize: "medium",
+    fontSize: "11pt",
     fontFamily: theme.typography.fontFamily,
     fontWeight: 200,
+    lineHeight: "16pt",
   } as React.CSSProperties;
 
   return (
     <Pane style={sidebarContainer}>
-      <Text style={{ lineHeight: "12pt" }}>
+      <Text>
         <Paragraph style={sidebarBold}>{sideBarText}</Paragraph>
       </Text>
     </Pane>

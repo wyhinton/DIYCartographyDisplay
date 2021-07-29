@@ -99,7 +99,7 @@ const GridChunk = ({
             return (
               <GridUnit
                 color={setRowColor(filterState, hovered, baseColor)}
-                is_active_filter={filterState.some((f) => f === filter)}
+                isActiveFilter={filterState.some((f) => f === filter)}
                 key={r}
               />
             );

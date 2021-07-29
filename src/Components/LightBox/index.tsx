@@ -76,7 +76,7 @@ const LightBox = ({ show, onClick }: LightBoxProps): JSX.Element => {
             onClick={onClick}
           />
           <Grid container spacing={3} style={mainGrid}>
-            <Grid item xs={3} onClick={onClick}>
+            <Grid item xs={2} onClick={onClick}>
               <MapDescription description={activeLightbox.description} />
             </Grid>
             <Grid item xs={9} style={galleryStyle}>

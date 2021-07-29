@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react"; // we need this to make JSX compile
 import { useTheme } from "@material-ui/core/styles";
+
 import blue from "@material-ui/core/colors/blue";
 import "../../../css/App.css";
 import { getRandomNumber } from "../../../utils";
 import { useStoreState } from "../../../hooks";
+// import { PaletteColor } from "@types/material-ui";
+
 type UnitProps = {
   color: number;
-  is_active_filter?: boolean;
+  isActiveFilter?: boolean;
   index?: number;
 };
 
-export const GridUnit = ({ color, is_active_filter, index }: UnitProps) => {
+export const GridUnit = ({ color, isActiveFilter, index }: UnitProps) => {
   const theme = useTheme();
   const size = 12;
   const [hover, setHover] = useState(false);
@@ -29,8 +32,8 @@ export const GridUnit = ({ color, is_active_filter, index }: UnitProps) => {
     console.log(index);
   }, [mounted]);
 
-  const match_color = (ind: number) => {
-    let col: any;
+  const matchNumberToThemeColor = (ind: number) => {
+    let col = "";
     switch (ind) {
       case -2:
         col = blue[500];
@@ -65,11 +68,8 @@ export const GridUnit = ({ color, is_active_filter, index }: UnitProps) => {
       return {
         width: `${size}px`,
         height: `${size}px`,
-        backgroundColor: match_color(color),
+        backgroundColor: matchNumberToThemeColor(color),
         marginTop: "auto",
-        // marginBottom: "3px",
-        // marginRight: "3px",
-        // outline: "1px solid #ffcb06",
         opacity: 1,
       } as React.CSSProperties;
     } else {
@@ -77,20 +77,17 @@ export const GridUnit = ({ color, is_active_filter, index }: UnitProps) => {
         return {
           width: `${size}px`,
           height: `${size}px`,
-          backgroundColor: match_color(color),
+          backgroundColor: matchNumberToThemeColor(color),
           marginTop: "auto",
-          // marginBottom: "3px",
-          // marginRight: "3px",
           opacity: 0.5,
         } as React.CSSProperties;
       } else {
         return {
           width: `${size}px`,
           height: `${size}px`,
-          backgroundColor: match_color(color),
+          backgroundColor: matchNumberToThemeColor(color),
           marginTop: "auto",
           marginBottom: "3px",
-          // marginRight: "3px",
           opacity: 1.0,
         } as React.CSSProperties;
       }
@@ -99,7 +96,7 @@ export const GridUnit = ({ color, is_active_filter, index }: UnitProps) => {
   return (
     <div
       className={"grid unit"}
-      style={boxStyle(is_active_filter)}
+      style={boxStyle(isActiveFilter)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     ></div>
