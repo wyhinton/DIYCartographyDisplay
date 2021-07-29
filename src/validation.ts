@@ -44,14 +44,13 @@ const minLengthV = lift(minLength);
 export function validate_student_row(
   row: RawStudentRowValues
 ): Either<NonEmptyArray<string>, RawStudentRowValues> {
-  let test = pipe(
+  //   let t2 = fold(replyUnauthorized(test), replyToken(test));
+  return pipe(
     sequenceT(getApplicativeValidation(getSemigroup<string>()))(
       minLengthV(row as RawStudentRowValues)
     ),
     E.map((a) => row)
   );
-  //   let t2 = fold(replyUnauthorized(test), replyToken(test));
-  return test;
 }
 
 export type ValidationError = NonEmptyArray<string>;
@@ -102,7 +101,7 @@ export function handle_validation(
   on_error: ActionCreator<ValidationError>,
   on_success: ThunkCreator<RawStudentRowValues>
 ) {
-  let test = validateStudentData(validators, row);
+  const test = validateStudentData(validators, row);
   console.log("got to test validate func");
   const on_error_container = (n: ValidationError) => {
     on_error(n);
@@ -115,7 +114,7 @@ export function handle_validation(
     console.log("got good");
     console.log(n);
   };
-  let validation_sequence = E.bimap(on_error_container, on_sucess_container);
+  const validation_sequence = E.bimap(on_error_container, on_sucess_container);
   validation_sequence(test);
 }
 

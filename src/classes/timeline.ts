@@ -1,6 +1,5 @@
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
 import { TimelineEvent } from "./timeline_event";
-// import { groupBy } from "../utils";
 
 export class Timeline {
   national!: TimeSeries[];
@@ -16,23 +15,22 @@ export class Timeline {
     this.international = [];
     this.NA = [];
   }
-  set_data(events: TimelineEvent[]) {
-    const categorized_events = groupBy(events, "category");
-    // const categorized_events = groupBy(events, "category");
-    console.log(categorized_events);
-    Object.keys(categorized_events).forEach((key) => {
+  setData(events: TimelineEvent[]): void {
+    const categorizedEvents = groupBy(events, "category");
+    console.log(categorizedEvents);
+    Object.keys(categorizedEvents).forEach((key) => {
       console.log(key);
-      const value: TimelineEvent[] = categorized_events[key];
-      const events = event_rows_to_time_range_events(value);
-      const series = time_range_events_to_time_series(events);
-      categorized_events[key] = series;
+      const value: TimelineEvent[] = categorizedEvents[key];
+      const events = eventRowsToTimeRangeEvents(value);
+      const series = timeRangeEventsToTimeSeries(events);
+      categorizedEvents[key] = series;
       console.log(series);
     });
-    this.national = categorized_events.national;
-    this.state = categorized_events.state;
-    this.city = categorized_events.city;
-    this.international = categorized_events.international;
-    this.NA = categorized_events.NA;
+    this.national = categorizedEvents.national;
+    this.state = categorizedEvents.state;
+    this.city = categorizedEvents.city;
+    this.international = categorizedEvents.international;
+    this.NA = categorizedEvents.NA;
     // console.log(categorized_events);
   }
 }
@@ -41,28 +39,24 @@ export interface EventData {
   title: string;
 }
 
-function event_rows_to_time_range_events(
-  rows: TimelineEvent[]
-): TimeRangeEvent[] {
-  let all_events: TimeRangeEvent[] = [];
+function eventRowsToTimeRangeEvents(rows: TimelineEvent[]): TimeRangeEvent[] {
+  const allEvents: TimeRangeEvent[] = [];
   console.log(rows);
-  rows.forEach((event_row: TimelineEvent) => {
-    const time_range = new TimeRange(event_row.start, event_row.end);
+  rows.forEach((eventRow: TimelineEvent) => {
+    const timeRange = new TimeRange(eventRow.start, eventRow.end);
     const data: EventData = {
-      title: event_row.title,
+      title: eventRow.title,
     };
-    const time_range_event = new TimeRangeEvent(time_range, [data]);
-    all_events.push(time_range_event);
+    const timeRangeEvent = new TimeRangeEvent(timeRange, [data]);
+    allEvents.push(timeRangeEvent);
   });
-  console.log(all_events);
-  return all_events;
+  console.log(allEvents);
+  return allEvents;
 }
 
 //sorts events into rows so that rows don't contain overlapping time events
-function time_range_events_to_time_series(
-  events: TimeRangeEvent[]
-): TimeSeries[] {
-  let test_obj: any = {};
+function timeRangeEventsToTimeSeries(events: TimeRangeEvent[]): TimeSeries[] {
+  const test_obj: any = {};
   test_obj[0] = [];
   (events as TimeRangeEvent[]).forEach(
     (ev2: TimeRangeEvent, ind: number, array: TimeRangeEvent[]) => {
@@ -72,9 +66,7 @@ function time_range_events_to_time_series(
           if (ev2 === e3) {
             return true;
           }
-          if (
-            date_range_overlaps(e3.begin(), e3.end(), ev2.begin(), ev2.end())
-          ) {
+          if (dateRangeOverlaps(e3.begin(), e3.end(), ev2.begin(), ev2.end())) {
             // console.log("ranges do overlap");
             return false;
           } else {
@@ -90,28 +82,27 @@ function time_range_events_to_time_series(
       }
     }
   );
-  const sorted_events = Object.keys(test_obj).map((k) => {
+  const sortedEvents = Object.keys(test_obj).map((k) => {
     test_obj[k] = test_obj[k].sort((a: any, b: any) => a.begin() - b.begin());
   });
-  const row_arrays = Object.keys(sorted_events).map(
+  return Object.keys(sortedEvents).map(
     (k) =>
       new TimeSeries({
         name: "test",
         events: test_obj[k],
       })
   );
-  return row_arrays;
 }
 
-function date_range_overlaps(
-  a_start: Date,
-  a_end: Date,
-  b_start: Date,
-  b_end: Date
-) {
-  if (a_start < b_start && b_start < a_end) return true; // b starts in a
-  if (a_start < b_end && b_end < a_end) return true; // b ends in a
-  if (b_start < a_start && a_end < b_end) return true; // a in b
+function dateRangeOverlaps(
+  aStart: Date,
+  aEnd: Date,
+  bStart: Date,
+  bEnd: Date
+): boolean {
+  if (aStart < bStart && bStart < aEnd) return true; // b starts in a
+  if (aStart < bEnd && bEnd < aEnd) return true; // b ends in a
+  if (bStart < aStart && aEnd < bEnd) return true; // a in b
   return false;
 }
 

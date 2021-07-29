@@ -52,7 +52,7 @@ export function getSheet<T>(
   key: string,
   sheet_num: number
 ): Promise<GoogleSheet<T>> {
-  const promise = new Promise<GoogleSheet<T>>(function (resolve, reject) {
+  return new Promise<GoogleSheet<T>>(function (resolve, reject) {
     GetSheetDone.labeledCols(key, sheet_num)
       .then((sheet: any) => {
         resolve(sheet);
@@ -63,5 +63,4 @@ export function getSheet<T>(
         );
       });
   });
-  return promise;
 }

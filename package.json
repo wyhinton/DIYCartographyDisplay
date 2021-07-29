@@ -44,7 +44,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "doc": "jsdoc2md --files ./src/* --configure ./jsdoc.conf.json> ./README.md --template README_TEMPLATE.hbs"
+    "doc": "jsdoc2md --files ./src/* --configure ./jsdoc.conf.json> ./README.md --template README_TEMPLATE.hbs",
+    "lint:fix": "eslint --fix --ext .ts,.tsx ."
   },
   "eslintConfig": {
     "extends": [
@@ -74,8 +75,10 @@
     "eslint": "^7.27.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-plugin-filenames": "^1.3.2",
+    "eslint-plugin-only-warn": "^1.0.2",
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-sonarjs": "^0.9.1",
     "jsdoc": "^3.6.7",
     "jsdoc-babel": "^0.5.0"
   }

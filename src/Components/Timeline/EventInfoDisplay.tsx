@@ -37,7 +37,7 @@ const EventInfoDisplay = ({ info }: EventInfoDisplayProps): JSX.Element => {
     title: "",
     info: "",
     tags: "",
-    category: EventLevel.national,
+    eventScale: EventLevel.national,
   };
   const data = info ?? default_val;
   useEffect(() => {}, [info]);

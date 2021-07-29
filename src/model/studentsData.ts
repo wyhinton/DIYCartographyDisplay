@@ -55,24 +55,30 @@ export interface FilterResult {
 
 export interface MapDataModel {
   //STATE
+  /**Images visible in the image gallery */
   activeImages: GalleryImage[];
-  allImages: GalleryImage[];
+  /**Filter function used to derive activeImages as a subset of allImages */
   filter: FilterOption[];
   filterFunction: (gi: GalleryImage) => boolean;
   galleryImages: GalleryImage[];
+  /**Active group filter, for filterting a group of related maps */
   groupFilter: FilterGroup;
+  /**Data used in the modal image gallery lightbox */
   activeLightBoxData: LightBoxData;
+  /**True when all gallery images + google sheets have been loaded */
   loaded: boolean;
+  /**Statistic derived from loaded students. Describes how many students fall into the different categories */
   studentStats: StudentStats | undefined;
+  /**List of all the students from all course years */
   studentsClass: StudentClass[];
-  studentGoogleSheets: GoogleSheet<RawStudentRowValues>[]; //
+  /** */
+  studentGoogleSheets: GoogleSheet<RawStudentRowValues>[];
 
   //COMPUTED FROM EXTERNAL DATA
   computedActiveImages: Computed<MapDataModel, GalleryImage[]>;
   computedAvailableGalleryImages: Computed<MapDataModel, GalleryImage[]>;
 
   //THUNKS - FETCH EXTERNAL
-  // fetchEventSpreadsheet: Thunk<MapDataModel>;
   fetchStudentSheets: Thunk<MapDataModel>;
 
   //THUNKS - UI
@@ -119,11 +125,8 @@ const studentsData: MapDataModel = {
     } else {
       return state.computedAvailableGalleryImages;
     }
-    // console.log(active);
-    // return active;
   }),
   galleryImages: [],
-  allImages: [],
   loaded: false,
   mapSpreadsheet: [],
   studentStats: undefined,
@@ -136,10 +139,12 @@ const studentsData: MapDataModel = {
     const allRows = payload.flat();
     const allStudents = allRows.map((r) => new StudentClass(r));
     const goodConversions: Promise<HTMLImageElement>[] = [];
+
+    // function generateGalleryImage ()
     allStudents.forEach((element) => {
       const res = element.requestGalleryThumbnail(SeriesId.series0101);
-      const res2 = element.requestGalleryThumbnail(SeriesId.series0102);
-      console.log(res2);
+      // const res2 = element.requestGalleryThumbnail(SeriesId.series0102);
+      // console.log(res2);
       if (
         !(Object.values(CustomError) as string[]).includes(
           res as keyof typeof CustomError
@@ -154,7 +159,11 @@ const studentsData: MapDataModel = {
       const newStudents: StudentClass[] = [];
       imgs.forEach((img, i) => {
         if (img) {
-          allStudents[i].createGalleryImage(SeriesId.series0101, img);
+          allStudents[i].createGalleryImage(
+            [SeriesId.series0101, SeriesId.series0201],
+            img
+          );
+          // allStudents[i].createGalleryImage(SeriesId.series0201, )
           newStudents.push(allStudents[i]);
         }
       });
@@ -264,7 +273,7 @@ function ingestPromises<T>(promises: Promise<T>[]): Promise<{
 }> {
   const goodResults: T[] = [];
   const badResults: PromiseRejectedResult[] = [];
-  const resultsFailures = Promise.allSettled(promises).then((values) => {
+  return Promise.allSettled(promises).then((values) => {
     values.forEach((v) => {
       if (v.status == "rejected") {
         badResults.push(v);
@@ -280,7 +289,6 @@ function ingestPromises<T>(promises: Promise<T>[]): Promise<{
       failures: badResults,
     };
   });
-  return resultsFailures;
 }
 
 function getSingleFilter(f: FilterOption): FilterResult {
@@ -323,7 +331,7 @@ function quickGet(group: FilterGroup, cat: keyof MapMetadata): FilterResult {
     group === FilterGroup.STUDENTS_2018 ||
     group === FilterGroup.STUDENTS_2020
   ) {
-    let splits = getYearDiscipline(filter_set as AuthorDisciplineFilter[]);
+    const splits = getYearDiscipline(filter_set as AuthorDisciplineFilter[]);
     const filter_func = function (val: GalleryImage) {
       return splits.years.includes(val.tags[0].year);
     };
@@ -423,7 +431,7 @@ function getGroupFilter(f: FilterOption): FilterResult {
 
 function getYearDiscipline(author_enum: AuthorDisciplineFilter[]): YearSection {
   const splits = author_enum.map((a) => a.split("_"));
-  let yddata: YearSection = {
+  const yddata: YearSection = {
     years: [],
     discipline: [],
   };
@@ -434,9 +442,9 @@ function getYearDiscipline(author_enum: AuthorDisciplineFilter[]): YearSection {
   return yddata;
 }
 
-function filterGroupToSet(group_enum: FilterGroup): FilterOption[] {
+function filterGroupToSet(groupEnum: FilterGroup): FilterOption[] {
   let subFilters: FilterOption[] = [];
-  switch (group_enum) {
+  switch (groupEnum) {
     case FilterGroup.STUDENTS_2016:
       subFilters = [
         AuthorDisciplineFilter.ARTDESIGN_2016,

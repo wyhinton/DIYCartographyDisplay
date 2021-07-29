@@ -21,11 +21,11 @@ export enum SeriesId {
   series0202 = "series0202",
 }
 
-function request_image(image_url: string): Promise<HTMLImageElement> {
+function requestImage(imageUrl: string): Promise<HTMLImageElement> {
   // function get_image(image: GalleryImage): Promise<HTMLImageElement> {
   const promise = new Promise<HTMLImageElement>(function (resolve, reject) {
-    let img = new Image();
-    img.src = image_url as string;
+    const img = new Image();
+    img.src = imageUrl as string;
 
     img.onload = () => {
       resolve(img);
@@ -34,7 +34,7 @@ function request_image(image_url: string): Promise<HTMLImageElement> {
       reject(err);
     };
   });
-  console.log(image_url, promise);
+  console.log(imageUrl, promise);
   return promise;
 }
 
@@ -57,16 +57,15 @@ export class StudentClass {
       if (!this.imageData.get(id)) {
         return CustomError.STUDENT_MAP_SERIES_NOT_FOUND;
       } else {
-        let test = this.imageData.get(id) ?? ("" as string);
-        let req = request_image(test);
-        return req;
+        const test = this.imageData.get(id) ?? ("" as string);
+        return requestImage(test);
       }
     }
     return CustomError.STUDENT_MAP_SERIES_NOT_FOUND;
   }
   getLightboxImages(): LightboxImage[] {
-    let lightbox_image_arr: LightboxImage[] = [];
-    for (let elem of this.imageData.entries()) {
+    const lightbox_image_arr: LightboxImage[] = [];
+    for (const elem of this.imageData.entries()) {
       const new_img = {
         title: elem[0],
         src: elem[1] as string,
@@ -78,49 +77,84 @@ export class StudentClass {
   getGalleryImages(): GalleryImage[] {
     return this.galleryImages;
   }
-  createGalleryImage(key: SeriesId, full_size_img: HTMLImageElement): void {
-    const src = this.imageData.get(key);
-    const thumbnailSrc = src;
+  createGalleryImage(key: SeriesId[], fullSizeImg: HTMLImageElement): void {
+    key.forEach((k) => {
+      const src = this.imageData.get(k);
+      const thumbnailSrc = src;
+      if (src) {
+        const galleryImages = {
+          src: src as string,
+          thumbnail: thumbnailSrc as string,
+          isSelected: false,
+          caption: "",
+          thumbnailWidth: fullSizeImg.width * 0.1,
+          thumbnailHeight: fullSizeImg.height * 0.1,
+          tags: [
+            {
+              author: this.author,
+              discipline:
+                AuthorDisciplineFilter[
+                  this
+                    .discipline as unknown as keyof typeof AuthorDisciplineFilter
+                ],
+              subtopic:
+                MapSubTopic[
+                  // (single_row.tags + "_" +
+                  this.subtopic as unknown as keyof typeof MapSubTopic
+                ],
+              theme:
+                ThemeCategoryFilter[
+                  this.theme as unknown as keyof typeof ThemeCategoryFilter
+                ],
+              year: this.year,
+            },
+          ],
+        };
+        this.galleryImages.push(galleryImages);
+      }
+    });
+    // const src = this.imageData.get(key);
+    // const thumbnailSrc = src;
 
-    let galleryImages = {
-      src: src as string,
-      thumbnail: thumbnailSrc as string,
-      isSelected: false,
-      caption: "",
-      thumbnailWidth: full_size_img.width * 0.1,
-      thumbnailHeight: full_size_img.height * 0.1,
-      tags: [
-        {
-          author: this.author,
-          discipline:
-            AuthorDisciplineFilter[
-              this.discipline as unknown as keyof typeof AuthorDisciplineFilter
-            ],
-          subtopic:
-            MapSubTopic[
-              // (single_row.tags + "_" +
-              this.subtopic as unknown as keyof typeof MapSubTopic
-            ],
-          theme:
-            ThemeCategoryFilter[
-              this.theme as unknown as keyof typeof ThemeCategoryFilter
-            ],
-          year: this.year,
-        },
-      ],
-    };
-    this.galleryImages.push(galleryImages);
+    // const galleryImages = {
+    //   src: src as string,
+    //   thumbnail: thumbnailSrc as string,
+    //   isSelected: false,
+    //   caption: "",
+    //   thumbnailWidth: fullSizeImg.width * 0.1,
+    //   thumbnailHeight: fullSizeImg.height * 0.1,
+    //   tags: [
+    //     {
+    //       author: this.author,
+    //       discipline:
+    //         AuthorDisciplineFilter[
+    //           this.discipline as unknown as keyof typeof AuthorDisciplineFilter
+    //         ],
+    //       subtopic:
+    //         MapSubTopic[
+    //           // (single_row.tags + "_" +
+    //           this.subtopic as unknown as keyof typeof MapSubTopic
+    //         ],
+    //       theme:
+    //         ThemeCategoryFilter[
+    //           this.theme as unknown as keyof typeof ThemeCategoryFilter
+    //         ],
+    //       year: this.year,
+    //     },
+    //   ],
+    // };
+    // this.galleryImages.push(galleryImages);
   }
   // first_image.thumbnailWidth = img.width * 0.1;
   // first_image.thumbnailHeight = img.height * 0.1;
-  setGalleryImages(gi: GalleryImage[]) {
+  setGalleryImages(gi: GalleryImage[]): void {
     this.galleryImages = gi;
   }
   constructor(row: RawStudentRowValues) {
-    let pairArr: [SeriesId, string][] = [];
+    const pairArr: [SeriesId, string][] = [];
 
     //get all the image seriesfields
-    for (let key of Object.keys(row)) {
+    for (const key of Object.keys(row)) {
       if (Object.keys(SeriesId).includes(key)) {
         const keyTyped = key as keyof typeof row;
         if (row[keyTyped] !== "NA") {

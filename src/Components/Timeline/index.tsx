@@ -91,9 +91,9 @@ const Timeline = (): JSX.Element => {
   } as React.CSSProperties;
 
   useEffect(() => {
-    let test = timelineContainer?.current?.style?.width;
+    const test = timelineContainer?.current?.style?.width;
     console.log(test);
-    let test_number = parseInt(test ?? "2000");
+    const test_number = parseInt(test ?? "2000");
     console.log(test_number);
     setResizeWidth(parseInt(test ?? "2000"));
   }, [timelineContainer]);
@@ -122,14 +122,14 @@ const Timeline = (): JSX.Element => {
     },
   };
 
-  let timerange = new TimeRange(startDate, endDate);
+  const timerange = new TimeRange(startDate, endDate);
   const make_series = (
     series: TimeSeries[],
     theme: Theme,
     row_height: number
   ) => {
-    let test = series.map(function (ev, i) {
-      let base_style = {
+    return series.map(function (ev, i) {
+      const base_style = {
         fill: theme.palette.primary.main,
         opacity: 1.0,
       };
@@ -170,8 +170,8 @@ const Timeline = (): JSX.Element => {
       }
       function handle_click(e: any) {
         console.log(e.data().first().get("title"));
-        let title = e.data().first().get("title");
-        let found_row = eventRows.filter((r) => r.title === title)[0];
+        const title = e.data().first().get("title");
+        const found_row = eventRows.filter((r) => r.title === title)[0];
 
         setEventInfo(found_row);
         setSelectedEvent(title);
@@ -197,7 +197,6 @@ const Timeline = (): JSX.Element => {
         </ChartRow>
       );
     });
-    return test;
   };
 
   return (

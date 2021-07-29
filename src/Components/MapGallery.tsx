@@ -14,9 +14,17 @@ import { getRandomNumber } from "../utils";
 import LoadingBar from "./LoadingBar";
 import type { GalleryImage } from "../model/studentsData";
 
+// interface GalleryEvent{
+//   caption: string,
+//   isSelected: boolean,
+//   marginLeft: number,
+//   scaletwidth: number,
+//   src: string,
+//   tags: L
+// }
 /**
  * Gallery of the student maps. Wraps around a react-grid-gallery Gallery, providing a means for scrolling the gallery via a react-custom-scrollbars.
- * Clickin on an image brings up a LightBox.
+ * Clicking on an image brings up a LightBox.
  * Accesses the list of computedActiveImages, and can set activeLightBox
  * a list of our current active
  *
@@ -54,8 +62,9 @@ const MapGallery = (): JSX.Element => {
   } as React.CSSProperties;
 
   /**Set the active lightbox to the clicked gallery image */
-  function getLightboxTb2(this: any) {
+  function loadLightbox(this: any) {
     setShowLightBox((showLightbox) => !showLightbox);
+    // console.log(this.props.item);
     setActiveLightbox(this.props.item);
   }
 
@@ -85,7 +94,7 @@ const MapGallery = (): JSX.Element => {
               rowHeight={180}
               enableLightbox={false}
               enableImageSelection={false}
-              onClickThumbnail={getLightboxTb2}
+              onClickThumbnail={loadLightbox}
               tileViewportStyle={dataLoaded ? thumbnailStyle : undefined}
             ></Gallery>
           </div>

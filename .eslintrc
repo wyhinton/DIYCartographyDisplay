@@ -2,13 +2,18 @@
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended"
-    // "airbnb",
-    // "plugin:prettier/recommended",
-    // "prettier/@typescript-eslint"
+    "plugin:react/recommended",
+    "plugin:sonarjs/recommended"
   ],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "react", "react-class-naming", "filenames"],
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "react-class-naming",
+    "filenames",
+    "only-warn",
+    "sonarjs"
+  ],
   "rules": {
     "react-class-naming/react-classnaming-convention": ["warn"],
     "linebreak-style": 0,

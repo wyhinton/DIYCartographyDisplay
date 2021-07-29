@@ -9,12 +9,18 @@ import { Timeline } from "../classes/timeline";
 import SHEET_KEY from "../static/sheetKey";
 
 export interface EventRowValues {
+  /**Start of the timeline event */
   start: Date;
+  /**End of the timeline event */
   end: Date;
+  /**Display title of the event*/
   title: string;
+  /**Additional display text*/
   info: string;
+  /**Event tags */
   tags: string;
-  category: EventLevel;
+  /**Geographic scale of the event */
+  eventScale: EventLevel;
 }
 
 export interface TimelineData {
@@ -71,12 +77,14 @@ const timelineModel: TimelineModel = {
     state.eventSpreadsheet = eventRows;
   }),
   setTimelineData: action((state, payload) => {
-    state.timelineData.set_data(payload);
+    state.timelineData.setData(payload);
   }),
   fetchEventSpreadsheet: thunk(async (actions) => {
     getSheet<RawEventRowValues>(SHEET_KEY, 1)
       .then((event_sheet: GoogleSheet<RawEventRowValues>) => {
-        let timeline_events = event_sheet.data.map((r) => new TimelineEvent(r));
+        const timeline_events = event_sheet.data.map(
+          (r) => new TimelineEvent(r)
+        );
         actions.setTimelineData(timeline_events);
         const typed_event_rows = typeEventRows(event_sheet.data);
         actions.setEventSpreadsheet(typed_event_rows);
@@ -123,7 +131,7 @@ function makeTimeSeries(rows: EventRowValues[]): TimelineData {
 function event_rows_to_time_range_events(
   rows: EventRowValues[]
 ): TimeRangeEvent[] {
-  let all_events: TimeRangeEvent[] = [];
+  const all_events: TimeRangeEvent[] = [];
   console.log(rows);
   rows.forEach((event_row: EventRowValues) => {
     const time_range = new TimeRange(event_row.start, event_row.end);
@@ -191,7 +199,7 @@ function time_range_events_to_time_series(
   //   // }
   // }
   // console.log(array_set);
-  let test_obj: any = {};
+  const test_obj: any = {};
   test_obj[0] = [];
   (events as TimeRangeEvent[]).forEach(
     (ev2: TimeRangeEvent, ind: number, array: TimeRangeEvent[]) => {
@@ -222,14 +230,13 @@ function time_range_events_to_time_series(
   const sorted_events = Object.keys(test_obj).map((k) => {
     test_obj[k] = test_obj[k].sort((a: any, b: any) => a.begin() - b.begin());
   });
-  const row_arrays = Object.keys(sorted_events).map(
+  return Object.keys(sorted_events).map(
     (k) =>
       new TimeSeries({
         name: "test",
         events: test_obj[k],
       })
   );
-  return row_arrays;
 }
 
 function date_range_overlaps(

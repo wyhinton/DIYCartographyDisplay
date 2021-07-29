@@ -10,25 +10,21 @@ interface GridChunkProps {
 
 function roundToStep(value: number, step: number) {
   const val = Math.round(value / step) * step;
-  let num_cols = val / step;
+  const num_cols = val / step;
   const max_num_rows = step;
 
   if (value !== undefined && value !== null) {
-    let test_arrs = Array.from(Array(num_cols).keys()).map(
-      (k: number, i: number) => {
-        let num_units = 0;
-        if (i == num_cols - 1) {
-          num_units = max_num_rows - Math.abs(value - val);
-        } else {
-          num_units = step;
-        }
-        const col_data: any = {
-          count: num_units,
-        };
-        return col_data;
+    return Array.from(Array(num_cols).keys()).map((k: number, i: number) => {
+      let num_units = 0;
+      if (i == num_cols - 1) {
+        num_units = max_num_rows - Math.abs(value - val);
+      } else {
+        num_units = step;
       }
-    );
-    return test_arrs;
+      return {
+        count: num_units,
+      };
+    });
   }
 }
 
@@ -47,19 +43,19 @@ const GridChunk = ({ count, filter, base_color }: GridChunkProps) => {
   const set_filter = useStoreActions(
     (actions) => actions.studentsModel.thunkSetFilter
   );
-  const set_row_color = (
-    cur_filters: FilterOption[],
-    is_hovered: boolean,
-    base_color: number
+  const setRowColor = (
+    curFilters: FilterOption[],
+    isHovered: boolean,
+    baseColor: number
   ) => {
-    if (cur_filters.some((f) => f === filter)) {
+    if (curFilters.some((f) => f === filter)) {
       // if (cur_filter_val === filter) {
       return 4;
     }
-    if (cur_filters.some((f) => f === null)) {
-      return base_color;
+    if (curFilters.some((f) => f === null)) {
+      return baseColor;
     } else {
-      return is_hovered ? -1 : base_color;
+      return isHovered ? -1 : baseColor;
     }
   };
   const [hovered, setHovered] = useState(false);
@@ -73,7 +69,7 @@ const GridChunk = ({ count, filter, base_color }: GridChunkProps) => {
     return base_style;
   };
 
-  let group_columns: any = roundToStep(count, 3);
+  const group_columns: any = roundToStep(count, 3);
   const to_chunk = (col_list?: any[]) => {
     if (col_list) {
       return (
@@ -86,7 +82,7 @@ const GridChunk = ({ count, filter, base_color }: GridChunkProps) => {
         >
           {Array.from(Array(col_list.length).keys()).map((r: number) => {
             // console.log(col_list);
-            let cur_col: any = col_list[r];
+            const cur_col: any = col_list[r];
             return (
               <div style={rowContainer} key={r}>
                 {Array.from(Array(cur_col.count).keys()).map(
@@ -94,7 +90,7 @@ const GridChunk = ({ count, filter, base_color }: GridChunkProps) => {
                     // console.log(cur_col.count);
                     return (
                       <GridUnit
-                        color={set_row_color(
+                        color={setRowColor(
                           cur_state_filters,
                           hovered,
                           base_color

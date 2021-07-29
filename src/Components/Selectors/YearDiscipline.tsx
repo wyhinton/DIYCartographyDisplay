@@ -14,11 +14,9 @@ function to_author_enum(
   year: string
 ): AuthorDisciplineFilter {
   const filter_string = discipline + "_" + year;
-  const filter_enum =
-    AuthorDisciplineFilter[
+  return AuthorDisciplineFilter[
       filter_string as unknown as keyof typeof AuthorDisciplineFilter
     ];
-  return filter_enum;
 }
 
 const YearDiscipline = () => {
