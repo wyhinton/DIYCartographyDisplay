@@ -35,3 +35,12 @@ yarn install
 ```
 yarn start
 ```
+
+## Browser Stack
+
+- [Material UI](https://material-ui.com/)
+- [Evergreen UI](https://evergreen.segment.com/)
+- [React Slick ](https://github.com/akiran/react-slick)
+- [React-magnifier](https://github.com/samuelmeuli/react-magnifier)
+- [React Grid Gallery](https://github.com/benhowell/react-grid-gallery)
+- [React Time Series Chart](https://github.com/esnet/react-timeseries-charts)
