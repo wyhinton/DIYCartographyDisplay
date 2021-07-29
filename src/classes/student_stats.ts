@@ -1,6 +1,6 @@
 import { StudentClass } from "./student";
 import { groupBy, fieldsToFieldLengths } from "../utils";
-import { MapSubTopic, Topic } from "../enums";
+import { AuthorDisciplineFilter, MapSubTopic, Topic } from "../enums";
 
 export interface YearSection {
   years: string[];
@@ -21,34 +21,53 @@ export class StudentStats {
 
 function getYearBreakdown(students: StudentClass[]) {
   const yearGroups = groupBy(students, (s) => s.year);
-  const new_obj = {};
+  const yearBreakdown = {};
   for (const [key, value] of Object.entries(yearGroups)) {
-    let yearBreakdown = groupBy(value as StudentClass[], (s) => s.discipline);
-    yearBreakdown = fieldsToFieldLengths(yearBreakdown);
-    (new_obj as any)[key] = yearBreakdown;
-    console.log(new_obj);
+    let studentsByDiscipline = groupBy(
+      value as StudentClass[],
+      (s) => s.discipline
+    );
+    // console.log(studentsByDiscipline);
+    const disciplines = [
+      AuthorDisciplineFilter.ARTDESIGN,
+      AuthorDisciplineFilter.ARCHITECTURE,
+      AuthorDisciplineFilter.OTHER,
+      AuthorDisciplineFilter.LANDSCAPE,
+    ];
+    //if there are no students of a discipline in a year, provide an empty array so that the discipline has a student count of 0
+    disciplines.forEach((dis) => {
+      if (!studentsByDiscipline[dis]) {
+        studentsByDiscipline[dis] = [];
+      }
+    });
+    //transform the arrays of students into a count of the number of students
+    const disciplinesByStudentCount =
+      fieldsToFieldLengths(studentsByDiscipline);
+    //for each year, insert this counter object
+    (yearBreakdown as any)[key] = disciplinesByStudentCount as YearGroup;
+    console.log(yearBreakdown);
   }
-  return new_obj;
+  return yearBreakdown;
 }
 
 function getTopicBreakdown(students: StudentClass[]) {
-  const topic_groups = groupBy(students, (s) => s.topic);
-  const student_map_stats = {};
-  for (const [key, value] of Object.entries(topic_groups)) {
-    let subtopic_group = groupBy(value as StudentClass[], (s) => s.subtopic);
+  const topicGroups = groupBy(students, (s) => s.topic);
+  const studentMapStats = {};
+  for (const [key, value] of Object.entries(topicGroups)) {
+    let subtopicGroup = groupBy(value as StudentClass[], (s) => s.subtopic);
     const all_subtopics = subtopicsFromTopic(
       Topic[key as unknown as keyof typeof Topic]
     );
 
-    subtopic_group = fieldsToFieldLengths(subtopic_group);
+    subtopicGroup = fieldsToFieldLengths(subtopicGroup);
     all_subtopics.forEach((st) => {
-      if (!(st in subtopic_group)) {
-        (subtopic_group as any)[st] = 0;
+      if (!(st in subtopicGroup)) {
+        (subtopicGroup as any)[st] = 0;
       }
     });
-    (student_map_stats as any)[key] = subtopic_group;
+    (studentMapStats as any)[key] = subtopicGroup;
   }
-  return student_map_stats;
+  return studentMapStats;
 }
 
 function subtopicsFromTopic(topic: Topic): MapSubTopic[] {
@@ -81,7 +100,6 @@ function subtopicsFromTopic(topic: Topic): MapSubTopic[] {
         MapSubTopic.GOVERMENT,
         MapSubTopic.POLICY,
       ];
-      // topic_subtopics = [MapSubTopic.CIVICENG, MapSubTopic.GOV, MapSubTopic.POLICY];
       break;
     case Topic.SE:
       topicSubtopics = [

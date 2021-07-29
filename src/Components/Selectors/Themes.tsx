@@ -22,7 +22,7 @@ const Themes = () => {
           <GridChunk
             count={theme_stats?.EQUITY}
             filter={ThemeCategoryFilter.EQUITY}
-            base_color={0}
+            baseColor={0}
           />
         </SelectorGroup>
         <SelectorGroup
@@ -33,7 +33,7 @@ const Themes = () => {
           <GridChunk
             count={theme_stats?.ACCESS}
             filter={ThemeCategoryFilter.ACCESS}
-            base_color={0}
+            baseColor={0}
           />
         </SelectorGroup>
         <SelectorGroup
@@ -44,7 +44,7 @@ const Themes = () => {
           <GridChunk
             count={theme_stats?.DIVERSITY}
             filter={ThemeCategoryFilter.DIVERSITY}
-            base_color={0}
+            baseColor={0}
           />
         </SelectorGroup>
       </SelectorParent>

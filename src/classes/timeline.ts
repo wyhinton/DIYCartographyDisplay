@@ -31,7 +31,6 @@ export class Timeline {
     this.city = categorizedEvents.city;
     this.international = categorizedEvents.international;
     this.NA = categorizedEvents.NA;
-    // console.log(categorized_events);
   }
 }
 

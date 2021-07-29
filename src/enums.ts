@@ -1,3 +1,4 @@
+/**Major of the student, or their major + year */
 export enum AuthorDisciplineFilter {
   ARTDESIGN = "ARTDESIGN",
   ARCHITECTURE = "ARCHITECTURE",
@@ -6,9 +7,9 @@ export enum AuthorDisciplineFilter {
   ARTDESIGN_2016 = "ARTDESIGN_2016",
   ARTDESIGN_2018 = "ARTDESIGN_2018",
   ARTDESIGN_2020 = "ARTDESIGN_2020",
-  ARCHITECTURE_2016 = "ARTDESIGN_2016",
-  ARCHITECTURE_2018 = "ARTDESIGN_2018",
-  ARCHITECTURE_2020 = "ARTDESIGN_2020",
+  ARCHITECTURE_2016 = "ARCHITECTURE_2016",
+  ARCHITECTURE_2018 = "ARCHITECTURE_2018",
+  ARCHITECTURE_2020 = "ARCHITECTURE_2020",
   OTHER_2016 = "OTHER_2016",
   OTHER_2018 = "OTHER_2018",
   OTHER_2020 = "OTHER_2020",
@@ -16,17 +17,17 @@ export enum AuthorDisciplineFilter {
   LANDSCAPE_2018 = "LANDSCAPE_2018",
   LANDSCAPE_2020 = "LANDSCAPE_2020",
 }
-
+//TODO: FLESH OUT ERROR HANDLING
 export enum CustomError {
   STUDENT_MAP_SERIES_NOT_FOUND = "STUDENT_MAP_SERIES_NOT_FOUND",
 }
+//**Describes the state of a filter category. If the filter is active, then it is SOLO. If some other filter is active, then the filter is DEACTIVATED. If neither of those is true, it is DEFAULT*/
 export enum FilterState {
   SOLO = "SOLO",
   DEACTIVATED = "DEACTIVATED",
   DEFAULT = "DEFAULT",
 }
-// export
-
+//**Describe at which geographic scale the timeline event occurred on. Encodes the "category" field from the events spreadsheet  */
 export enum EventLevel {
   national = "national",
   state = "state",
@@ -34,7 +35,9 @@ export enum EventLevel {
   // international = "international",
   // NA = "NA",
 }
-
+/**Filter groups are used to organize sets of filters. For example, STUDENTS_2016 is used to
+get AuthorDisciplineFilter.ARTDESIGN_2016,  AuthorDisciplineFilter.ARTDESIGN_2016, and  AuthorDisciplineFilter.ARCHITECTURE_2016. 
+*/
 export enum FilterGroup {
   STUDENTS_2016 = "STUDENTS_2016",
   STUDENTS_2018 = "STUDENTS_2018",
@@ -82,28 +85,6 @@ export enum MapSubTopic {
   URBANDEV = "URBANDEV",
   PROPERTY = "PROPERTY",
 }
-// export enum MapSubTopic {
-//   //BUILT ENVIRONMENT
-//   BE_BUILDINGS = "BUILDINGS",
-//   BE_TRANSPORTATION = "TRANSPORTATION",
-//   BE_INFRASTR = "INFRASTR",
-//   //NATURAL ENVIRONMENT
-//   NE_GREENSPACE = "GREENSPACE",
-//   NE_HYDROLOGY = "HYDROLOGY",
-//   NE_POLLUTION = "POLLUTION",
-//   //SOCIAL-CULTURAL ENVIRONMENT
-//   SE_EDUCATION = "EDUCATION",
-//   SE_HEALTH = "HEALTH",
-//   SE_RACEGEN = "RACEGEN",
-//   //POLITICAL ENVIRONMENT
-//   PE_GOV = "GOV",
-//   PE_POLICY = "POLICY",
-//   PE_CIVICENG = "CIVICENG",
-//   //ECONOMIC ENVIRONMENT
-//   EE_WORK = "WORK",
-//   EE_URBANDEV = "URBANDEV",
-//   EE_PROPERTY = "PROPERTY",
-// }
 
 export enum Topic {
   BE = "BE",

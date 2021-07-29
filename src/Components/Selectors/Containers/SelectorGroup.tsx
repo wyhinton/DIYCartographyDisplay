@@ -82,15 +82,11 @@ const SelectorGroup = ({ title, children, filter }: SelectorGroupProps) => {
     return base_style;
   };
 
-  const groupStyle = {
-    fontFamily: theme.typography.fontFamily,
-    textDecoration: "underline",
-    color: hovered ? theme.palette.primary.light : theme.palette.primary.main,
-  } as React.CSSProperties;
-
-  const childContainer = {
-    marginTop: title !== null ? ".25em" : 0,
-  } as React.CSSProperties;
+  // const groupStyle = {
+  //   fontFamily: theme.typography.fontFamily,
+  //   textDecoration: "underline",
+  //   color: hovered ? theme.palette.primary.light : theme.palette.primary.main,
+  // } as React.CSSProperties;
 
   const headerAndChild = {
     height: "fit-content",
@@ -100,20 +96,20 @@ const SelectorGroup = ({ title, children, filter }: SelectorGroupProps) => {
     fontFamily: theme.typography.fontFamily,
   } as React.CSSProperties;
   return (
-    <div style={headerAndChild}>
+    <div style={headerAndChild} className={"selector group container"}>
       <div
+        className={"selector group text container"}
         onMouseUp={() => set_filter(filter)}
         onMouseEnter={() => SetHovered(true)}
         onMouseLeave={() => SetHovered(false)}
       >
         <Text>
-          {/* <Heading size={100} style={groupStyle}> */}
           <Heading size={100} style={set_style(active, hovered)}>
             {title}
           </Heading>
         </Text>
       </div>
-      <div style={childContainer}>{children}</div>
+      <div className={"selector group child container"}>{children}</div>
     </div>
   );
 };

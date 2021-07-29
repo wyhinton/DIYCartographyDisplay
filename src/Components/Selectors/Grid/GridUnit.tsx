@@ -67,9 +67,9 @@ export const GridUnit = ({ color, is_active_filter, index }: UnitProps) => {
         height: `${size}px`,
         backgroundColor: match_color(color),
         marginTop: "auto",
-        marginBottom: "3px",
-        marginRight: "3px",
-        outline: "1px solid #ffcb06",
+        // marginBottom: "3px",
+        // marginRight: "3px",
+        // outline: "1px solid #ffcb06",
         opacity: 1,
       } as React.CSSProperties;
     } else {
@@ -79,8 +79,8 @@ export const GridUnit = ({ color, is_active_filter, index }: UnitProps) => {
           height: `${size}px`,
           backgroundColor: match_color(color),
           marginTop: "auto",
-          marginBottom: "3px",
-          marginRight: "3px",
+          // marginBottom: "3px",
+          // marginRight: "3px",
           opacity: 0.5,
         } as React.CSSProperties;
       } else {
@@ -90,20 +90,19 @@ export const GridUnit = ({ color, is_active_filter, index }: UnitProps) => {
           backgroundColor: match_color(color),
           marginTop: "auto",
           marginBottom: "3px",
-          marginRight: "3px",
+          // marginRight: "3px",
           opacity: 1.0,
         } as React.CSSProperties;
       }
     }
   };
   return (
-    <div style={containerStyle}>
-      <div
-        style={boxStyle(is_active_filter)}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-      ></div>
-    </div>
+    <div
+      className={"grid unit"}
+      style={boxStyle(is_active_filter)}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    ></div>
   );
 };
 

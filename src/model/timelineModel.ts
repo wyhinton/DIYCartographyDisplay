@@ -3,7 +3,6 @@ import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
 import { EventLevel } from "../enums";
 import type { GoogleSheet, RawEventRowValues } from "./sheet_data_models";
 import { getSheet } from "./sheet_data_models";
-// import { groupBy } from "../utils";
 import { TimelineEvent } from "../classes/timeline_event";
 import { Timeline } from "../classes/timeline";
 import SHEET_KEY from "../static/sheetKey";
@@ -28,7 +27,6 @@ export interface TimelineData {
   state: TimeSeries[];
   city: TimeSeries[];
   international: TimeSeries[];
-  NA: TimeSeries[];
 }
 
 /**
@@ -52,18 +50,13 @@ export interface TimelineModel {
   setTimelineSeries: Action<TimelineModel, TimelineData>;
 }
 
-const empty_nat: TimeSeries[] = [];
-const empty_state: TimeSeries[] = [];
-const empty_city: TimeSeries[] = [];
-const empty_international: TimeSeries[] = [];
-const empty_NA: TimeSeries[] = [];
+// const empty_NA: TimeSeries[] = [];
 
 const initialEmptyTimeline: TimelineData = {
-  national: empty_nat,
-  state: empty_state,
-  city: empty_city,
-  international: empty_international,
-  NA: empty_NA,
+  national: [] as TimeSeries[],
+  state: [] as TimeSeries[],
+  city: [] as TimeSeries[],
+  international: [] as TimeSeries[],
 };
 
 const timelineModel: TimelineModel = {
@@ -81,18 +74,16 @@ const timelineModel: TimelineModel = {
   }),
   fetchEventSpreadsheet: thunk(async (actions) => {
     getSheet<RawEventRowValues>(SHEET_KEY, 1)
-      .then((event_sheet: GoogleSheet<RawEventRowValues>) => {
-        const timeline_events = event_sheet.data.map(
-          (r) => new TimelineEvent(r)
-        );
-        actions.setTimelineData(timeline_events);
-        const typed_event_rows = typeEventRows(event_sheet.data);
-        actions.setEventSpreadsheet(typed_event_rows);
-        const timeline_series = makeTimeSeries(typed_event_rows);
-        actions.setTimelineSeries(timeline_series);
+      .then((eventSheet: GoogleSheet<RawEventRowValues>) => {
+        const timelineEvents = eventSheet.data.map((r) => new TimelineEvent(r));
+        actions.setTimelineData(timelineEvents);
+        const typedEventRows = typeEventRows(eventSheet.data);
+        actions.setEventSpreadsheet(typedEventRows);
+        const timelineSeries = makeTimeSeries(typedEventRows);
+        actions.setTimelineSeries(timelineSeries);
       })
-      .catch((err: any) => {
-        console.error(`Error fetching DOC_KEY ${SHEET_KEY}`);
+      .catch((err) => {
+        console.error(`Error fetching DOC_KEY ${SHEET_KEY}: ${err}`);
       });
   }),
 };
@@ -119,7 +110,7 @@ function makeTimeSeries(rows: EventRowValues[]): TimelineData {
   Object.keys(categorized_events).forEach((key) => {
     console.log(key);
     const value: EventRowValues[] = categorized_events[key];
-    const events = event_rows_to_time_range_events(value);
+    const events = eventRowsToTimeRangeEvents(value);
     const series = time_range_events_to_time_series(events);
     categorized_events[key] = series;
     console.log(series);
@@ -128,9 +119,7 @@ function makeTimeSeries(rows: EventRowValues[]): TimelineData {
   return categorized_events;
 }
 
-function event_rows_to_time_range_events(
-  rows: EventRowValues[]
-): TimeRangeEvent[] {
+function eventRowsToTimeRangeEvents(rows: EventRowValues[]): TimeRangeEvent[] {
   const all_events: TimeRangeEvent[] = [];
   console.log(rows);
   rows.forEach((event_row: EventRowValues) => {

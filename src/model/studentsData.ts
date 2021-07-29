@@ -96,7 +96,6 @@ export interface MapDataModel {
   validationErrors: ValidationError[];
 
   //SETTERS
-  addValidationError: Action<MapDataModel, ValidationError>;
   applyFilter: Action<MapDataModel, FilterResult>;
   setStudentStats: Action<MapDataModel, StudentStats>;
   setActiveFilter: Action<MapDataModel, FilterOption[]>;
@@ -184,9 +183,6 @@ const studentsData: MapDataModel = {
   }),
   computedAvailableGalleryImages: computed((state) => {
     return state.studentsClass.map((s) => s.getGalleryImages()).flat();
-  }),
-  addValidationError: action((state, payload) => {
-    state.validationErrors.push(payload);
   }),
   setValidationErrors: action((state, payload) => {
     state.validationErrors = payload;
