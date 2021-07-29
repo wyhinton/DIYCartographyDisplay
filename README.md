@@ -10,7 +10,7 @@ Students examine their local geographies through a combination of expressive aes
 This website offers NCSU design college an opportunity to display innovative work by students for recruitment and engagement in an accessible manner, and provides
 inspiration and reference for future classes.
 
-# Table of Contents
+## Table of Contents
 
 - [Quick Start](#quick-start)
 - [Dev Environment](#dev-environment)
@@ -23,7 +23,7 @@ inspiration and reference for future classes.
 - [Documentation](#documentation)
 - [Console Log](#console-logs)
 
-# Quick Start
+## Quick Start
 
 1. Clone the repository and change directory.
 

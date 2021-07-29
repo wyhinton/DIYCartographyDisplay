@@ -44,7 +44,6 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "doc": "jsdoc2md --files ./src/* --configure ./jsdoc.conf.json> ./README.md --template README_TEMPLATE.hbs",
     "lint:fix": "eslint --fix --ext .ts,.tsx ."
   },
   "eslintConfig": {
