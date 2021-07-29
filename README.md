@@ -36,6 +36,13 @@ yarn install
 yarn start
 ```
 
+## App Design
+
+- Google Sheets backend, and Google Photos for image hosting
+- 100% use of functional react components
+- Use of data types as classes to keep data strongly typed and modular
+- Centralized state management provided via an [easy-peasy](https://easy-peasy.vercel.app/) store
+
 ## Browser Stack
 
 - [Material UI](https://material-ui.com/)
