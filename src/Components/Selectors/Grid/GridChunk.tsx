@@ -18,7 +18,7 @@ const GridChunk = ({
   const setFilterAction = useStoreActions(
     (actions) => actions.studentsModel.thunkSetFilter
   );
-
+  const [colorIndex, setColorIndex] = useState(baseColor);
   const chunkContainerStyle = {
     height: "100%",
     display: "grid",
@@ -39,17 +39,26 @@ const GridChunk = ({
     baseColor: number
   ) => {
     if (curFilters.some((f) => f === filter)) {
+      // setColorIndex(4);
       return 4;
     }
     if (curFilters.some((f) => f === null)) {
+      // setColorIndex(baseColor);
       return baseColor;
     } else {
+      // setColorIndex(isHovered ? -1 : baseColor);
       return isHovered ? -1 : baseColor;
+      // return 2;
     }
   };
 
   const [hovered, setHovered] = useState(false);
   useEffect(() => {}, [filterState]);
+  useEffect(() => {
+    console.log("setting row color");
+    console.log(setRowColor(filterState, hovered, baseColor));
+    setColorIndex(setRowColor(filterState, hovered, baseColor));
+  }, [hovered]);
 
   return (
     <div className={"grid chunk container"} style={{ position: "relative" }}>
@@ -58,11 +67,6 @@ const GridChunk = ({
           style={chunkContainerStyle}
           onMouseUp={() => setFilterAction(filter)}
           onMouseEnter={() => {
-            console.log(
-              `number of students ${count} modulo 3: ${count % 3}, div: ${
-                count / 3
-              }`
-            );
             setHovered(true);
           }}
           onMouseLeave={() => setHovered(false)}
@@ -70,7 +74,8 @@ const GridChunk = ({
           {Array.from(Array(count).keys()).map((r: number) => {
             return (
               <GridUnit
-                colorCode={setRowColor(filterState, hovered, baseColor)}
+                colorCode={colorIndex}
+                // colorCode={setRowColor(filterState, hovered, baseColor)}
                 isActiveFilter={filterState.some((f) => f === filter)}
                 key={r}
               />

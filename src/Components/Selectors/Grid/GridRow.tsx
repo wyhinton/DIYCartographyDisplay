@@ -23,8 +23,6 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
   );
 
   useEffect(() => {}, [activeFilterState]);
-  // useEffect(()=>{
-  // },[activeFilterState]);
   const setRowColor = (
     currentFilter: FilterOption[],
     rowIsHovered: boolean
@@ -32,7 +30,7 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
     if (currentFilter.some((f) => f == filter)) {
       return 4;
     } else {
-      return rowIsHovered ? 4 : 0;
+      return rowIsHovered ? -1 : 0;
     }
   };
 
@@ -59,7 +57,10 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
           console.log(count);
           console.log(i);
           return (
-            <div style={{ paddingRight: "0.25em" }} key={i}>
+            <div
+              style={{ paddingRight: "0.25em", paddingBottom: "0.25em" }}
+              key={i}
+            >
               <GridUnit
                 key={i}
                 colorCode={setRowColor(activeFilterState, hovered)}

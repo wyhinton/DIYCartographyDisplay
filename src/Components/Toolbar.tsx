@@ -23,10 +23,11 @@ const Toolbar = (): JSX.Element => {
     color: theme.palette.primary.main,
     fontSize: "9pt",
     lineHeight: "12pt",
+    paddingTop: "0.75em",
   } as React.CSSProperties;
 
   const firstContainer = {
-    height: "100%",
+    height: "auto",
     paddingLeft: ".25em",
     paddingRight: ".25em",
     minHeight: "6rem",
@@ -37,15 +38,14 @@ const Toolbar = (): JSX.Element => {
   } as React.CSSProperties;
 
   const selectorContainer = {
-    height: "100%",
+    height: "auto",
     paddingLeft: ".25em",
     paddingRight: ".25em",
     minHeight: "6rem",
     border: `1px solid ${theme.palette.primary.main}`,
     marginRight: "1em",
-    // maxWidth: "12vw",
+    overflow: "hidden",
     minWidth: "fit-content",
-    // minWidth: "fit-content",
   } as React.CSSProperties;
 
   return (

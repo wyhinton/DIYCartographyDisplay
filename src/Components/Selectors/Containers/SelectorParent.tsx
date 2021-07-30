@@ -6,14 +6,14 @@ type SelectorParentProps = {
 };
 
 //places grid unit selectors into a grid layout
-const SelectorParent = ({ children }: SelectorParentProps) => {
+const SelectorParent = ({ children }: SelectorParentProps): JSX.Element => {
   const theme = useTheme();
   const padding = "0.5em";
   const sharedStyle = {
     paddingLeft: ".5em",
     paddingRight: ".5em",
     display: "flex",
-    height: "100%",
+    height: "auto",
     boxSizing: "border-box",
     padding: padding,
   };

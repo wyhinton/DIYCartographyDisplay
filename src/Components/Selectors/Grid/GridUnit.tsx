@@ -21,8 +21,8 @@ export const GridUnit = ({
   //provides a fade in animation for the grid units on load
   const containerStyle = {
     display: "block",
-    animation: dataLoadedState ? `fadein ${duration}s normal` : "",
-    animationIterationCount: 1,
+    // animation: dataLoadedState ? `fadein ${duration}s normal` : "",
+    // animationIterationCount: 1,
     marginTop: "auto",
   } as React.CSSProperties;
 
@@ -30,6 +30,11 @@ export const GridUnit = ({
   const matchNumberToThemeColor = (ind: number) => {
     let col = "";
     switch (ind) {
+      case -1:
+        col = theme.palette.action.hover;
+        col = theme.palette.divider;
+        // col = "red";
+        break;
       case 0:
         col = theme.palette.primary.main;
         break;

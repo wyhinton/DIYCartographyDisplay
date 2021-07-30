@@ -18,7 +18,11 @@ export type SelectorGroupProps = {
 /**Container for all the selection widgets, i.e 2016/2018/Political/Social/
  * Provides a header text for the widget, that when clicked sets the store's group filter function.
  */
-const SelectorGroup = ({ title, children, filter }: SelectorGroupProps) => {
+const SelectorGroup = ({
+  title,
+  children,
+  filter,
+}: SelectorGroupProps): JSX.Element => {
   const theme = useTheme();
   const setFilterAction = useStoreActions(
     (actions) => actions.studentsModel.thunkSetFilter
@@ -55,17 +59,17 @@ const SelectorGroup = ({ title, children, filter }: SelectorGroupProps) => {
     };
     switch (fs) {
       case FilterState.SOLO:
-        baseStyle.color = theme.palette.primary.light;
+        baseStyle.color = theme.palette.primary.light as string;
         break;
       case FilterState.DEACTIVATED:
-        baseStyle.color = theme.palette.primary.dark;
+        baseStyle.color = theme.palette.primary.dark as string;
         break;
       case FilterState.DEFAULT:
-        baseStyle.color = theme.palette.primary.main;
+        baseStyle.color = theme.palette.primary.main as string;
         break;
     }
     if (hovered) {
-      baseStyle.color = theme.palette.primary.light;
+      baseStyle.color = theme.palette.divider as string;
     }
     return baseStyle;
   };
@@ -81,7 +85,8 @@ const SelectorGroup = ({ title, children, filter }: SelectorGroupProps) => {
       className={"selector group container"}
     >
       <div
-        className={"selector group text container"}
+        style={{ paddingBottom: ".25em" }}
+        className={"selector group header"}
         onMouseUp={() => setFilterAction(filter)}
         onMouseEnter={() => setIsHeaderHovered(true)}
         onMouseLeave={() => setIsHeaderHovered(false)}

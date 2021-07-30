@@ -8,10 +8,6 @@ import { EqualsIcon } from "evergreen-ui";
 import { FilterOption } from "model/types";
 /**Selector widget for filtering by map theme (equity, access, or diversity) */
 const ThemeSelector = (): JSX.Element => {
-  // const theme = useTheme();
-  // const theme_stats = useStoreState(
-  //   (state) => state.studentsModel?.studentStats?.theme
-  // );
   return (
     <>
       <SelectorParent>
@@ -20,11 +16,6 @@ const ThemeSelector = (): JSX.Element => {
           size={4}
           filter={FilterGroup.EQUITY_THEME}
         >
-          {/* <GridChunk
-            count={theme_stats?.EQUITY}
-            filter={ThemeCategoryFilter.EQUITY}
-            baseColor={0}
-          /> */}
           <ClickableIcon filterCode={FilterGroup.EQUITY_THEME} />
         </SelectorGroup>
         <SelectorGroup
@@ -33,23 +24,13 @@ const ThemeSelector = (): JSX.Element => {
           filter={FilterGroup.ACCESS_THEME}
         >
           <ClickableIcon filterCode={FilterGroup.ACCESS_THEME} />
-          {/* <GridChunk
-            count={theme_stats?.ACCESS}
-            filter={ThemeCategoryFilter.ACCESS}
-            baseColor={0}
-          /> */}
         </SelectorGroup>
         <SelectorGroup
           title={"Diversity"}
           size={4}
-          filter={FilterGroup.DIVERISTY_THEME}
+          filter={FilterGroup.DIVERSITY_THEME}
         >
-          <ClickableIcon filterCode={FilterGroup.DIVERISTY_THEME} />
-          {/* <GridChunk
-            count={theme_stats?.DIVERSITY}
-            filter={ThemeCategoryFilter.DIVERSITY}
-            baseColor={0}
-          /> */}
+          <ClickableIcon filterCode={FilterGroup.DIVERSITY_THEME} />
         </SelectorGroup>
       </SelectorParent>
     </>
@@ -90,18 +71,6 @@ const ClickableIcon = ({
       setIconColor(theme.palette.primary.main);
     }
   }, [hovered]);
-  // useEffect(()=>{
-  // },[activeFilterState]);
-  // const setIconColor = (
-  //   currentFilter: FilterOption[],
-  //   rowIsHovered: boolean
-  // ) => {
-  //   if (currentFilter.some((f) => f == filterCode)) {
-  //     return 4;
-  //   } else {
-  //     return rowIsHovered ? 4 : 0;
-  //   }
-  // };
 
   return (
     <div
@@ -112,7 +81,7 @@ const ClickableIcon = ({
       className={"theme icon container"}
       onMouseLeave={() => setHovered(!hovered)}
     >
-      <EqualsIcon color={iconColor} size={50} />
+      <EqualsIcon color={iconColor} size={45} />
     </div>
   );
 };

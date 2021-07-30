@@ -374,9 +374,9 @@ function getGroupFilter(f: FilterOption): FilterResult {
         "theme" as keyof MapMetadata
       );
       break;
-    case FilterGroup.DIVERISTY_THEME:
+    case FilterGroup.DIVERSITY_THEME:
       filterResult = quickGet(
-        FilterGroup.DIVERISTY_THEME,
+        FilterGroup.DIVERSITY_THEME,
         "theme" as keyof MapMetadata
       );
       break;
@@ -514,7 +514,7 @@ function filterGroupToSet(groupEnum: FilterGroup): FilterOption[] {
     case FilterGroup.ACCESS_THEME:
       subFilters = [ThemeCategoryFilter.ACCESS];
       break;
-    case FilterGroup.DIVERISTY_THEME:
+    case FilterGroup.DIVERSITY_THEME:
       subFilters = [ThemeCategoryFilter.DIVERSITY];
       break;
   }

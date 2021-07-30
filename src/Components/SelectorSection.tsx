@@ -12,18 +12,8 @@ export const SelectorSection = ({
   title,
   children,
   style,
-}: SelectorSectionProps) => {
+}: SelectorSectionProps): JSX.Element => {
   const theme = useTheme();
-  const container = {
-    height: "100%",
-    paddingLeft: ".25em",
-    paddingRight: ".25em",
-    minHeight: "6rem",
-    border: `1px solid ${theme.palette.primary.main}`,
-    marginRight: "1em",
-    maxWidth: "fit-content",
-    minWidth: "fit-content",
-  } as React.CSSProperties;
 
   const headerContainer = {
     borderBottom: `1px solid ${theme.palette.primary.main}`,
@@ -36,8 +26,8 @@ export const SelectorSection = ({
 
   const header = {
     color: theme.palette.primary.main,
-    marginTop: 0,
-    marginBottom: "auto",
+    marginTop: 4,
+    margin: "auto",
     fontFamily: theme.typography.fontFamily,
   } as React.CSSProperties;
 

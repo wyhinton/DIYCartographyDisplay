@@ -109,6 +109,7 @@ const LegendEntry = ({
     color: theme.palette.primary.main,
     fontSize: "8pt",
     justifyContent: "space-between",
+    paddingLeft: ".25em",
     fontFamily: theme.typography.fontFamily,
   } as React.CSSProperties;
 
@@ -121,7 +122,9 @@ const LegendEntry = ({
 
   return (
     <div style={rowContainer} className={"legend item container"}>
-      <GridUnit colorCode={gridUnitColorCode} />
+      <div style={{ height: "100%", paddingTop: 4 }}>
+        <GridUnit colorCode={gridUnitColorCode} />
+      </div>
       <Text style={disciplineStyle}>
         <Paragraph style={disciplineStyle}>{title}</Paragraph>
       </Text>

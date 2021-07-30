@@ -116,7 +116,7 @@ export class StudentClass {
   }
   constructor(row: RawStudentRowValues) {
     const pairArr: [SeriesId, string][] = [];
-    //get all the image seriesfields
+    //get all the image series fields
     for (const key of Object.keys(row)) {
       if (Object.keys(SeriesId).includes(key)) {
         const keyTyped = key as keyof typeof row;
