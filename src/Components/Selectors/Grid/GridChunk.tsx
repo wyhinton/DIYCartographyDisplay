@@ -9,32 +9,11 @@ interface GridChunkProps {
   baseColor: number;
 }
 
-function roundToStep(value: number, step: number) {
-  const val = Math.round(value / step) * step;
-  const numCols = val / step;
-  const maxNumRows = step;
-
-  if (value !== undefined && value !== null) {
-    return Array.from(Array(numCols).keys()).map((k: number, i: number) => {
-      let numNunits = 0;
-      if (i == numCols - 1) {
-        numNunits = maxNumRows - Math.abs(value - val);
-      } else {
-        numNunits = step;
-      }
-      return {
-        count: numNunits,
-      };
-    });
-  }
-}
-
 const GridChunk = ({
   count,
   filter,
   baseColor,
 }: GridChunkProps): JSX.Element => {
-  const rowContainer = {} as React.CSSProperties;
   const filterState = useStoreState((state) => state.studentsModel.filter);
   const setFilterAction = useStoreActions(
     (actions) => actions.studentsModel.thunkSetFilter
@@ -51,7 +30,6 @@ const GridChunk = ({
     gap: 3,
     transform: "scaleY(-1.0)",
     paddingRight: ".25em",
-    // alignContent: "flex-end",
     gridAutoFlow: "column",
   } as React.CSSProperties;
 
@@ -72,12 +50,6 @@ const GridChunk = ({
 
   const [hovered, setHovered] = useState(false);
   useEffect(() => {}, [filterState]);
-  // useEffect(() => {_}, [cur_state_filters]);
-
-  useEffect(() => {
-    // console.log(`number of students ${count} modulo 3: ${count % 3}`);
-    // console.log(count % 3);
-  }, [hovered]);
 
   return (
     <div className={"grid chunk container"} style={{ position: "relative" }}>
@@ -98,7 +70,7 @@ const GridChunk = ({
           {Array.from(Array(count).keys()).map((r: number) => {
             return (
               <GridUnit
-                color={setRowColor(filterState, hovered, baseColor)}
+                colorCode={setRowColor(filterState, hovered, baseColor)}
                 isActiveFilter={filterState.some((f) => f === filter)}
                 key={r}
               />

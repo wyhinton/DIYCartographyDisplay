@@ -2,9 +2,9 @@ import Grid from "@material-ui/core/Grid";
 import SelectorSection from "./SelectorSection";
 import { Paragraph, Text } from "evergreen-ui";
 import { useTheme } from "@material-ui/core/styles";
-import YearDiscipline from "./Selectors/YearDiscipline";
-import Themes from "./Selectors/Themes";
-import MapLens from "./Selectors/MapLens";
+import YearSelector from "./Selectors/YearSelector";
+import ThemeSelector from "./Selectors/ThemeSelector";
+import MapLens from "./Selectors/TopicSelector";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 const Toolbar = (): JSX.Element => {
@@ -59,13 +59,13 @@ const Toolbar = (): JSX.Element => {
         </Text>
       </SelectorSection>
       <SelectorSection title="YEAR & DISCIPLINE" style={selectorContainer}>
-        <YearDiscipline></YearDiscipline>
+        <YearSelector></YearSelector>
       </SelectorSection>
       <SelectorSection title="TOPICS" style={selectorContainer}>
         <MapLens></MapLens>
       </SelectorSection>
       <SelectorSection title="THEMES" style={selectorContainer}>
-        <Themes></Themes>
+        <ThemeSelector></ThemeSelector>
       </SelectorSection>
     </Grid>
   );

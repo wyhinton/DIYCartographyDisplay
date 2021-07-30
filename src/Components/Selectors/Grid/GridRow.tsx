@@ -62,9 +62,8 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
             <div style={{ paddingRight: "0.25em" }} key={i}>
               <GridUnit
                 key={i}
-                color={setRowColor(activeFilterState, hovered)}
+                colorCode={setRowColor(activeFilterState, hovered)}
                 isActiveFilter={activeFilterState.some((f) => f == filter)}
-                index={i}
               ></GridUnit>
             </div>
           );

@@ -99,12 +99,19 @@ export interface MapDataModel {
   applyFilter: Action<MapDataModel, FilterResult>;
   setStudentStats: Action<MapDataModel, StudentStats>;
   setActiveFilter: Action<MapDataModel, FilterOption[]>;
-  setAllStudents: Action<MapDataModel, StudentClass[]>;
+  /**Sets the list of available Students */
+  setAvailableStudents: Action<MapDataModel, StudentClass[]>;
+  /**Set active filter function */
   setFilterFunction: Action<MapDataModel, any>;
+  /**Sets the list of available gallery images */
   setGalleryImages: Action<MapDataModel, GalleryImage[]>;
-  setGroupFiler: Action<MapDataModel, FilterGroup>;
+  /**Sets the active group filter */
+  setGroupFilter: Action<MapDataModel, FilterGroup>;
+  /**Sets the data to be displayed in the modal lightbox. Takes a clicked gallery image as an input, then finds all the information for that student */
   setLightboxData: Action<MapDataModel, GalleryImage>;
+  /**Set the loaded state */
   setLoaded: Action<MapDataModel, boolean>;
+  /**Set any validation errors */
   setValidationErrors: Action<MapDataModel, ValidationError[]>;
 }
 const defaultFilter = (gi: GalleryImage) => {
@@ -131,7 +138,7 @@ const studentsData: MapDataModel = {
   studentStats: undefined,
   validationErrors: [],
   studentGoogleSheets: [],
-  setAllStudents: action((state, payload) => {
+  setAvailableStudents: action((state, payload) => {
     state.studentsClass = payload;
   }),
   processRawStudentSheets: thunk(async (actions, payload) => {
@@ -169,7 +176,7 @@ const studentsData: MapDataModel = {
       console.log(newStudents);
       const studentStats = new StudentStats(newStudents);
       console.log(studentStats);
-      actions.setAllStudents(newStudents);
+      actions.setAvailableStudents(newStudents);
       actions.setLoaded(true);
       actions.setStudentStats(studentStats);
     });
@@ -208,9 +215,8 @@ const studentsData: MapDataModel = {
     state.galleryImages = payload;
   }),
   applyFilter: action((state, filterResult) => {
-    //if the current active filter is the same as filterResult
+    //if the current active filter is the same as filterResult then reset the filter
     if (arraysEqual(filterResult.filters, debug(state.filter))) {
-      //then reset the fitler
       state.filter = [];
       state.activeImages = state.galleryImages;
       console.log("supplied filter twice, removing filter");
@@ -219,8 +225,9 @@ const studentsData: MapDataModel = {
       state.filter = filterResult.filters;
     }
   }),
-  setGroupFiler: action((state, groupFilter) => {
+  setGroupFilter: action((state, groupFilter) => {
     console.log("setting group filter", groupFilter);
+    //if clicking the same group filter then no active filters
     if (state.groupFilter === groupFilter) {
       console.log("GOT SAME");
       state.groupFilter = FilterGroup.NONE;
@@ -237,7 +244,7 @@ const studentsData: MapDataModel = {
       const groupFilter = getGroupFilter(filter);
       actions.setFilterFunction(groupFilter.filter_func);
       actions.applyFilter(groupFilter);
-      actions.setGroupFiler(filter as FilterGroup);
+      actions.setGroupFilter(filter as FilterGroup);
       //else get a filter function for just a single property
     } else {
       const singleFilter = getSingleFilter(filter);

@@ -18,7 +18,7 @@ function toAuthorEnum(
   ];
 }
 
-const YearDiscipline = (): JSX.Element => {
+const YearSelector = (): JSX.Element => {
   const yearDataState = useStoreState(
     (state) => state.studentsModel?.studentStats?.year
   );
@@ -29,29 +29,29 @@ const YearDiscipline = (): JSX.Element => {
   } as React.CSSProperties;
 
   /**For each year create a GridChunk which reflects the number of students in a given discipline */
-  const makeYearChunks = (year: string, year_breakdown?: any): JSX.Element => {
-    console.log(year_breakdown);
-    if (year_breakdown) {
+  const makeYearChunks = (year: string, yearBreakdown?: any): JSX.Element => {
+    console.log(yearBreakdown);
+    if (yearBreakdown) {
       return (
         <div className={"chunks Container"} style={chunksContainer}>
           <GridChunk
             baseColor={0}
-            count={year_breakdown.ARCHITECTURE}
+            count={yearBreakdown.ARCHITECTURE}
             filter={toAuthorEnum("ARCHITECTURE", year)}
           />
           <GridChunk
             baseColor={1}
-            count={year_breakdown.ARTDESIGN}
+            count={yearBreakdown.ARTDESIGN}
             filter={toAuthorEnum("ARTDESIGN", year)}
           />
           <GridChunk
             baseColor={2}
-            count={year_breakdown.LANDSCAPE}
+            count={yearBreakdown.LANDSCAPE}
             filter={toAuthorEnum("LANDSCAPE", year)}
           />
           <GridChunk
             baseColor={3}
-            count={year_breakdown.OTHER}
+            count={yearBreakdown.OTHER}
             filter={toAuthorEnum("OTHER", year)}
           />
         </div>
@@ -94,7 +94,7 @@ const YearDiscipline = (): JSX.Element => {
   );
 };
 
-export default YearDiscipline;
+export default YearSelector;
 
 const LegendEntry = ({
   title,
@@ -121,7 +121,7 @@ const LegendEntry = ({
 
   return (
     <div style={rowContainer} className={"legend item container"}>
-      <GridUnit color={gridUnitColorCode} />
+      <GridUnit colorCode={gridUnitColorCode} />
       <Text style={disciplineStyle}>
         <Paragraph style={disciplineStyle}>{title}</Paragraph>
       </Text>

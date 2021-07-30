@@ -1,55 +1,42 @@
-import React, { useState, useEffect } from "react"; // we need this to make JSX compile
+import React from "react"; // we need this to make JSX compile
 import { useTheme } from "@material-ui/core/styles";
-
-import blue from "@material-ui/core/colors/blue";
 import "../../../css/App.css";
 import { getRandomNumber } from "../../../utils";
 import { useStoreState } from "../../../hooks";
-// import { PaletteColor } from "@types/material-ui";
 
 type UnitProps = {
-  color: number;
+  colorCode: number;
   isActiveFilter?: boolean;
-  index?: number;
 };
-
-export const GridUnit = ({ color, isActiveFilter, index }: UnitProps) => {
+//**Basic unit for creating grids for the grids in the selector widgets*/
+export const GridUnit = ({
+  colorCode,
+  isActiveFilter,
+}: UnitProps): JSX.Element => {
   const theme = useTheme();
+  //size of the grid unit (pixels)
   const size = 12;
-  const [hover, setHover] = useState(false);
-  const mounted = true;
-  const data_loaded = useStoreState((state) => state.studentsModel.loaded);
+  const dataLoadedState = useStoreState((state) => state.studentsModel.loaded);
   const duration = getRandomNumber(0.5, 4);
+  //provides a fade in animation for the grid units on load
   const containerStyle = {
     display: "block",
-    // display: data_loaded ? "block" : "none",
-    animation: data_loaded ? `fadein ${duration}s normal` : "",
-    animationIterationCound: 1,
+    animation: dataLoadedState ? `fadein ${duration}s normal` : "",
+    animationIterationCount: 1,
     marginTop: "auto",
   } as React.CSSProperties;
 
-  useEffect(() => {
-    console.log(index);
-  }, [mounted]);
-
+  /**Match the grid units number code to a theme color */
   const matchNumberToThemeColor = (ind: number) => {
     let col = "";
     switch (ind) {
-      case -2:
-        col = blue[500];
-        break;
-      case -1:
-        col = blue[100];
-        break;
       case 0:
         col = theme.palette.primary.main;
         break;
       case 1:
-        // col = blue[300];
         col = theme.palette.primary.light;
         break;
       case 2:
-        // col = blue[400];
         col = theme.palette.secondary.dark;
         break;
       case 3:
@@ -62,44 +49,41 @@ export const GridUnit = ({ color, isActiveFilter, index }: UnitProps) => {
     return col;
   };
 
-  const boxStyle = (is_active_filter?: boolean) => {
-    if (is_active_filter) {
-      // console.log("GOT ACTIVE FILTER~~");
+  const colorizeGridUnit = (colInd: number, isActiveFiler?: boolean) => {
+    const sharedStyle = {
+      width: `${size}px`,
+      height: `${size}px`,
+      marginTop: "auto",
+    };
+    if (isActiveFiler) {
       return {
-        width: `${size}px`,
-        height: `${size}px`,
-        backgroundColor: matchNumberToThemeColor(color),
-        marginTop: "auto",
+        ...sharedStyle,
+        backgroundColor: matchNumberToThemeColor(colInd),
         opacity: 1,
       } as React.CSSProperties;
     } else {
-      if (color == -2) {
+      if (colInd == -2) {
         return {
-          width: `${size}px`,
-          height: `${size}px`,
-          backgroundColor: matchNumberToThemeColor(color),
-          marginTop: "auto",
+          ...sharedStyle,
+          backgroundColor: matchNumberToThemeColor(colInd),
           opacity: 0.5,
         } as React.CSSProperties;
       } else {
         return {
-          width: `${size}px`,
-          height: `${size}px`,
-          backgroundColor: matchNumberToThemeColor(color),
-          marginTop: "auto",
-          marginBottom: "3px",
+          ...sharedStyle,
+          backgroundColor: matchNumberToThemeColor(colInd),
           opacity: 1.0,
         } as React.CSSProperties;
       }
     }
   };
   return (
-    <div
-      className={"grid unit"}
-      style={boxStyle(isActiveFilter)}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    ></div>
+    <div style={containerStyle}>
+      <div
+        className={"grid unit"}
+        style={colorizeGridUnit(colorCode, isActiveFilter)}
+      ></div>
+    </div>
   );
 };
 
