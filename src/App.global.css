@@ -27,3 +27,7 @@
 .html {
   overflow: hidden;
 }
+
+#overlay {
+  height: 100vh;
+}

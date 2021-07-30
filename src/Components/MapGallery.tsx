@@ -13,6 +13,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { getRandomNumber } from "../utils";
 import LoadingBar from "./LoadingBar";
 import type { GalleryImage } from "../model/studentsData";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 // interface GalleryEvent{
 //   caption: string,
@@ -40,14 +41,16 @@ const MapGallery = (): JSX.Element => {
   const [showLightbox, setShowLightBox] = useState(false);
 
   const dataLoaded = useStoreState((state) => state.studentsModel.loaded);
-
+  const isNotLarge = useMediaQuery(theme.breakpoints.down("md"));
+  const isSmall = useMediaQuery(theme.breakpoints.down("md"));
   useEffect(() => {
     console.log(galleryImages);
   }, [galleryImages]);
 
   const containerStyle = {
     backgroundColor: "white",
-    height: "100%",
+    height: isNotLarge ? "500px" : "50vh",
+    // height: isNotLarge ? 600 : isSmall ? 700 : "50vh",
     margin: "auto",
     flexDirection: "column",
     position: "relative",
@@ -79,7 +82,7 @@ const MapGallery = (): JSX.Element => {
     };
   }
   return (
-    <div style={containerStyle}>
+    <div style={containerStyle} className="gridContainer">
       <LoadingBar visible={!dataLoaded} />
       <div>
         <LightBox show={showLightbox} onClick={() => setShowLightBox(false)} />

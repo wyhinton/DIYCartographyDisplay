@@ -11,15 +11,19 @@ import { ThemeProvider, defaultTheme } from "evergreen-ui";
 import { merge } from "lodash";
 import React, { useEffect } from "react";
 import { useStoreActions } from "./hooks";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
+import { useTheme, Theme } from "@material-ui/core/styles";
 
 const App = (): JSX.Element => {
+  const theme = useTheme();
   const fetchStudentSpreadsheet = useStoreActions(
     (actions) => actions.studentsModel.fetchStudentSheets
   );
   const fetchEventSpreadsheet = useStoreActions(
     (actions) => actions.timeline.fetchEventSpreadsheet
   );
-
+  const isBelowMedium = useMediaQuery(theme.breakpoints.down("md"));
+  // const isSmall = useMediaQuery(theme.breakpoints.down("md"));
   const myCustomTheme = merge({}, defaultTheme, {
     typography: {
       fontFamilies: {
@@ -51,11 +55,24 @@ const App = (): JSX.Element => {
           <Grid item md={12} lg={2}>
             <Sidebar />
           </Grid>
-          <Grid item md={12} lg={10} style={{ width: "100%" }}>
+          <Grid
+            item
+            md={12}
+            lg={10}
+            style={{
+              width: "100%",
+              // height: isNotLarge ? "200vh" : "65vh",
+            }}
+          >
             <MapGallery />
           </Grid>
         </Grid>
-        <Grid item xs={12} style={{ height: "25%" }}>
+        <Grid
+          item
+          xs={12}
+          style={{ display: isBelowMedium ? "none" : "flex" }}
+          // style={{ height: "25%", display: isNotLarge ? "flex" : "none" }}
+        >
           <Timeline />
         </Grid>
       </Grid>

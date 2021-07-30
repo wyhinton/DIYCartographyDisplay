@@ -4,7 +4,7 @@ import SelectorGroup from "./Containers/SelectorGroup";
 import SelectorParent from "./Containers/SelectorParent";
 import { useStoreState, useStoreActions } from "../../hooks";
 import { FilterGroup } from "../../enums";
-import { EqualsIcon } from "evergreen-ui";
+import { FlowReviewBranchIcon, RouteIcon, ShapesIcon } from "evergreen-ui";
 import { FilterOption } from "model/types";
 /**Selector widget for filtering by map theme (equity, access, or diversity) */
 const ThemeSelector = (): JSX.Element => {
@@ -60,18 +60,18 @@ const ClickableIcon = ({
   useEffect(() => {}, [activeFilterState]);
   useEffect(() => {
     console.log("got hovered");
+
     if (hovered) {
       if (activeFilterState.includes(filterCode)) {
         setIconColor(theme.palette.primary.dark);
       } else {
-        console.log("setting ot light");
-        setIconColor(theme.palette.secondary.light);
+        setIconColor(theme.palette.divider);
       }
     } else {
       setIconColor(theme.palette.primary.main);
     }
   }, [hovered]);
-
+  const iconSize = 45;
   return (
     <div
       onClick={(e) => {
@@ -81,7 +81,15 @@ const ClickableIcon = ({
       className={"theme icon container"}
       onMouseLeave={() => setHovered(!hovered)}
     >
-      <EqualsIcon color={iconColor} size={45} />
+      {filterCode === FilterGroup.EQUITY_THEME ? (
+        <FlowReviewBranchIcon color={iconColor} size={iconSize} />
+      ) : filterCode === FilterGroup.ACCESS_THEME ? (
+        <RouteIcon color={iconColor} size={iconSize} />
+      ) : filterCode === FilterGroup.DIVERSITY_THEME ? (
+        <ShapesIcon color={iconColor} size={iconSize} />
+      ) : (
+        <></>
+      )}
     </div>
   );
 };
