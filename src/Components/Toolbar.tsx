@@ -10,7 +10,7 @@ import useMediaQuery from "@material-ui/core/useMediaQuery";
 const Toolbar = (): JSX.Element => {
   const theme = useTheme();
   const isMd = useMediaQuery(theme.breakpoints.up("md"));
-
+  const isBelowMedium = useMediaQuery(theme.breakpoints.down("md"));
   const toolbarContainer = {
     height: "fit-content",
     minHeight: "6rem",
@@ -26,24 +26,22 @@ const Toolbar = (): JSX.Element => {
     paddingTop: "0.75em",
   } as React.CSSProperties;
 
-  const firstContainer = {
+  const sharedStyle = {
     height: "auto",
     paddingLeft: ".25em",
     paddingRight: ".25em",
     minHeight: "6rem",
     border: `1px solid ${theme.palette.primary.main}`,
     marginRight: "1em",
+    marginBottom: isMd ? "1em" : 0,
+  };
+  const firstContainer = {
+    ...sharedStyle,
     maxWidth: "15vw",
-    // minWidth: "fit-content",
   } as React.CSSProperties;
 
   const selectorContainer = {
-    height: "auto",
-    paddingLeft: ".25em",
-    paddingRight: ".25em",
-    minHeight: "6rem",
-    border: `1px solid ${theme.palette.primary.main}`,
-    marginRight: "1em",
+    ...sharedStyle,
     overflow: "hidden",
     minWidth: "fit-content",
   } as React.CSSProperties;

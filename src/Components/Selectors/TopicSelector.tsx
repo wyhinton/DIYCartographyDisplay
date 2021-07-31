@@ -33,9 +33,7 @@ const TopicSelector = (): JSX.Element => {
   const tagStats = useStoreState(
     (state) => state.studentsModel?.studentStats?.subtopic
   );
-  useEffect(() => {
-    console.log(tagStats);
-  }, [tagStats]);
+
   //TODO: FIX REDUNDANT FILTER/TOPIC
   return (
     <>
@@ -58,7 +56,7 @@ const TopicSelector = (): JSX.Element => {
             icon={<Apartment color={"primary"} style={{ fontSize: "12pt" }} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.TRANSPORTATION}
+            filter={MapSubTopic.TRANS}
             count={tagStats?.BE?.TRANSPORTATION}
             icon={
               <DirectionsBus

@@ -1,6 +1,6 @@
 import { useTheme } from "@material-ui/core/styles";
 import React from "react";
-
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 type SelectorParentProps = {
   children?: JSX.Element | JSX.Element[];
 };
@@ -9,6 +9,7 @@ type SelectorParentProps = {
 const SelectorParent = ({ children }: SelectorParentProps): JSX.Element => {
   const theme = useTheme();
   const padding = "0.5em";
+  const isBelowMedium = useMediaQuery(theme.breakpoints.down("md"));
   const sharedStyle = {
     paddingLeft: ".5em",
     paddingRight: ".5em",
@@ -39,6 +40,8 @@ const SelectorParent = ({ children }: SelectorParentProps): JSX.Element => {
     display: "grid",
     gridTemplateColumns: "1fr ".repeat(childCount),
     maxWidth: "fit-content",
+    // marginBottom: isBelowMedium ? "1em" : 0,
+    // paddingBottom: isBelowMedium ? "1em" : 0,
   } as React.CSSProperties;
 
   //assign style based on index

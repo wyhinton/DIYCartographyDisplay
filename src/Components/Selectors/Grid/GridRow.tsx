@@ -54,8 +54,6 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
         }}
       >
         {Array.from(Array(count)).map((r, i) => {
-          console.log(count);
-          console.log(i);
           return (
             <div
               style={{ paddingRight: "0.25em", paddingBottom: "0.25em" }}
@@ -83,7 +81,7 @@ function filterToToolTip(filter: FilterOption): string {
     case MapSubTopic.BUILDINGS:
       tooltipText = "Buildings";
       break;
-    case MapSubTopic.TRANSPORTATION:
+    case MapSubTopic.TRANS:
       tooltipText = "Transportation";
       break;
     case MapSubTopic.INFRASTR:

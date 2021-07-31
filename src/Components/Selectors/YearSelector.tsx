@@ -22,7 +22,6 @@ const YearSelector = (): JSX.Element => {
   const yearDataState = useStoreState(
     (state) => state.studentsModel?.studentStats?.year
   );
-  console.log(yearDataState);
   const chunksContainer = {
     display: "flex",
     height: "100%",
@@ -30,7 +29,6 @@ const YearSelector = (): JSX.Element => {
 
   /**For each year create a GridChunk which reflects the number of students in a given discipline */
   const makeYearChunks = (year: string, yearBreakdown?: any): JSX.Element => {
-    console.log(yearBreakdown);
     if (yearBreakdown) {
       return (
         <div className={"chunks Container"} style={chunksContainer}>

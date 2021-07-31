@@ -23,7 +23,6 @@ const App = (): JSX.Element => {
     (actions) => actions.timeline.fetchEventSpreadsheet
   );
   const isBelowMedium = useMediaQuery(theme.breakpoints.down("md"));
-  // const isSmall = useMediaQuery(theme.breakpoints.down("md"));
   const myCustomTheme = merge({}, defaultTheme, {
     typography: {
       fontFamilies: {
@@ -61,7 +60,6 @@ const App = (): JSX.Element => {
             lg={10}
             style={{
               width: "100%",
-              // height: isNotLarge ? "200vh" : "65vh",
             }}
           >
             <MapGallery />
@@ -70,8 +68,10 @@ const App = (): JSX.Element => {
         <Grid
           item
           xs={12}
-          style={{ display: isBelowMedium ? "none" : "flex" }}
-          // style={{ height: "25%", display: isNotLarge ? "flex" : "none" }}
+          style={{
+            overflow: "hidden",
+            display: isBelowMedium ? "none" : "flex",
+          }}
         >
           <Timeline />
         </Grid>

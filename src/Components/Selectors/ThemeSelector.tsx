@@ -71,7 +71,7 @@ const ClickableIcon = ({
       setIconColor(theme.palette.primary.main);
     }
   }, [hovered]);
-  const iconSize = 45;
+  const iconSize = 40;
   return (
     <div
       onClick={(e) => {

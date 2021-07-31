@@ -15,7 +15,7 @@ import { useState, useEffect, useRef } from "react";
 import { useStoreState } from "../../hooks";
 import { useTheme, Theme } from "@material-ui/core/styles";
 
-interface Seperator {
+interface Separator {
   pos: number;
   name: string;
 }
@@ -28,7 +28,6 @@ const Timeline = (): JSX.Element => {
   const initialWidth = 2000;
 
   const timeSeries = useStoreState((state) => state.timeline.timelineSeries);
-  // const time_series = useStoreState((state) => state.timeline.timelineSeries);
   const eventRows: EventRowValues[] = useStoreState(
     (state) => state.timeline.eventSpreadsheet
   );
@@ -40,7 +39,7 @@ const Timeline = (): JSX.Element => {
   const [selectedEvent, setSelectedEvent] = useState<TimeSeries | undefined>(
     undefined
   );
-  const [seperators, setSeperators] = useState<Seperator[]>([]);
+  const [separators, setSeparators] = useState<Separator[]>([]);
 
   //use this ref for resizing the timeline
   const timelineContainer = useRef<HTMLDivElement | null>(null);
@@ -58,7 +57,7 @@ const Timeline = (): JSX.Element => {
       tot += f.length;
     });
     console.log(tot);
-    const seperators: Seperator[] = [];
+    const separators: Separator[] = [];
     const keys = Object.keys(timeSeries);
 
     let test = 0;
@@ -72,15 +71,15 @@ const Timeline = (): JSX.Element => {
         const sep = {
           pos: top,
           name: keys[i],
-        } as Seperator;
-        seperators.push(sep);
+        } as Separator;
+        separators.push(sep);
       });
-      setSeperators(seperators);
-      console.log(seperators);
+      setSeparators(separators);
+      console.log(separators);
       console.log(test);
     }
   }, [timeSeries]);
-  useEffect(() => {}, [seperators]);
+  useEffect(() => {}, [separators]);
 
   const timelineSection = {
     height: "10%",
@@ -92,9 +91,6 @@ const Timeline = (): JSX.Element => {
 
   useEffect(() => {
     const test = timelineContainer?.current?.style?.width;
-    console.log(test);
-    const test_number = parseInt(test ?? "2000");
-    console.log(test_number);
     setResizeWidth(parseInt(test ?? "2000"));
   }, [timelineContainer]);
 
@@ -108,12 +104,13 @@ const Timeline = (): JSX.Element => {
     textAlign: "right",
   } as React.CSSProperties;
 
-  const seperatorText = {
+  const separatorText = {
     fontSize: "12px",
     position: "absolute",
+    marginTop: -6,
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.primary.main,
-    textAlilgn: "right",
+    textAlign: "right",
   } as React.CSSProperties;
 
   const timeAxis = {
@@ -123,38 +120,40 @@ const Timeline = (): JSX.Element => {
   };
 
   const timerange = new TimeRange(startDate, endDate);
-  const make_series = (
+  const makeTimeSeriesArr = (
     series: TimeSeries[],
     theme: Theme,
-    row_height: number
+    rowHeight: number
   ) => {
     return series.map(function (ev, i) {
-      const base_style = {
+      const baseEventStyle = {
         fill: theme.palette.primary.main,
         opacity: 1.0,
       };
 
-      function style_func(s: any, state: any) {
-        let style: any;
-
+      function getEventMarkerStyle(s: any, state: any) {
+        let style: React.CSSProperties;
+        const sharedStyle = {
+          opacity: 1.0,
+          fontFamily: theme.typography.fontFamily,
+        };
         switch (state) {
           case "hover":
             style = {
-              fill: theme.palette.primary.light,
-              opacity: 1.0,
-              fontFamily: theme.typography.fontFamily,
+              fill: theme.palette.divider,
+              ...sharedStyle,
             };
             break;
           case "selected":
             style = {
               fill: theme.palette.primary.dark,
-              opacity: 1.0,
-              fontFamily: theme.typography.fontFamily,
+              ...sharedStyle,
             };
             break;
           default:
-            style = base_style;
+            style = baseEventStyle;
         }
+        //light color for the selected events
         if (s.data().first().get("title") === selectedEvent) {
           console.log("got selected");
           style = {
@@ -165,21 +164,18 @@ const Timeline = (): JSX.Element => {
         }
         return style;
       }
-      function label_func(e: any) {
+      function getEventTitle(e: any) {
         return e.data().first().get("title");
       }
-      function handle_click(e: any) {
-        console.log(e.data().first().get("title"));
+      function handleClick(e: any) {
         const title = e.data().first().get("title");
-        const found_row = eventRows.filter((r) => r.title === title)[0];
-
-        setEventInfo(found_row);
+        const clickedRow = eventRows.filter((r) => r.title === title)[0];
+        setEventInfo(clickedRow);
         setSelectedEvent(title);
-        console.log(getAllFuncs(e));
       }
       return (
         <ChartRow
-          height={`${row_height}`}
+          height={`${rowHeight}`}
           style={{ fill: "#f1a340" }}
           key={i}
           axisMargin={1}
@@ -187,11 +183,11 @@ const Timeline = (): JSX.Element => {
           <Charts>
             <EventChart
               series={ev}
-              size={row_height}
-              label={(e: any) => label_func(e)}
-              onSelectionChange={(e: any) => handle_click(e)}
+              size={rowHeight}
+              label={(e: any) => getEventTitle(e)}
+              onSelectionChange={(e: any) => handleClick(e)}
               textOffsetY={-5}
-              style={style_func}
+              style={getEventMarkerStyle}
             ></EventChart>
           </Charts>
         </ChartRow>
@@ -201,26 +197,30 @@ const Timeline = (): JSX.Element => {
 
   return (
     <Grid container spacing={0} style={timelineSection}>
-      <Grid item xs={2}>
+      <Grid item xs={2} className="event info grid container">
         <EventInfoDisplay info={eventInfo}></EventInfoDisplay>
       </Grid>
-      <Grid item xs={10} style={{ paddingTop: ".25em" }}>
+      <Grid item xs={10} className="timeline grid container">
         <div style={{ position: "relative", height: "200px" }}>
           <div style={linesContainer}>
-            {seperators.map((sep, i) => {
+            {separators.map((sep, i) => {
               return (
                 <div
                   key={i}
+                  //temporary fix for setting the position of the separators
                   style={{
                     textAlign: "right",
-                    top: `${sep.pos * 100}%`,
+                    top: i == 0 ? "20%" : i == 1 ? "58%" : i == 2 ? "66%" : "0",
                     position: "relative",
                   }}
                 >
                   <div
                     style={{
-                      borderTop: `1px solid ${theme.palette.primary.main}`,
-                      top: `${sep.pos * 100}%`,
+                      borderTop:
+                        i !== 2
+                          ? `1px solid ${theme.palette.primary.main}`
+                          : "none",
+                      // top: `${(1.0 - sep.pos) * 100}%`,
                       position: "relative",
                       marginLeft: timelineOffset,
                     }}
@@ -231,7 +231,7 @@ const Timeline = (): JSX.Element => {
                       marginLeft: "-6em",
                     }}
                   >
-                    <Text key={i} style={seperatorText}>
+                    <Text key={i} style={separatorText}>
                       {sep.name.toUpperCase()}
                     </Text>
                   </div>
@@ -251,9 +251,9 @@ const Timeline = (): JSX.Element => {
                 timeAxisStyle={timeAxis}
                 timeAxisTickCount={5}
               >
-                {make_series(timeSeries.national, theme, rowHeight)}
-                {make_series(timeSeries.state, theme, rowHeight)}
-                {make_series(timeSeries.city, theme, rowHeight)}
+                {makeTimeSeriesArr(timeSeries.national, theme, rowHeight)}
+                {makeTimeSeriesArr(timeSeries.state, theme, rowHeight)}
+                {makeTimeSeriesArr(timeSeries.city, theme, rowHeight)}
               </ChartContainer>
             </Resizable>
           </div>
@@ -264,22 +264,3 @@ const Timeline = (): JSX.Element => {
 };
 
 export default Timeline;
-
-function getAllFuncs(toCheck: any) {
-  let props: any[] = [];
-  let obj = toCheck;
-  do {
-    props = props.concat(Object.getOwnPropertyNames(obj));
-  } while ((obj = Object.getPrototypeOf(obj)));
-
-  return props.sort().filter(function (e, i, arr) {
-    if (e != arr[i + 1] && typeof toCheck[e] == "function") return true;
-  });
-}
-
-// {
-//   /* {make_series(time_series.international, theme, row_height)} */
-// }
-// {
-//   /* {make_series(time_series.NA, theme, row_height)} */
-// }

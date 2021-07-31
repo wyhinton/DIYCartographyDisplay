@@ -19,8 +19,7 @@ export enum SeriesId {
 }
 
 function requestImage(imageUrl: string): Promise<HTMLImageElement> {
-  // function get_image(image: GalleryImage): Promise<HTMLImageElement> {
-  const promise = new Promise<HTMLImageElement>(function (resolve, reject) {
+  return new Promise<HTMLImageElement>(function (resolve, reject) {
     const img = new Image();
     img.src = imageUrl as string;
 
@@ -31,8 +30,6 @@ function requestImage(imageUrl: string): Promise<HTMLImageElement> {
       reject(err);
     };
   });
-  console.log(imageUrl, promise);
-  return promise;
 }
 
 export class StudentClass {
@@ -116,7 +113,6 @@ export class StudentClass {
   }
   constructor(row: RawStudentRowValues) {
     const pairArr: [SeriesId, string][] = [];
-    //get all the image series fields
     for (const key of Object.keys(row)) {
       if (Object.keys(SeriesId).includes(key)) {
         const keyTyped = key as keyof typeof row;
@@ -131,7 +127,6 @@ export class StudentClass {
     }
 
     const imageMap = new Map(pairArr);
-    console.log(row.author);
     this.author = row.author;
     this.year = row.year;
     this.title = row.title;

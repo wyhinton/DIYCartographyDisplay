@@ -173,9 +173,7 @@ const studentsData: MapDataModel = {
           newStudents.push(allStudents[i]);
         }
       });
-      console.log(newStudents);
       const studentStats = new StudentStats(newStudents);
-      console.log(studentStats);
       actions.setAvailableStudents(newStudents);
       actions.setLoaded(true);
       actions.setStudentStats(studentStats);
@@ -185,7 +183,6 @@ const studentsData: MapDataModel = {
     state.studentStats = payload;
   }),
   setFilterFunction: action((state, payload) => {
-    console.log("setting filter func");
     state.filterFunction = payload;
   }),
   computedAvailableGalleryImages: computed((state) => {
@@ -219,17 +216,14 @@ const studentsData: MapDataModel = {
     if (arraysEqual(filterResult.filters, debug(state.filter))) {
       state.filter = [];
       state.activeImages = state.galleryImages;
-      console.log("supplied filter twice, removing filter");
     } else {
       state.activeImages = state.galleryImages.filter(filterResult.filter_func);
       state.filter = filterResult.filters;
     }
   }),
   setGroupFilter: action((state, groupFilter) => {
-    console.log("setting group filter", groupFilter);
     //if clicking the same group filter then no active filters
     if (state.groupFilter === groupFilter) {
-      console.log("GOT SAME");
       state.groupFilter = FilterGroup.NONE;
       state.filter = [];
     } else {
@@ -237,7 +231,6 @@ const studentsData: MapDataModel = {
     }
   }),
   thunkSetFilter: thunk((actions, filter) => {
-    console.log("doing thunk set filter");
     const groupOptions = Object.values(FilterGroup);
     //if we click on a FilterGroup selector, like Built, Economic, Natural, that will need to filter for multiple sub-categories
     if (groupOptions.includes(filter as FilterGroup)) {
@@ -253,16 +246,13 @@ const studentsData: MapDataModel = {
     }
   }),
   setActiveFilter: action((state, activeFilter) => {
-    console.log(activeFilter);
     state.filter = activeFilter;
   }),
   setLightboxData: action((state, item) => {
-    console.log(item);
     const tagData: MapMetadata = item.tags[0];
     const selectedStudent = state.studentsClass.filter(
       (s) => s.author === tagData.author
     )[0];
-    console.log(debug(selectedStudent));
     state.activeLightBoxData.set_student(selectedStudent);
   }),
   setLoaded: action((state, contentIsLoaded) => {
@@ -282,7 +272,6 @@ function ingestPromises<T>(promises: Promise<T>[]): Promise<{
         badResults.push(v);
       } else {
         if (v.value) {
-          console.log(v.value);
           goodResults.push(v.value);
         }
       }
@@ -328,27 +317,29 @@ function getSingleFilter(f: FilterOption): FilterResult {
 ///END MODEL
 //TODO: RENAME
 function quickGet(group: FilterGroup, cat: keyof MapMetadata): FilterResult {
-  const filter_set = filterGroupToSet(group);
+  const filterCodeSetArr = filterGroupToSet(group);
   if (
     group === FilterGroup.STUDENTS_2016 ||
     group === FilterGroup.STUDENTS_2018 ||
     group === FilterGroup.STUDENTS_2020
   ) {
-    const splits = getYearDiscipline(filter_set as AuthorDisciplineFilter[]);
-    const filter_func = function (val: GalleryImage) {
+    const splits = getYearDiscipline(
+      filterCodeSetArr as AuthorDisciplineFilter[]
+    );
+    const filterFunction = function (val: GalleryImage) {
       return splits.years.includes(val.tags[0].year);
     };
     return {
-      filter_func: filter_func,
-      filters: filter_set,
+      filter_func: filterFunction,
+      filters: filterCodeSetArr,
     } as FilterResult;
   } else {
     const filter_func = function (val: GalleryImage) {
-      return filter_set.includes(val.tags[0][cat]);
+      return filterCodeSetArr.includes(val.tags[0][cat]);
     };
     return {
       filter_func: filter_func,
-      filters: filter_set,
+      filters: filterCodeSetArr,
     } as FilterResult;
   }
 }
@@ -432,8 +423,8 @@ function getGroupFilter(f: FilterOption): FilterResult {
   return filterResult;
 }
 
-function getYearDiscipline(author_enum: AuthorDisciplineFilter[]): YearSection {
-  const splits = author_enum.map((a) => a.split("_"));
+function getYearDiscipline(authorEnum: AuthorDisciplineFilter[]): YearSection {
+  const splits = authorEnum.map((a) => a.split("_"));
   const yddata: YearSection = {
     years: [],
     discipline: [],
@@ -476,7 +467,7 @@ function filterGroupToSet(groupEnum: FilterGroup): FilterOption[] {
       subFilters = [
         MapSubTopic.INFRASTR,
         MapSubTopic.BUILDINGS,
-        MapSubTopic.TRANSPORTATION,
+        MapSubTopic.TRANS,
       ];
       break;
     case FilterGroup.ECONOMIC_TOPIC:

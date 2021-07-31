@@ -11,11 +11,12 @@ type EventInfoDisplayProps = {
 
 const EventInfoDisplay = ({ info }: EventInfoDisplayProps): JSX.Element => {
   const theme = useTheme();
-  const infoContainer = {
-    height: "100%",
+  const infoContainerStyle = {
+    // height: "100%",
+    height: "fit-content",
   } as React.CSSProperties;
 
-  const infoHeader = {
+  const infoHeaderStyle = {
     color: theme.palette.primary.main,
     fontSize: "12pt",
     lineHeight: "12pt",
@@ -23,7 +24,7 @@ const EventInfoDisplay = ({ info }: EventInfoDisplayProps): JSX.Element => {
     textDecoration: "underline",
   } as React.CSSProperties;
 
-  const paragraph = {
+  const infoParagraphStyle = {
     animation: "TextColor 1s linear",
     color: theme.palette.primary.main,
     fontFamily: theme.typography.fontFamily,
@@ -43,19 +44,23 @@ const EventInfoDisplay = ({ info }: EventInfoDisplayProps): JSX.Element => {
   useEffect(() => {}, [info]);
 
   return (
-    <div style={infoContainer}>
+    <div style={infoContainerStyle} className="event-info-container">
       <Scrollbars style={{ width: "100%", height: "100%" }}>
-        <Text style={infoHeader}>
+        <Text style={infoHeaderStyle}>
           <Paragraph
             key={data.title}
-            style={infoHeader}
-            className={"info-text"}
+            style={infoHeaderStyle}
+            className={"event-info-text"}
           >
             {data.title}
           </Paragraph>
         </Text>
-        <Text style={paragraph}>
-          <Paragraph key={data.info} style={paragraph} className={"info-text"}>
+        <Text style={infoParagraphStyle}>
+          <Paragraph
+            key={data.info}
+            style={infoParagraphStyle}
+            className={"event-info-text"}
+          >
             {data.info}
           </Paragraph>
         </Text>

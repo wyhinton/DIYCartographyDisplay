@@ -77,7 +77,7 @@ function subtopicsFromTopic(topic: Topic): MapSubTopic[] {
       topicSubtopics = [
         MapSubTopic.INFRASTR,
         MapSubTopic.BUILDINGS,
-        MapSubTopic.TRANSPORTATION,
+        MapSubTopic.TRANS,
       ];
       break;
     case Topic.EE:

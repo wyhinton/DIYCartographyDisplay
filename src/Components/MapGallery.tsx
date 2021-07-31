@@ -7,22 +7,13 @@ import { useTheme } from "@material-ui/core/styles";
 import { useStoreActions, useStoreState } from "../hooks";
 import { Scrollbars } from "react-custom-scrollbars";
 import LightBox from "./LightBox";
+import { getRandomNumber } from "../utils";
+import LoadingBar from "./LoadingBar";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import "../css/GridGallery.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { getRandomNumber } from "../utils";
-import LoadingBar from "./LoadingBar";
-import type { GalleryImage } from "../model/studentsData";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
 
-// interface GalleryEvent{
-//   caption: string,
-//   isSelected: boolean,
-//   marginLeft: number,
-//   scaletwidth: number,
-//   src: string,
-//   tags: L
-// }
 /**
  * Gallery of the student maps. Wraps around a react-grid-gallery Gallery, providing a means for scrolling the gallery via a react-custom-scrollbars.
  * Clicking on an image brings up a LightBox.
@@ -54,6 +45,7 @@ const MapGallery = (): JSX.Element => {
     margin: "auto",
     flexDirection: "column",
     position: "relative",
+    overflowX: "hidden",
   } as React.CSSProperties;
 
   const scrollContainer = {
@@ -66,9 +58,11 @@ const MapGallery = (): JSX.Element => {
 
   /**Set the active lightbox to the clicked gallery image */
   function loadLightbox(this: any) {
-    setShowLightBox((showLightbox) => !showLightbox);
-    // console.log(this.props.item);
-    setActiveLightbox(this.props.item);
+    //disable lightbox for mobile
+    if (!isSmall) {
+      setShowLightBox((showLightbox) => !showLightbox);
+      setActiveLightbox(this.props.item);
+    }
   }
 
   let animationOffset = 0;
@@ -93,7 +87,6 @@ const MapGallery = (): JSX.Element => {
             <Gallery
               tagStyle={{ display: "none" }}
               images={dataLoaded ? galleryImages : []}
-              customOverlay={<div style={{ backgroundColor: "red" }}></div>}
               rowHeight={180}
               enableLightbox={false}
               enableImageSelection={false}
