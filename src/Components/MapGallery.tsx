@@ -1,7 +1,7 @@
 // https://codesandbox.io/s/react-grid-gallery-ztf4n?file=/src/index.js:358-880
 // https://codesandbox.io/s/r48lm1jopq
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Gallery from "react-grid-gallery";
 import { useTheme } from "@material-ui/core/styles";
 import { useStoreActions, useStoreState } from "../hooks";
@@ -13,6 +13,7 @@ import useMediaQuery from "@material-ui/core/useMediaQuery";
 import "../css/GridGallery.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import BarLoader from "react-spinners/BarLoader";
 
 /**
  * Gallery of the student maps. Wraps around a react-grid-gallery Gallery, providing a means for scrolling the gallery via a react-custom-scrollbars.
@@ -30,18 +31,23 @@ const MapGallery = (): JSX.Element => {
     (actions) => actions.studentsModel.setLightboxData
   );
   const [showLightbox, setShowLightBox] = useState(false);
-
+  const modalElement = useRef<null | HTMLElement>(null);
   const dataLoaded = useStoreState((state) => state.studentsModel.loaded);
   const isNotLarge = useMediaQuery(theme.breakpoints.down("md"));
   const isSmall = useMediaQuery(theme.breakpoints.down("md"));
   useEffect(() => {
+    modalElement.current = document.getElementById("overlay");
+    if (modalElement.current) {
+      const modalDisplayStyle = showLightbox ? "block" : "none";
+      modalElement.current.style.display = modalDisplayStyle;
+    }
     console.log(galleryImages);
-  }, [galleryImages]);
+  }, [galleryImages, showLightbox]);
 
   const containerStyle = {
     backgroundColor: "white",
     height: isNotLarge ? "500px" : "50vh",
-    // height: isNotLarge ? 600 : isSmall ? 700 : "50vh",
+    pointerEvents: "all",
     margin: "auto",
     flexDirection: "column",
     position: "relative",
@@ -51,7 +57,6 @@ const MapGallery = (): JSX.Element => {
   const scrollContainer = {
     overflow: "hidden",
     height: "100%",
-    // border: `1px solid ${theme.palette.primary.main}`,
     minWidth: "100%",
     minHeight: "200px",
   } as React.CSSProperties;
@@ -65,18 +70,42 @@ const MapGallery = (): JSX.Element => {
     }
   }
 
+  // handleKeyDown: function(event) {
+  //   if (event.keyCode == 13 /*enter*/) {
+  //     this.okAction();
+  //   }
+  //   if (event.keyCode == 27 /*esc*/) {
+  //     this.cancelAction();
+  //   }
+  // },
+
   let animationOffset = 0;
   function thumbnailStyle() {
     const duration = getRandomNumber(0.5, 1.0) + animationOffset * 0.1;
     animationOffset = animationOffset + 1;
     return {
-      animation: `fadein ${duration}s normal`,
-      aniamtionTimingFunction: "cubic-bezier(.03,.91,.53,.92)",
-      animationIterationCount: 1,
+      // animation: `fadein ${duration}s normal`,
+      // animationTimingFunction: "cubic-bezier(.03,.91,.53,.92)",
+      // animationIterationCount: 1,
     };
   }
   return (
-    <div style={containerStyle} className="gridContainer">
+    <div
+      style={containerStyle}
+      className="Map Gallery Container"
+      onKeyUp={(e) => {
+        console.log(e);
+        console.log(e.key);
+        if (e.key === "Escape") {
+          console.log("got escape key");
+          setShowLightBox(false);
+        }
+      }}
+    >
+      {/* <div style={containerStyle}> */}
+      <BarLoader loading={true}></BarLoader>
+      {/* </div> */}
+
       <LoadingBar visible={!dataLoaded} />
       <div>
         <LightBox show={showLightbox} onClick={() => setShowLightBox(false)} />

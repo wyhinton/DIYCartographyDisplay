@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 .slick-slide {
   display: none;
   float: left;

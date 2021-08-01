@@ -7,3 +7,4 @@ declare module "react-image-magnify";
 declare module "react-image-magnifiers";
 declare module "react-custom-scrollbars";
 declare module "lodash";
+declare module "react-spinners";

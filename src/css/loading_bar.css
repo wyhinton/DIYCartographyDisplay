@@ -1,20 +1,13 @@
 .loading-bar {
-  background: linear-gradient(270deg, #5794a5, #ffffff);
-  background-size: 200% 200%;
-
-  -webkit-animation: AnimationName 1s ease infinite;
-  -moz-animation: AnimationName 1s ease infinite;
-  animation: AnimationName 1s ease infinite;
-  /* animation-direction: alternate; */
   position: absolute;
   width: 50%;
-  background-color: red;
-  height: 0.5em;
+  height: 1.5em;
   left: 25%;
   top: 40%;
   border-radius: 30px;
   z-index: 1;
-  border: 1px solid #5794a5;
+  display: flex;
+  justify-content: center;
 }
 .loading-bar-hidden {
   animation: Shrink 5s linear;
