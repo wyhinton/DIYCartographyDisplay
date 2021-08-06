@@ -10,7 +10,7 @@ import Toolbar from "./Components/Toolbar";
 import { ThemeProvider, defaultTheme } from "evergreen-ui";
 import { merge } from "lodash";
 import React, { useEffect } from "react";
-import { useStoreActions } from "./hooks";
+import { useStoreActions, useStoreState } from "./hooks";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { useTheme, Theme } from "@material-ui/core/styles";
 
@@ -22,6 +22,7 @@ const App = (): JSX.Element => {
   const fetchEventSpreadsheet = useStoreActions(
     (actions) => actions.timeline.fetchEventSpreadsheet
   );
+  const dataLoaded = useStoreState((state) => state.studentsModel.loaded);
   const isBelowMedium = useMediaQuery(theme.breakpoints.down("md"));
   const myCustomTheme = merge({}, defaultTheme, {
     typography: {
@@ -40,7 +41,20 @@ const App = (): JSX.Element => {
   return (
     <ThemeProvider value={myCustomTheme}>
       <Grid container spacing={0}>
-        <Grid item md={12} lg={12}>
+        <Grid
+          item
+          md={12}
+          lg={12}
+          className={"toolbar-grid-container"}
+          style={
+            dataLoaded
+              ? {
+                  animation: "fadeIn 1s ease-out",
+                  animationIterationCount: 1,
+                }
+              : { opacity: 0 }
+          }
+        >
           <Toolbar />
         </Grid>
         <Grid
@@ -68,10 +82,16 @@ const App = (): JSX.Element => {
         <Grid
           item
           xs={12}
-          style={{
-            overflow: "hidden",
-            display: isBelowMedium ? "none" : "flex",
-          }}
+          style={
+            dataLoaded
+              ? {
+                  animation: "fadeIn 1.5s ease-out",
+                  animationIterationCount: 1,
+                  display: isBelowMedium ? "none" : "flex",
+                  // animationDelay: "2s",
+                }
+              : { opacity: 0 }
+          }
         >
           <Timeline />
         </Grid>

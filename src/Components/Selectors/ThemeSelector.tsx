@@ -77,6 +77,13 @@ const ClickableIcon = ({
       onClick={(e) => {
         setFilterAction(filterCode);
       }}
+      style={{
+        opacity:
+          activeFilterState.includes(filterCode) ||
+          activeFilterState.length == 0
+            ? 1
+            : 0.5,
+      }}
       onMouseEnter={() => setHovered(!hovered)}
       className={"theme icon container"}
       onMouseLeave={() => setHovered(!hovered)}

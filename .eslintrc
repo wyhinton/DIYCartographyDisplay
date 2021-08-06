@@ -15,6 +15,7 @@
     "sonarjs"
   ],
   "rules": {
+    "no-console": ["warn"],
     "react-class-naming/react-classnaming-convention": ["warn"],
     "linebreak-style": 0,
     "@typescript-eslint/indent": 0,

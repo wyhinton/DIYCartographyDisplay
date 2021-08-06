@@ -23,7 +23,6 @@
     "fp-ts": "^2.10.5",
     "get-sheet-done": "^0.1.5",
     "jsdoc-to-markdown": "^7.0.1",
-    "lodash": "^4.17.21",
     "pondjs": "^0.9.0",
     "react": "^17.0.2",
     "react-custom-scrollbars": "^4.2.1",

@@ -38,25 +38,18 @@ const GridChunk = ({
     isHovered: boolean,
     baseColor: number
   ) => {
-    if (curFilters.some((f) => f === filter)) {
-      // setColorIndex(4);
-      return 4;
-    }
     if (curFilters.some((f) => f === null)) {
-      // setColorIndex(baseColor);
       return baseColor;
     } else {
-      // setColorIndex(isHovered ? -1 : baseColor);
       return isHovered ? -1 : baseColor;
-      // return 2;
     }
   };
 
   const [hovered, setHovered] = useState(false);
   useEffect(() => {}, [filterState]);
   useEffect(() => {
-    console.log("setting row color");
-    console.log(setRowColor(filterState, hovered, baseColor));
+    // console.log("setting row color");
+    // console.log(setRowColor(filterState, hovered, baseColor));
     setColorIndex(setRowColor(filterState, hovered, baseColor));
   }, [hovered]);
 
@@ -75,7 +68,6 @@ const GridChunk = ({
             return (
               <GridUnit
                 colorCode={colorIndex}
-                // colorCode={setRowColor(filterState, hovered, baseColor)}
                 isActiveFilter={filterState.some((f) => f === filter)}
                 key={r}
               />

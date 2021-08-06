@@ -44,19 +44,19 @@ const TopicSelector = (): JSX.Element => {
           filter={FilterGroup.BUILT_TOPIC}
         >
           <GridRow
-            filter={MapSubTopic.INFRASTR}
+            filterCode={MapSubTopic.INFRASTR}
             count={tagStats?.BE?.ENERGY}
             icon={
               <LightbulbIcon color={theme.palette.primary.main} size={12} />
             }
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.BUILDINGS}
+            filterCode={MapSubTopic.BUILDINGS}
             count={tagStats?.BE?.HOUSING}
             icon={<Apartment color={"primary"} style={{ fontSize: "12pt" }} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.TRANS}
+            filterCode={MapSubTopic.TRANS}
             count={tagStats?.BE?.TRANSPORTATION}
             icon={
               <DirectionsBus
@@ -73,17 +73,17 @@ const TopicSelector = (): JSX.Element => {
           filter={FilterGroup.ECONOMIC_TOPIC}
         >
           <GridRow
-            filter={MapSubTopic.PROPERTY}
+            filterCode={MapSubTopic.PROPERTY}
             count={tagStats?.EE?.COSTOFLIVING}
             icon={<HomeIcon color={theme.palette.primary.main} size={12} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.URBANDEV}
+            filterCode={MapSubTopic.URBANDEV}
             count={tagStats?.EE?.URBANDEV}
             icon={<ChartIcon color={theme.palette.primary.main} size={12} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.WORK}
+            filterCode={MapSubTopic.WORK}
             count={tagStats?.EE?.WORK}
             icon={
               <BriefcaseIcon color={theme.palette.primary.main} size={12} />
@@ -96,17 +96,17 @@ const TopicSelector = (): JSX.Element => {
           filter={FilterGroup.NATURAL_TOPIC}
         >
           <GridRow
-            filter={MapSubTopic.GREENSPACE}
+            filterCode={MapSubTopic.GREENSPACE}
             count={tagStats?.NE?.GREENSPACE}
             icon={<TreeIcon color={theme.palette.primary.main} size={12} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.POLLUTION}
+            filterCode={MapSubTopic.POLLUTION}
             count={tagStats?.NE?.POLLUTION}
             icon={<ChartIcon color={theme.palette.primary.main} size={12} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.HYDROLOGY}
+            filterCode={MapSubTopic.HYDROLOGY}
             count={tagStats?.NE?.HYDROLOGY}
             icon={<Opacity color={"primary"} style={{ fontSize: "12pt" }} />}
           />
@@ -117,19 +117,19 @@ const TopicSelector = (): JSX.Element => {
           filter={FilterGroup.POLITICAL_TOPIC}
         >
           <GridRow
-            filter={MapSubTopic.GOVERMENT}
+            filterCode={MapSubTopic.GOVERMENT}
             count={tagStats?.PE?.GOVERMENT}
             icon={
               <AccountBalance color={"primary"} style={{ fontSize: "12pt" }} />
             }
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.POLICY}
+            filterCode={MapSubTopic.POLICY}
             count={tagStats?.PE?.POLICY}
             icon={<Gavel color={"primary"} style={{ fontSize: "12pt" }} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.CIVICENG}
+            filterCode={MapSubTopic.CIVICENG}
             count={tagStats?.PE?.CIVICENG}
             icon={<VolumeUp color={"primary"} style={{ fontSize: "12pt" }} />}
           />
@@ -140,19 +140,19 @@ const TopicSelector = (): JSX.Element => {
           filter={FilterGroup.SOCIAL_TOPIC}
         >
           <GridRow
-            filter={MapSubTopic.EDUCATION}
+            filterCode={MapSubTopic.EDUCATION}
             count={tagStats?.SE?.EDUCATION}
             icon={<School color={"primary"} style={{ fontSize: "12pt" }} />}
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.HEALTHSAFETY}
+            filterCode={MapSubTopic.HEALTHSAFETY}
             count={tagStats?.SE?.HEALTHSAFETY}
             icon={
               <SymbolCrossIcon color={theme.palette.primary.main} size={12} />
             }
           ></GridRow>
           <GridRow
-            filter={MapSubTopic.RACEGEN}
+            filterCode={MapSubTopic.RACEGEN}
             count={tagStats?.SE?.RACEGEN}
             icon={<PeopleIcon color={theme.palette.primary.main} size={12} />}
           />

@@ -1,8 +1,7 @@
-// import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { useTheme } from "@material-ui/core/styles";
 import "../css/loading_bar.css";
 import BeatLoader from "react-spinners/BeatLoader";
-const LoadingBar = ({ visible }: { visible: boolean }) => {
+const LoadingBar = ({ visible }: { visible: boolean }): JSX.Element => {
   //   visible = true;
   const theme = useTheme();
   return (

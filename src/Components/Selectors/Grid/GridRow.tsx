@@ -8,16 +8,19 @@ import Tooltip from "@material-ui/core/Tooltip";
 
 interface GridRowProps {
   count: number;
-  filter: FilterOption;
+  filterCode: FilterOption;
   icon: JSX.Element;
 }
 
-const GridRow = ({ count, icon, filter }: GridRowProps) => {
+const GridRow = ({ count, icon, filterCode }: GridRowProps) => {
   const theme = useTheme();
   const [hovered, setHovered] = useState(false);
   const activeFilterState = useStoreState(
     (state) => state.studentsModel.filter
   );
+  // const activeGroupFilterState = useStoreState(
+  //   (state) => state.studentsModel.groupFilterp
+  // );
   const setFilterAction = useStoreActions(
     (actions) => actions.studentsModel.thunkSetFilter
   );
@@ -27,7 +30,7 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
     currentFilter: FilterOption[],
     rowIsHovered: boolean
   ) => {
-    if (currentFilter.some((f) => f == filter)) {
+    if (currentFilter.some((f) => f == filterCode)) {
       return 4;
     } else {
       return rowIsHovered ? -1 : 0;
@@ -37,20 +40,29 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
   const rowGridStyle = {
     width: "100%",
     display: "flex",
-    // display: "grid",
-    // gridTemplateColumns: `repeat(${count + 1}, 1fr)`,
-    // gridAutoRows: 20,
-    // gridAutoFlow: "column",
   } as React.CSSProperties;
-
+  // style={{
+  //   opacity:
+  //     activeFilterState.includes(filterCode) ||
+  //     activeFilterState.length == 0
+  //       ? 1
+  //       : 0.5,
+  // }}
   return (
-    <Tooltip title={filterToToolTip(filter)}>
+    <Tooltip title={filterToToolTip(filterCode)}>
       <div
-        style={rowGridStyle}
+        style={{
+          ...rowGridStyle,
+          opacity:
+            activeFilterState.includes(filterCode) ||
+            activeFilterState.length == 0
+              ? 1
+              : 0.5,
+        }}
         onMouseEnter={() => setHovered(!hovered)}
         onMouseLeave={() => setHovered(!hovered)}
         onMouseUp={() => {
-          setFilterAction(filter);
+          setFilterAction(filterCode);
         }}
       >
         {Array.from(Array(count)).map((r, i) => {
@@ -61,13 +73,25 @@ const GridRow = ({ count, icon, filter }: GridRowProps) => {
             >
               <GridUnit
                 key={i}
-                colorCode={setRowColor(activeFilterState, hovered)}
-                isActiveFilter={activeFilterState.some((f) => f == filter)}
+                colorCode={0}
+                isActiveFilter={activeFilterState.some((f) => f == filterCode)}
               ></GridUnit>
             </div>
           );
         })}
-        {icon}
+
+        <div
+          style={{
+            height: 15,
+            opacity:
+              activeFilterState.includes(filterCode) ||
+              activeFilterState.length == 0
+                ? 1
+                : 0.5,
+          }}
+        >
+          {icon}
+        </div>
       </div>
     </Tooltip>
   );

@@ -1,7 +1,6 @@
 import React from "react"; // we need this to make JSX compile
 import { useTheme } from "@material-ui/core/styles";
 import "../../../css/App.css";
-import { getRandomNumber } from "../../../utils";
 import { useStoreState } from "../../../hooks";
 
 type UnitProps = {
@@ -16,22 +15,20 @@ export const GridUnit = ({
   const theme = useTheme();
   //size of the grid unit (pixels)
   const size = 12;
-  const dataLoadedState = useStoreState((state) => state.studentsModel.loaded);
-  const duration = getRandomNumber(0.5, 4);
   //provides a fade in animation for the grid units on load
   const containerStyle = {
     display: "block",
-    // animation: dataLoadedState ? `fadein ${duration}s normal` : "",
-    // animationIterationCount: 1,
     marginTop: "auto",
   } as React.CSSProperties;
-
+  const activeFilterState = useStoreState(
+    (state) => state.studentsModel.filter
+  );
   /**Match the grid units number code to a theme color */
   const matchNumberToThemeColor = (ind: number) => {
     let col = "";
     switch (ind) {
       case -1:
-        col = theme.palette.action.hover;
+        // col = theme.palette.action.hover;
         col = theme.palette.divider;
         // col = "red";
         break;
@@ -55,32 +52,36 @@ export const GridUnit = ({
   };
 
   const colorizeGridUnit = (colInd: number, isActiveFiler?: boolean) => {
-    const sharedStyle = {
+    return {
       width: `${size}px`,
       height: `${size}px`,
       marginTop: "auto",
+      // opacity: isActiveFilter || activeFilterState.length == 0 ? 1 : 0.5,
+      opacity: 1,
+      backgroundColor: matchNumberToThemeColor(colInd),
     };
-    if (isActiveFiler) {
-      return {
-        ...sharedStyle,
-        backgroundColor: matchNumberToThemeColor(colInd),
-        opacity: 1,
-      } as React.CSSProperties;
-    } else {
-      if (colInd == -2) {
-        return {
-          ...sharedStyle,
-          backgroundColor: matchNumberToThemeColor(colInd),
-          opacity: 0.5,
-        } as React.CSSProperties;
-      } else {
-        return {
-          ...sharedStyle,
-          backgroundColor: matchNumberToThemeColor(colInd),
-          opacity: 1.0,
-        } as React.CSSProperties;
-      }
-    }
+    // if (isActiveFiler) {
+    //   return {
+    //     ...sharedStyle,
+    //     backgroundColor: matchNumberToThemeColor(colInd),
+    //     // opacity: 1,
+    //   } as React.CSSProperties;
+    // }
+    // else {
+    //   if (colInd == -2) {
+    //     return {
+    //       ...sharedStyle,
+    //       backgroundColor: matchNumberToThemeColor(colInd),
+    //       // opacity: 0.5,
+    //     } as React.CSSProperties;
+    //   } else {
+    //     return {
+    //       ...sharedStyle,
+    //       backgroundColor: matchNumberToThemeColor(colInd),
+    //       // opacity: 1.0,
+    //     } as React.CSSProperties;
+    //   }
+    // }
   };
   return (
     <div style={containerStyle}>
