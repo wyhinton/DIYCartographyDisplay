@@ -1,14 +1,7 @@
 import ReactSlick from "react-slick";
-// import { Ref } from "react";
-import {
-  GlassMagnifier,
-  MagnifierContainer,
-  MagnifierZoom,
-} from "react-image-magnifiers";
 import type { LightboxImage } from "classes/lightbox";
 import Magnifier from "react-magnifier";
 import { useTheme } from "@material-ui/core/styles";
-// import type { RefObject } from "./index";
 
 interface ImagerSliderProps {
   images: LightboxImage[];
@@ -20,11 +13,9 @@ const ImageSlider = ({ images }: ImagerSliderProps) => {
     height: "100%",
   } as React.CSSProperties;
 
-  const slick_props = {
+  const slickProps = {
     variableWidth: false,
-    // variableWidth: true,
     adaptiveHeight: false,
-    // slidesToShow: 2,
   };
 
   const imageTitle = {
@@ -44,7 +35,7 @@ const ImageSlider = ({ images }: ImagerSliderProps) => {
           centerMode: true,
           centerPadding: 0,
         }}
-        {...slick_props}
+        {...slickProps}
         // {...rsProps}
       >
         {images.map((img, i) => (
@@ -57,13 +48,6 @@ const ImageSlider = ({ images }: ImagerSliderProps) => {
               }}
             >
               <div key={i} style={slickSlide}>
-                {/* <GlassMagnifier
-                  imageSrc={img.src}
-                  allowOverflow={true}
-                  magnifierSize={"40%"}
-                  // style={slickSlide}
-                  key={i}
-                /> */}
                 <Magnifier src={img.src} />
                 <div style={imageTitle}>{img.title}</div>
               </div>
@@ -75,16 +59,3 @@ const ImageSlider = ({ images }: ImagerSliderProps) => {
   );
 };
 export default ImageSlider;
-
-// {images.map((img, i) => (
-//   <MagnifierContainer key={i}>
-//     <div key={i} style={slickSlide}>
-//       <MagnifierZoom style={{ height: "400px" }} imageSrc={img.src} />
-//       {/* <GlassMagnifier
-//       imageSrc={img.src}
-//       allowOverflow={true}
-//       magnifierSize={"40%"}
-//     /> */}
-//     </div>
-//   </MagnifierContainer>
-// ))}

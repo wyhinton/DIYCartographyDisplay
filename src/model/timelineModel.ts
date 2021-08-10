@@ -1,9 +1,10 @@
 import { Action, action, thunk, Thunk } from "easy-peasy";
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
 import { EventLevel } from "../enums";
-import type { GoogleSheet, RawEventRowValues } from "./sheet_data_models";
-import { getSheet } from "./sheet_data_models";
-import { TimelineEvent } from "../classes/timeline_event";
+import type { GoogleSheet } from "../interfaces/studentModel";
+import type { RawEventRowValues } from "../interfaces/RawEventRowValues";
+import { getSheet } from "../interfaces/studentModel";
+import { TimelineEvent } from "../classes/timelineEvent";
 import { Timeline } from "../classes/timeline";
 import SHEET_KEY from "../static/sheetKey";
 

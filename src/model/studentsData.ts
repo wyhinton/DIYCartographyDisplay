@@ -14,13 +14,13 @@ import {
   FilterGroup,
   CustomError,
 } from "../enums";
-import type { GoogleSheet, RawStudentRowValues } from "./sheet_data_models";
-import { getSheet } from "./sheet_data_models";
+import type { GoogleSheet } from "../interfaces/studentModel";
+import type { RawStudentRowValues } from "../interfaces/RawStudentRowValues";
+import { getSheet } from "../interfaces/studentModel";
 import type { FilterOption } from "./types";
-import { ValidationError } from "../validation";
 import { arraysEqual } from "../utils";
 import { StudentClass, SeriesId } from "../classes/student";
-import { StudentStats } from "../classes/student_stats";
+import { StudentStats } from "../classes/studentStats";
 import { LightBoxData } from "../classes/lightbox";
 import SHEET_KEY from "../static/sheetKey";
 
@@ -92,9 +92,6 @@ export interface MapDataModel {
   >;
   mapSpreadsheet: RawStudentRowValues[];
 
-  //VALIDATION
-  validationErrors: ValidationError[];
-
   //SETTERS
   applyFilter: Action<MapDataModel, FilterResult>;
   setStudentStats: Action<MapDataModel, StudentStats>;
@@ -112,7 +109,6 @@ export interface MapDataModel {
   /**Set the loaded state */
   setLoaded: Action<MapDataModel, boolean>;
   /**Set any validation errors */
-  setValidationErrors: Action<MapDataModel, ValidationError[]>;
 }
 const defaultFilter = (gi: GalleryImage) => {
   return true;
@@ -136,7 +132,6 @@ const studentsData: MapDataModel = {
   loaded: false,
   mapSpreadsheet: [],
   studentStats: undefined,
-  validationErrors: [],
   studentGoogleSheets: [],
   setAvailableStudents: action((state, payload) => {
     state.studentsClass = payload;
@@ -145,8 +140,6 @@ const studentsData: MapDataModel = {
     const allRows = payload.flat();
     const allStudents = allRows.map((r) => new StudentClass(r));
     const goodConversions: Promise<HTMLImageElement>[] = [];
-    console.log(allRows);
-    // function generateGalleryImage ()
     allStudents.forEach((element) => {
       const res = element.requestGalleryThumbnail(SeriesId.series0101);
       // const res2 = element.requestGalleryThumbnail(SeriesId.series0102);
@@ -187,9 +180,6 @@ const studentsData: MapDataModel = {
   }),
   computedAvailableGalleryImages: computed((state) => {
     return state.studentsClass.map((s) => s.getGalleryImages()).flat();
-  }),
-  setValidationErrors: action((state, payload) => {
-    state.validationErrors = payload;
   }),
   fetchStudentSheets: thunk(async (actions, _payload) => {
     const test2016 = getSheet<RawStudentRowValues>(SHEET_KEY, 2);

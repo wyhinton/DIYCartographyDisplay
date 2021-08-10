@@ -1,5 +1,5 @@
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
-import { TimelineEvent } from "./timeline_event";
+import { TimelineEvent } from "./timelineEvent";
 
 /**Contains all data related to the event timeline*/
 export class Timeline {

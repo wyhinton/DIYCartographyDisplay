@@ -4,7 +4,7 @@ import {
   MapSubTopic,
   Topic,
 } from "../enums";
-import type { RawStudentRowValues } from "../model/sheet_data_models";
+import type { RawStudentRowValues } from "../interfaces/RawStudentRowValues";
 import type { LightboxImage } from "./lightbox";
 import type { GalleryImage } from "../model/studentsData";
 import { CustomError } from "../enums";

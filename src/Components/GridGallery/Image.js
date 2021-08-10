@@ -284,7 +284,6 @@ class Image extends Component {
           ) : (
             <div
               style={{
-                backgroundColor: "red",
                 opacity: this.state.loaded ? 1 : 0,
                 transition: "opacity .5s",
               }}
