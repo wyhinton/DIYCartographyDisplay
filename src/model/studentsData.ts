@@ -145,7 +145,7 @@ const studentsData: MapDataModel = {
     const allRows = payload.flat();
     const allStudents = allRows.map((r) => new StudentClass(r));
     const goodConversions: Promise<HTMLImageElement>[] = [];
-
+    console.log(allRows);
     // function generateGalleryImage ()
     allStudents.forEach((element) => {
       const res = element.requestGalleryThumbnail(SeriesId.series0101);

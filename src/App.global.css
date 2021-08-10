@@ -35,3 +35,11 @@
 #overlay {
   height: 100vh;
 }
+
+/* .ReactGridGallery_tile-viewport img {
+  transition: opacity 0.2s ease-out;
+} */
+
+.gallery-image {
+  transition: opacity 1s ease-out;
+}

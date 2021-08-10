@@ -8,3 +8,5 @@ declare module "react-image-magnifiers";
 declare module "react-custom-scrollbars";
 declare module "lodash";
 declare module "react-spinners";
+declare module "react-smooth-image";
+declare module "Components/GridGallery/*";
