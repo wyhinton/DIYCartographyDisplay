@@ -40,7 +40,7 @@ export class LightBoxData {
     this.year = "";
     this.discipline = "";
   }
-  set_student(student: StudentClass) {
+  setStudent(student: StudentClass): void {
     this.images = student.getLightboxImages();
     this.author = student.author;
     this.title = student.title;

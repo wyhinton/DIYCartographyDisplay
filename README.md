@@ -43,6 +43,10 @@ yarn start
 - Use of data types as classes to keep data strongly typed and modular
 - Centralized state management provided via an [easy-peasy](https://easy-peasy.vercel.app/) store
 
+## Future Maintence
+
+- It's possible that the current google spreadsheets API could be deprecated. Google Sheets APIv4 now requires a token, and while v3 is not yet deprecated, a different CMS service might need to be used in the future.
+
 ## Browser Stack
 
 - [Material UI](https://material-ui.com/)

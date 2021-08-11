@@ -40,6 +40,7 @@ export interface MapMetadata {
   subtopic: MapSubTopic;
   theme: ThemeCategoryFilter;
   year: any;
+  // year: FilterOption;
 }
 
 //TODO: EXPLAIN WHY THIS IS NECESSARY
@@ -110,7 +111,7 @@ export interface MapDataModel {
   setLoaded: Action<MapDataModel, boolean>;
   /**Set any validation errors */
 }
-const defaultFilter = (gi: GalleryImage) => {
+const defaultFilter = (gi: GalleryImage): boolean => {
   return true;
 };
 
@@ -243,7 +244,7 @@ const studentsData: MapDataModel = {
     const selectedStudent = state.studentsClass.filter(
       (s) => s.author === tagData.author
     )[0];
-    state.activeLightBoxData.set_student(selectedStudent);
+    state.activeLightBoxData.setStudent(selectedStudent);
   }),
   setLoaded: action((state, contentIsLoaded) => {
     state.loaded = contentIsLoaded;

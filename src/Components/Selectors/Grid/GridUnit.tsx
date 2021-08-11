@@ -60,28 +60,6 @@ export const GridUnit = ({
       opacity: 1,
       backgroundColor: matchNumberToThemeColor(colInd),
     };
-    // if (isActiveFiler) {
-    //   return {
-    //     ...sharedStyle,
-    //     backgroundColor: matchNumberToThemeColor(colInd),
-    //     // opacity: 1,
-    //   } as React.CSSProperties;
-    // }
-    // else {
-    //   if (colInd == -2) {
-    //     return {
-    //       ...sharedStyle,
-    //       backgroundColor: matchNumberToThemeColor(colInd),
-    //       // opacity: 0.5,
-    //     } as React.CSSProperties;
-    //   } else {
-    //     return {
-    //       ...sharedStyle,
-    //       backgroundColor: matchNumberToThemeColor(colInd),
-    //       // opacity: 1.0,
-    //     } as React.CSSProperties;
-    //   }
-    // }
   };
   return (
     <div style={containerStyle}>
