@@ -142,8 +142,6 @@ const studentsData: MapDataModel = {
     const goodConversions: Promise<HTMLImageElement>[] = [];
     allStudents.forEach((element) => {
       const res = element.requestGalleryThumbnail(SeriesId.series0101);
-      // const res2 = element.requestGalleryThumbnail(SeriesId.series0102);
-      // console.log(res2);
       if (
         !(Object.values(CustomError) as string[]).includes(
           res as keyof typeof CustomError
@@ -188,12 +186,14 @@ const studentsData: MapDataModel = {
     const studentSheetRequests = [test2016, test2018, test2020];
     const sheetRequestResults =
       ingestPromises<GoogleSheet<RawStudentRowValues>>(studentSheetRequests);
-    sheetRequestResults.then((results) => {
-      const succesfulSheets = results.results;
-      const studentRowValues = results.results.map((r) => r.data);
-      actions.setStudentGoogleSheets(succesfulSheets);
-      actions.processRawStudentSheets(studentRowValues);
-    });
+    sheetRequestResults
+      .then((results) => {
+        const succesfulSheets = results.results;
+        const studentRowValues = results.results.map((r) => r.data);
+        actions.setStudentGoogleSheets(succesfulSheets);
+        actions.processRawStudentSheets(studentRowValues);
+      })
+      .catch((err) => {});
   }),
   setStudentGoogleSheets: action((state, sheets) => {
     state.studentGoogleSheets = sheets;

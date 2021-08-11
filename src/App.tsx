@@ -60,7 +60,7 @@ const App = (): JSX.Element => {
         <Grid
           container
           spacing={0}
-          style={{ paddingTop: "1em", paddingBottom: "0em" }}
+          // style={{ paddingTop: "1em", paddingBottom: "0em" }}
         >
           <Grid item md={12} lg={12}>
             <Title />

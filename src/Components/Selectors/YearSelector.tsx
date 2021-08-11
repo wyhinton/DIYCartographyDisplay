@@ -1,4 +1,3 @@
-// import Grid from '@material-ui/core/Grid';
 import { Paragraph, Text } from "evergreen-ui";
 import { useTheme } from "@material-ui/core/styles";
 import SelectorGroup from "./Containers/SelectorGroup";

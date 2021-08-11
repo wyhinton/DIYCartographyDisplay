@@ -1,22 +1,15 @@
-// https://codesandbox.io/s/react-grid-gallery-ztf4n?file=/src/index.js:358-880
-// https://codesandbox.io/s/r48lm1jopq
-
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Gallery from "./GridGallery/Gallery";
-// import Gallery from "react-grid-gallery";
 import { useTheme } from "@material-ui/core/styles";
 import { useStoreActions, useStoreState } from "../hooks";
 import { Scrollbars } from "react-custom-scrollbars";
 import LightBox from "./LightBox";
-import { getRandomNumber } from "../utils";
 import LoadingBar from "./LoadingBar";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import "../css/GridGallery.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import BarLoader from "react-spinners/BarLoader";
-// import MyGallery from "react-photo-gallery";
-import SmoothImage from "react-smooth-image";
 /**
  * Gallery of the student maps. Wraps around a react-grid-gallery Gallery, providing a means for scrolling the gallery via a react-custom-scrollbars.
  * Clicking on an image brings up a LightBox.
@@ -43,7 +36,6 @@ const MapGallery = (): JSX.Element => {
       const modalDisplayStyle = showLightbox ? "block" : "none";
       modalElement.current.style.display = modalDisplayStyle;
     }
-    console.log(galleryImages);
   }, [galleryImages, showLightbox]);
 
   const containerStyle = {
@@ -71,53 +63,18 @@ const MapGallery = (): JSX.Element => {
       setActiveLightbox(this.props.item);
     }
   }
-  function setImage(this: any) {
-    console.log(this.props);
-    const { imageProps } = this.props;
-    const { src, alt, style } = imageProps;
-    console.log(src, alt, style);
-    // return <div>a</div>;
-    return <img {...this.props.imageProps}></img>;
-    // return <SmoothImage src={src} alt={alt} style={style}></SmoothImage>;
-  }
 
-  // handleKeyDown: function(event) {
-  //   if (event.keyCode == 13 /*enter*/) {
-  //     this.okAction();
-  //   }
-  //   if (event.keyCode == 27 /*esc*/) {
-  //     this.cancelAction();
-  //   }
-  // },
-  function testTb() {}
-  let animationOffset = 0;
-  function thumbnailStyle(this: any) {
-    console.log(this);
-    const duration = getRandomNumber(0.5, 1.0) + animationOffset * 0.1;
-    animationOffset = animationOffset + 1;
-    return {
-      // animation: `fadein ${duration}s normal`,
-      // animationTimingFunction: "cubic-bezier(.03,.91,.53,.92)",
-      // animationIterationCount: 1,
-    };
-  }
   return (
     <div
       style={containerStyle}
       className="Map Gallery Container"
       onKeyUp={(e) => {
-        console.log(e);
-        console.log(e.key);
         if (e.key === "Escape") {
-          console.log("got escape key");
           setShowLightBox(false);
         }
       }}
     >
-      {/* <div style={containerStyle}> */}
       <BarLoader loading={true}></BarLoader>
-      {/* </div> */}
-
       <LoadingBar visible={!dataLoaded} />
       <div>
         <LightBox show={showLightbox} onClick={() => setShowLightBox(false)} />
@@ -132,7 +89,6 @@ const MapGallery = (): JSX.Element => {
               enableLightbox={false}
               enableImageSelection={false}
               onClickThumbnail={loadLightbox}
-              tileViewportStyle={dataLoaded ? thumbnailStyle : undefined}
             ></Gallery>
           </div>
         </Scrollbars>
@@ -142,7 +98,3 @@ const MapGallery = (): JSX.Element => {
 };
 
 export default React.memo(MapGallery);
-
-const MyComp = (imageProps: any, src: any): JSX.Element => {
-  return <div>hello</div>;
-};

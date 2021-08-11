@@ -2,7 +2,6 @@
 import SelectorGroup from "./Containers/SelectorGroup";
 import SelectorParent from "./Containers/SelectorParent";
 import GridRow from "./Grid/GridRow";
-import { useEffect } from "react";
 import { MapSubTopic, FilterGroup } from "../../enums";
 import { useTheme } from "@material-ui/core/styles";
 

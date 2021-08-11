@@ -10,10 +10,11 @@ import Resizable from "./TimeSeries/components/Resizable";
 import type { EventRowValues } from "../../model/timelineModel";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { Text } from "evergreen-ui";
-import { TimeSeries, TimeRange } from "pondjs";
+import { TimeSeries } from "pondjs";
 import { useState, useEffect, useRef } from "react";
 import { useStoreState } from "../../hooks";
 import { useTheme, Theme } from "@material-ui/core/styles";
+import timelineRange from "../../static/timelineRange";
 
 interface Separator {
   pos: number;
@@ -47,27 +48,18 @@ const Timeline = (): JSX.Element => {
   //height in pixels of the event series rows
   const rowHeight = 15;
 
-  //defines the range of the timeline
-  const startDate = new Date(1763, 0, 1);
-  const endDate = new Date(2020, 0, 1);
-
   useEffect(() => {
     let tot = 0;
     Object.values(timeSeries).forEach((f) => {
       tot += f.length;
     });
-    console.log(tot);
     const separators: Separator[] = [];
     const keys = Object.keys(timeSeries);
 
-    let test = 0;
     if (tot > 0) {
       let top = 1.0;
       Object.values(timeSeries).forEach((f, i) => {
-        console.log(f.length / tot);
         top -= f.length / tot;
-        console.log(top);
-        test += f.length / tot;
         const sep = {
           pos: top,
           name: keys[i],
@@ -75,8 +67,6 @@ const Timeline = (): JSX.Element => {
         separators.push(sep);
       });
       setSeparators(separators);
-      console.log(separators);
-      console.log(test);
     }
   }, [timeSeries]);
   useEffect(() => {}, [separators]);
@@ -119,7 +109,7 @@ const Timeline = (): JSX.Element => {
     },
   };
 
-  const timerange = new TimeRange(startDate, endDate);
+  // const timerange = new TimeRange(startDate, endDate);
   const makeTimeSeriesArr = (
     series: TimeSeries[],
     theme: Theme,
@@ -220,7 +210,6 @@ const Timeline = (): JSX.Element => {
                         i !== 2
                           ? `1px solid ${theme.palette.primary.main}`
                           : "none",
-                      // top: `${(1.0 - sep.pos) * 100}%`,
                       position: "relative",
                       marginLeft: timelineOffset,
                     }}
@@ -240,12 +229,17 @@ const Timeline = (): JSX.Element => {
             })}
           </div>
           <div
-            style={{ height: "100%", width: "1000", marginLeft: "6em" }}
+            style={{
+              height: "100%",
+              width: "1000",
+              marginLeft: "6em",
+              overflow: "hidden",
+            }}
             ref={timelineContainer}
           >
             <Resizable width={resizeWidth}>
               <ChartContainer
-                timeRange={timerange}
+                timeRange={timelineRange}
                 enablePanZoom={false}
                 showGrid={true}
                 timeAxisStyle={timeAxis}

@@ -12,7 +12,6 @@ type EventInfoDisplayProps = {
 const EventInfoDisplay = ({ info }: EventInfoDisplayProps): JSX.Element => {
   const theme = useTheme();
   const infoContainerStyle = {
-    // height: "100%",
     height: "fit-content",
   } as React.CSSProperties;
 
@@ -32,20 +31,25 @@ const EventInfoDisplay = ({ info }: EventInfoDisplayProps): JSX.Element => {
     lineHeight: "15pt",
   } as React.CSSProperties;
 
-  const default_val: EventRowValues = {
-    start: new Date(1 / 1 / 1900),
-    end: new Date(1 / 1 / 1900),
+  const defaultEventDisplayInfo: EventRowValues = {
+    start: new Date("1 / 1 / 1900"),
+    end: new Date("1 / 1 / 1900"),
     title: "",
     info: "",
     tags: "",
     eventScale: EventLevel.national,
   };
-  const data = info ?? default_val;
+  const data = info ?? defaultEventDisplayInfo;
   useEffect(() => {}, [info]);
 
   return (
-    <div style={infoContainerStyle} className="event-info-container">
-      <Scrollbars style={{ width: "100%", height: "100%" }}>
+    // <div style={infoContainerStyle} className="event-info-container">
+    <div>
+      <Scrollbars
+        autoHeightMin={0}
+        autoHeightMax={500}
+        style={{ width: "100%", height: 500 }}
+      >
         <Text style={infoHeaderStyle}>
           <Paragraph
             key={data.title}

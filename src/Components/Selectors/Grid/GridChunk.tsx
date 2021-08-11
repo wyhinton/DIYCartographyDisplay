@@ -48,8 +48,6 @@ const GridChunk = ({
   const [hovered, setHovered] = useState(false);
   useEffect(() => {}, [filterState]);
   useEffect(() => {
-    // console.log("setting row color");
-    // console.log(setRowColor(filterState, hovered, baseColor));
     setColorIndex(setRowColor(filterState, hovered, baseColor));
   }, [hovered]);
 
