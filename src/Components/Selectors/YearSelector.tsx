@@ -12,6 +12,7 @@ function toAuthorEnum(
   year: string
 ): AuthorDisciplineFilter {
   const filterString = discipline + "_" + year;
+  console.log(filterString);
   return AuthorDisciplineFilter[
     filterString as unknown as keyof typeof AuthorDisciplineFilter
   ];
@@ -61,8 +62,8 @@ const YearSelector = (): JSX.Element => {
       <SelectorParent>
         <SelectorGroup title={null} size={3} filter={FilterGroup.NONE}>
           <LegendEntry title={"ARCHITECTURE"} gridUnitColorCode={0} />
-          <LegendEntry title={"LANDSCAPE"} gridUnitColorCode={1} />
           <LegendEntry title={"ART + DESIGN"} gridUnitColorCode={2} />
+          <LegendEntry title={"LANDSCAPE"} gridUnitColorCode={1} />
           <LegendEntry title={"OTHER"} gridUnitColorCode={3} />
         </SelectorGroup>
         <SelectorGroup
@@ -120,7 +121,7 @@ const LegendEntry = ({
   return (
     <div style={rowContainer} className={"legend item container"}>
       <div style={{ height: "100%", paddingTop: 4 }}>
-        <GridUnit colorCode={gridUnitColorCode} />
+        <GridUnit colorCode={gridUnitColorCode} isLegendKey={true} />
       </div>
       <Text style={disciplineStyle}>
         <Paragraph style={disciplineStyle}>{title}</Paragraph>

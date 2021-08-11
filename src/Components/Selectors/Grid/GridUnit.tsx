@@ -1,4 +1,4 @@
-import React from "react"; // we need this to make JSX compile
+import React, { useState, useEffect } from "react"; // we need this to make JSX compile
 import { useTheme } from "@material-ui/core/styles";
 import "../../../css/App.css";
 import { useStoreState } from "../../../hooks";
@@ -6,11 +6,13 @@ import { useStoreState } from "../../../hooks";
 type UnitProps = {
   colorCode: number;
   isActiveFilter?: boolean;
+  isLegendKey?: boolean;
 };
 //**Basic unit for creating grids for the grids in the selector widgets*/
 export const GridUnit = ({
   colorCode,
   isActiveFilter,
+  isLegendKey,
 }: UnitProps): JSX.Element => {
   const theme = useTheme();
   //size of the grid unit (pixels)
@@ -23,6 +25,20 @@ export const GridUnit = ({
   const activeFilterState = useStoreState(
     (state) => state.studentsModel.filter
   );
+  useEffect(() => {
+    if (!isLegendKey) {
+      if (activeFilterState.length == 0) {
+        setOpacity(1);
+      } else if (isActiveFilter) {
+        setOpacity(1);
+      } else if (!isActiveFilter) {
+        setOpacity(0.5);
+      }
+    } else {
+      setOpacity(1);
+    }
+  }, [activeFilterState]);
+  const [opacity, setOpacity] = useState(0);
   /**Match the grid units number code to a theme color */
   const matchNumberToThemeColor = (ind: number) => {
     let col = "";
@@ -56,8 +72,8 @@ export const GridUnit = ({
       width: `${size}px`,
       height: `${size}px`,
       marginTop: "auto",
-      // opacity: isActiveFilter || activeFilterState.length == 0 ? 1 : 0.5,
-      opacity: 1,
+      opacity: opacity,
+      // opacity: isActiveFilter ? 1 : 0.5,
       backgroundColor: matchNumberToThemeColor(colInd),
     };
   };

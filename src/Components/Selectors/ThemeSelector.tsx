@@ -56,37 +56,38 @@ const ClickableIcon = ({
   );
   const [hovered, setHovered] = useState(false);
   const [iconColor, setIconColor] = useState(theme.palette.primary.main);
-
-  useEffect(() => {}, [activeFilterState]);
+  const [iconOpacity, setIconOpacity] = useState(1);
   useEffect(() => {
-    console.log("got hovered");
-
-    if (hovered) {
-      if (activeFilterState.includes(filterCode)) {
-        setIconColor(theme.palette.primary.dark);
-      } else {
-        setIconColor(theme.palette.divider);
-      }
+    if (activeFilterState.length == 0 || groupFilterState == filterCode) {
+      setIconOpacity(1);
+      // setIconColor(theme.palette.primary.main);
     } else {
-      setIconColor(theme.palette.primary.main);
+      setIconOpacity(0.5);
     }
-  }, [hovered]);
+  }, [activeFilterState]);
+  // useEffect(() => {
+  //   console.log("got hovered");
+  //   if (!hovered) {
+  //     setIconColor(theme.palette.primary.main);
+  //   } else {
+  //     setIconColor(theme.palette.divider);
+  //   }
+  // }, [hovered]);
   const iconSize = 40;
   return (
     <div
       onClick={(e) => {
         setFilterAction(filterCode);
+        setHovered(false);
+        setIconColor(theme.palette.primary.main);
       }}
       style={{
-        opacity:
-          activeFilterState.includes(filterCode) ||
-          activeFilterState.length == 0
-            ? 1
-            : 0.5,
+        opacity: iconOpacity,
       }}
-      onMouseEnter={() => setHovered(!hovered)}
+      onMouseEnter={() => setIconColor(theme.palette.divider)}
+      // onMouseEnter={() => setHovered(!hovered)}
       className={"theme icon container"}
-      onMouseLeave={() => setHovered(!hovered)}
+      onMouseLeave={() => setIconColor(theme.palette.primary.main)}
     >
       {filterCode === FilterGroup.EQUITY_THEME ? (
         <FlowReviewBranchIcon color={iconColor} size={iconSize} />

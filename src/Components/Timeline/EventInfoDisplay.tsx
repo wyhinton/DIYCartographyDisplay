@@ -47,7 +47,8 @@ const EventInfoDisplay = ({ info }: EventInfoDisplayProps): JSX.Element => {
     <div>
       <Scrollbars
         autoHeightMin={0}
-        autoHeightMax={500}
+        autoHeightMax={400}
+        autoHide
         style={{ width: "100%", height: 500 }}
       >
         <Text style={infoHeaderStyle}>

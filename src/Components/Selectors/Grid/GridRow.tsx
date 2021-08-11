@@ -14,7 +14,7 @@ interface GridRowProps {
 
 const GridRow = ({ count, icon, filterCode }: GridRowProps) => {
   const theme = useTheme();
-  const [hovered, setHovered] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const activeFilterState = useStoreState(
     (state) => state.studentsModel.filter
   );
@@ -41,13 +41,7 @@ const GridRow = ({ count, icon, filterCode }: GridRowProps) => {
     width: "100%",
     display: "flex",
   } as React.CSSProperties;
-  // style={{
-  //   opacity:
-  //     activeFilterState.includes(filterCode) ||
-  //     activeFilterState.length == 0
-  //       ? 1
-  //       : 0.5,
-  // }}
+
   return (
     <Tooltip title={filterToToolTip(filterCode)}>
       <div
@@ -59,8 +53,8 @@ const GridRow = ({ count, icon, filterCode }: GridRowProps) => {
               ? 1
               : 0.5,
         }}
-        onMouseEnter={() => setHovered(!hovered)}
-        onMouseLeave={() => setHovered(!hovered)}
+        onMouseEnter={() => setIsHovered(!isHovered)}
+        onMouseLeave={() => setIsHovered(!isHovered)}
         onMouseUp={() => {
           setFilterAction(filterCode);
         }}
@@ -73,7 +67,7 @@ const GridRow = ({ count, icon, filterCode }: GridRowProps) => {
             >
               <GridUnit
                 key={i}
-                colorCode={0}
+                colorCode={isHovered ? -1 : 0}
                 isActiveFilter={activeFilterState.some((f) => f == filterCode)}
               ></GridUnit>
             </div>

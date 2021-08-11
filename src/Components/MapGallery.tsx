@@ -80,7 +80,10 @@ const MapGallery = (): JSX.Element => {
         <LightBox show={showLightbox} onClick={() => setShowLightBox(false)} />
       </div>
       <div style={scrollContainer}>
-        <Scrollbars style={{ width: "100%", height: "100%" }}>
+        <Scrollbars
+          style={{ height: "100%", overflowY: "hidden" }}
+          // style={{ width: "100%", height: "100%", overflowY: "hidden" }}
+        >
           <div style={{ height: "100%", paddingTop: "0", width: "100%" }}>
             <Gallery
               tagStyle={{ display: "none" }}

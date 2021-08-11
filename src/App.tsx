@@ -88,7 +88,7 @@ const App = (): JSX.Element => {
                   animation: "fadeIn 1.5s ease-out",
                   animationIterationCount: 1,
                   display: isBelowMedium ? "none" : "flex",
-                  // animationDelay: "2s",
+                  paddingTop: ".5em",
                 }
               : { opacity: 0 }
           }
