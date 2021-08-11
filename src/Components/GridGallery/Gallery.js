@@ -2,7 +2,7 @@
 /* eslint-disable */
 import PropTypes from "prop-types";
 import React, { Component } from "react";
-import Lightbox from "react-images";
+// import Lightbox from "react-images";
 import Image from "./Image.js";
 
 class Gallery extends Component {
@@ -293,7 +293,7 @@ class Gallery extends Component {
           }
         />
         {images}
-        <Lightbox
+        {/* <Lightbox
           images={this.props.images}
           backdropClosesModal={this.props.backdropClosesModal}
           currentImage={this.state.currentImage}
@@ -313,7 +313,7 @@ class Gallery extends Component {
           onClickThumbnail={this.getOnClickLightboxThumbnailFn()}
           showThumbnails={this.props.showLightboxThumbnails}
           {...this.props.lightBoxProps}
-        />
+        /> */}
       </div>
     );
   }

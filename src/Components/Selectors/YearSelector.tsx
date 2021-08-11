@@ -62,8 +62,8 @@ const YearSelector = (): JSX.Element => {
       <SelectorParent>
         <SelectorGroup title={null} size={3} filter={FilterGroup.NONE}>
           <LegendEntry title={"ARCHITECTURE"} gridUnitColorCode={0} />
-          <LegendEntry title={"ART + DESIGN"} gridUnitColorCode={2} />
-          <LegendEntry title={"LANDSCAPE"} gridUnitColorCode={1} />
+          <LegendEntry title={"ART + DESIGN"} gridUnitColorCode={1} />
+          <LegendEntry title={"LANDSCAPE"} gridUnitColorCode={2} />
           <LegendEntry title={"OTHER"} gridUnitColorCode={3} />
         </SelectorGroup>
         <SelectorGroup

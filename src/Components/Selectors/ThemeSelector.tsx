@@ -54,7 +54,7 @@ const ClickableIcon = ({
   const activeFilterState = useStoreState(
     (state) => state.studentsModel.filter
   );
-  const [hovered, setHovered] = useState(false);
+  // const [hovered, setHovered] = useState(false);
   const [iconColor, setIconColor] = useState(theme.palette.primary.main);
   const [iconOpacity, setIconOpacity] = useState(1);
   useEffect(() => {
@@ -78,14 +78,12 @@ const ClickableIcon = ({
     <div
       onClick={(e) => {
         setFilterAction(filterCode);
-        setHovered(false);
         setIconColor(theme.palette.primary.main);
       }}
       style={{
         opacity: iconOpacity,
       }}
       onMouseEnter={() => setIconColor(theme.palette.divider)}
-      // onMouseEnter={() => setHovered(!hovered)}
       className={"theme icon container"}
       onMouseLeave={() => setIconColor(theme.palette.primary.main)}
     >
