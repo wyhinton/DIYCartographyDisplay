@@ -47,6 +47,9 @@ const ClickableIcon = ({
   const setFilterAction = useStoreActions(
     (actions) => actions.studentsModel.thunkSetFilter
   );
+  const clearSingleFiltersAction = useStoreActions(
+    (actions) => actions.studentsModel.clearSingleFilters
+  );
   const theme = useTheme();
   const groupFilterState = useStoreState(
     (state) => state.studentsModel?.groupFilter
@@ -54,29 +57,25 @@ const ClickableIcon = ({
   const activeFilterState = useStoreState(
     (state) => state.studentsModel.filter
   );
-  // const [hovered, setHovered] = useState(false);
   const [iconColor, setIconColor] = useState(theme.palette.primary.main);
   const [iconOpacity, setIconOpacity] = useState(1);
   useEffect(() => {
-    if (activeFilterState.length == 0 || groupFilterState == filterCode) {
+    if (
+      activeFilterState.length == 0 ||
+      activeFilterState[0] == filterCode
+      // groupFilterState == FilterGroup.NONE ||
+      // (groupFilterState == filterCode && activeFilterState.length == 0)
+    ) {
       setIconOpacity(1);
-      // setIconColor(theme.palette.primary.main);
     } else {
       setIconOpacity(0.5);
     }
-  }, [activeFilterState]);
-  // useEffect(() => {
-  //   console.log("got hovered");
-  //   if (!hovered) {
-  //     setIconColor(theme.palette.primary.main);
-  //   } else {
-  //     setIconColor(theme.palette.divider);
-  //   }
-  // }, [hovered]);
+  }, [activeFilterState, iconOpacity, groupFilterState]);
   const iconSize = 40;
   return (
     <div
       onClick={(e) => {
+        // clearSingleFiltersAction(undefined);
         setFilterAction(filterCode);
         setIconColor(theme.palette.primary.main);
       }}

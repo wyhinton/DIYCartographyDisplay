@@ -48,6 +48,10 @@ yarn start
 - It's possible that the current google spreadsheets API could be deprecated. Google Sheets APIv4 now requires a token, and while v3 is not yet deprecated, a different CMS service might need to be used in the future.
 - Google Photo's might change their Photo API, causing a need for the image URL's to be updated in the CMS, sharing options to be changed, etc.
 
+## Notes
+
+- This project contains slightly modified versions of the source libraries for [React Time Series Chart](https://github.com/esnet/react-timeseries-charts) and [React Grid Gallery](https://github.com/benhowell/react-grid-gallery). The modifications to React Time Series chart allow for circular event markers, while the modifications to React Grid Gallery removes the built in Lightbox component and enables smoother image loading.
+
 ## Browser Stack
 
 - [Material UI](https://material-ui.com/)

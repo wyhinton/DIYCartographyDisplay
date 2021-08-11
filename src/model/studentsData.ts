@@ -110,6 +110,7 @@ export interface MapDataModel {
   /**Set the loaded state */
   setLoaded: Action<MapDataModel, boolean>;
   /**Set any validation errors */
+  clearSingleFilters: Action<MapDataModel, any>;
 }
 const defaultFilter = (gi: GalleryImage): boolean => {
   return true;
@@ -232,6 +233,7 @@ const studentsData: MapDataModel = {
       //else get a filter function for just a single property
     } else {
       const singleFilter = getSingleFilter(filter);
+      // actions.setGroupFilter(FilterGroup.NONE);
       actions.setFilterFunction(singleFilter.filter_func);
       actions.applyFilter(singleFilter);
     }
@@ -248,6 +250,9 @@ const studentsData: MapDataModel = {
   }),
   setLoaded: action((state, contentIsLoaded) => {
     state.loaded = contentIsLoaded;
+  }),
+  clearSingleFilters: action((state) => {
+    state.filter = [];
   }),
 };
 
