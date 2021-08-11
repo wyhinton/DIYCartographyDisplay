@@ -43,9 +43,9 @@ export function getSheet<T>(
       "https://spreadsheets.google.com/feeds/list/" +
       key +
       "/od6/public/values?alt=json";
-    const fffff = fetchRetry(url, 10, 300);
-    console.log(fffff);
-    console.log(test);
+    // const fffff = fetchRetry(url, 10, 300);
+    // console.log(fffff);
+    // console.log(test);
     GetSheetDone.labeledCols(key, sheetNumber)
       .then((sheet: any) => {
         resolve(sheet);
