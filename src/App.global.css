@@ -7,6 +7,7 @@
   float: left;
   height: auto;
   min-height: 1px;
+  padding-right: 1em;
 }
 
 .slick-slide img {

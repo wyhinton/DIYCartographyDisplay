@@ -11,10 +11,7 @@ const Sidebar = (): JSX.Element => {
     paddingBottom: "1em",
     paddingRight: "2em",
     textAlign: "left" as const,
-    display: "flex",
     fontWeight: 200,
-    flexDirection: "column" as const,
-    justifyContent: "space-evenly",
     color: theme.palette.primary.main,
     fontFamily: theme.typography.fontFamily,
   } as React.CSSProperties;

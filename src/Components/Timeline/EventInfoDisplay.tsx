@@ -11,9 +11,6 @@ type EventInfoDisplayProps = {
 
 const EventInfoDisplay = ({ info }: EventInfoDisplayProps): JSX.Element => {
   const theme = useTheme();
-  const infoContainerStyle = {
-    height: "fit-content",
-  } as React.CSSProperties;
 
   const infoHeaderStyle = {
     color: theme.palette.primary.main,
@@ -36,7 +33,6 @@ const EventInfoDisplay = ({ info }: EventInfoDisplayProps): JSX.Element => {
     end: new Date("1 / 1 / 1900"),
     title: "",
     info: "",
-    tags: "",
     eventScale: EventLevel.national,
   };
   const data = info ?? defaultEventDisplayInfo;

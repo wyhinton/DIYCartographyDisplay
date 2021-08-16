@@ -1,13 +1,10 @@
-import { Action, action, thunk, Thunk } from "easy-peasy";
+import { Action, action, thunkOn, ThunkOn } from "easy-peasy";
 import { TimeSeries, TimeRangeEvent, TimeRange } from "pondjs";
 import { EventLevel } from "../enums";
-import type { GoogleSheet } from "../interfaces/studentModel";
 import type { RawEventRowValues } from "../interfaces/RawEventRowValues";
-import { getSheet } from "../interfaces/studentModel";
 import { TimelineEvent } from "../classes/timelineEvent";
 import { Timeline } from "../classes/timeline";
-import SHEET_KEY from "../static/sheetKey";
-
+import type { StoreModel } from "./index";
 export interface EventRowValues {
   /**Start of the timeline event */
   start: Date;
@@ -15,10 +12,8 @@ export interface EventRowValues {
   end: Date;
   /**Display title of the event*/
   title: string;
-  /**Additional display text*/
+  /**Additional display text to show when clicking on the event in the timeline*/
   info: string;
-  /**Event tags */
-  tags: string;
   /**Geographic scale of the event */
   eventScale: EventLevel;
 }
@@ -43,9 +38,9 @@ export interface TimelineModel {
   eventSpreadsheet: EventRowValues[];
 
   //THUNKS - FETCH EXTERNAL
-  fetchEventSpreadsheet: Thunk<TimelineModel>;
+  // fetchEventSpreadsheet: Thunk<TimelineModel>;
   setEventSpreadsheet: Action<TimelineModel, EventRowValues[]>;
-
+  onGoogleSheetLoaded: ThunkOn<TimelineModel, never, StoreModel>;
   //SETTERS
   setTimelineData: Action<TimelineModel, TimelineEvent[]>;
   setTimelineSeries: Action<TimelineModel, TimelineData>;
@@ -73,124 +68,78 @@ const timelineModel: TimelineModel = {
   setTimelineData: action((state, payload) => {
     state.timelineData.setData(payload);
   }),
-  fetchEventSpreadsheet: thunk(async (actions) => {
-    getSheet<RawEventRowValues>(SHEET_KEY, 1)
-      .then((eventSheet: GoogleSheet<RawEventRowValues>) => {
-        const timelineEvents = eventSheet.data.map((r) => new TimelineEvent(r));
-        actions.setTimelineData(timelineEvents);
-        const typedEventRows = typeEventRows(eventSheet.data);
-        actions.setEventSpreadsheet(typedEventRows);
-        const timelineSeries = makeTimeSeries(typedEventRows);
-        actions.setTimelineSeries(timelineSeries);
-      })
-      .catch((err) => {
-        console.error(`Error fetching DOC_KEY ${SHEET_KEY}: ${err}`);
+  onGoogleSheetLoaded: thunkOn(
+    (actions, storeActions) =>
+      storeActions.studentsModel.setStudentGoogleSheets,
+    (actions, payload) => {
+      const loadedRows = payload.payload.getSheetRows(0);
+      const rawEventRowValues = loadedRows.map((r) => {
+        return {
+          start: r.start,
+          end: r.end,
+          title: r.title,
+          info: r.info,
+          tags: r.tags,
+          category: r.category,
+        } as RawEventRowValues;
       });
-  }),
+      const timelineEvents = rawEventRowValues.map((r) => new TimelineEvent(r));
+      actions.setTimelineData(timelineEvents);
+      const typedEventRows = typeEventRows(timelineEvents);
+      actions.setEventSpreadsheet(typedEventRows);
+      const timelineSeries = makeTimelineTimeSeries(typedEventRows);
+      actions.setTimelineSeries(timelineSeries);
+      console.log(rawEventRowValues);
+    }
+  ),
 };
 
 export default timelineModel;
 
+/**Transform the start/end fields from a event row in Date objects, and convert the category field into an EventLevel enum */
 function typeEventRows(rows: any[]): EventRowValues[] {
   rows.forEach((r: any, ind: number) => {
-    const cat_string: string = rows[ind]["category"];
+    const categoryString: string = rows[ind]["category"];
     const type_cat: EventLevel =
-      EventLevel[cat_string as unknown as keyof typeof EventLevel];
+      EventLevel[categoryString as unknown as keyof typeof EventLevel];
     rows[ind]["category"] = type_cat;
-    const start_date = new Date(rows[ind]["start"]);
-    const end_date = new Date(rows[ind]["end"]);
-    rows[ind]["start"] = start_date;
-    rows[ind]["end"] = end_date;
+    const startDate = new Date(rows[ind]["start"]);
+    const endDate = new Date(rows[ind]["end"]);
+    rows[ind]["start"] = startDate;
+    rows[ind]["end"] = endDate;
   });
   return rows;
 }
 
-function makeTimeSeries(rows: EventRowValues[]): TimelineData {
-  const categorized_events = groupBy(rows, "category");
-  console.log(categorized_events);
-  Object.keys(categorized_events).forEach((key) => {
-    console.log(key);
-    const value: EventRowValues[] = categorized_events[key];
+/**Create all the Timeseries events to be used in the timeline, sorting them into National, State, and City categories */
+function makeTimelineTimeSeries(rows: EventRowValues[]): TimelineData {
+  const categorizedEvents = groupBy(rows, "category");
+  Object.keys(categorizedEvents).forEach((key) => {
+    const value: EventRowValues[] = categorizedEvents[key];
     const events = eventRowsToTimeRangeEvents(value);
-    const series = time_range_events_to_time_series(events);
-    categorized_events[key] = series;
-    console.log(series);
+    const series = timeRangeEventsToTimeSeries(events);
+    categorizedEvents[key] = series;
   });
-  console.log(categorized_events);
-  return categorized_events;
+  return categorizedEvents;
 }
 
+/**Turn an event row into a TimeRangeEvent with title prop */
 function eventRowsToTimeRangeEvents(rows: EventRowValues[]): TimeRangeEvent[] {
-  const all_events: TimeRangeEvent[] = [];
-  console.log(rows);
-  rows.forEach((event_row: EventRowValues) => {
-    const time_range = new TimeRange(event_row.start, event_row.end);
-    const time_range_event = new TimeRangeEvent(time_range, [
-      { title: event_row.title },
+  const allEvents: TimeRangeEvent[] = [];
+  rows.forEach((eventRow: EventRowValues) => {
+    const timeRange = new TimeRange(eventRow.start, eventRow.end);
+    const timeRangeEvent = new TimeRangeEvent(timeRange, [
+      { title: eventRow.title },
     ]);
-    all_events.push(time_range_event);
+    allEvents.push(timeRangeEvent);
   });
-  console.log(all_events);
-  return all_events;
+  return allEvents;
 }
 
-function time_range_events_to_time_series(
-  events: TimeRangeEvent[]
-): TimeSeries[] {
-  // let array_set: { [key: string]: any[] } = {};
-  // let row_count = 0;
-  // for (let index = 0; index < events.length; index++) {
-  //   console.log(index);
-  //   const element = events[index];
-  //   if (Array.isArray(array_set[`row_${row_count}`]) == false) {
-  //     array_set[`row_${row_count}`] = [];
-  //   }
-  //   let test = array_set[`row_${row_count}`].every(
-  //     (d: TimeRangeEvent) =>
-  //       date_range_overlaps(
-  //         d.begin(),
-  //         d.end(),
-  //         element.begin(),
-  //         element.end()
-  //       ) == false
-  //   );
-  //   if (test) {
-  //     if (row_count > 0) {
-  //       array_set[`row_${row_count - 1}`].push(element);
-  //       // }
-  //     } else {
-  //       array_set[`row_${row_count}`].push(element);
-  //     }
-  //   } else {
-  //     row_count += 1;
-  //     array_set[`row_${row_count}`].push(element);
-  //   }
-  //   console.log(test);
-  //   console.log(array_set);
-  //   // if (
-  //   //   array_set[`row_${row_count}`].every(
-  //   //     (d: TimeRangeEvent) =>
-  //   //       date_range_overlaps(
-  //   //         d.begin(),
-  //   //         d.end(),
-  //   //         element.begin(),
-  //   //         element.end()
-  //   //       ) == false
-  //   //   )
-  //   // ) {
-  //   //   console.log("no overlap, going to push");
-  //   //   array_set[`row_${row_count}`].push(element);
-  //   //   console.log(array_set);
-  //   // } else {
-  //   //   // console.log("GOT overlap, MAKE NEW ROW");
-  //   //   // row_count += 1;
-  //   //   // array_set[`row_${row_count}`].push(element);
-  //   // }
-  //   // }
-  // }
-  // console.log(array_set);
-  const test_obj: any = {};
-  test_obj[0] = [];
+/**Sort all the TimeRangeEvents into a set of TimeSeries, grouping multiple events into a single series while avoiding overlapping events */
+function timeRangeEventsToTimeSeries(events: TimeRangeEvent[]): TimeSeries[] {
+  const timeRangeData: any = {};
+  timeRangeData[0] = [];
   (events as TimeRangeEvent[]).forEach(
     (ev2: TimeRangeEvent, ind: number, array: TimeRangeEvent[]) => {
       let row_count = 0;
@@ -199,9 +148,7 @@ function time_range_events_to_time_series(
           if (ev2 === e3) {
             return true;
           }
-          if (
-            date_range_overlaps(e3.begin(), e3.end(), ev2.begin(), ev2.end())
-          ) {
+          if (dateRangeOverlaps(e3.begin(), e3.end(), ev2.begin(), ev2.end())) {
             // console.log("ranges do overlap");
             return false;
           } else {
@@ -210,34 +157,36 @@ function time_range_events_to_time_series(
           }
         })
       ) {
-        test_obj[row_count].push(ev2);
+        timeRangeData[row_count].push(ev2);
       } else {
         row_count = row_count + 1;
-        test_obj[ind] = [ev2];
+        timeRangeData[ind] = [ev2];
       }
     }
   );
-  const sorted_events = Object.keys(test_obj).map((k) => {
-    test_obj[k] = test_obj[k].sort((a: any, b: any) => a.begin() - b.begin());
+  const sortedEvents = Object.keys(timeRangeData).map((k) => {
+    timeRangeData[k] = timeRangeData[k].sort(
+      (a: any, b: any) => a.begin() - b.begin()
+    );
   });
-  return Object.keys(sorted_events).map(
+  return Object.keys(sortedEvents).map(
     (k) =>
       new TimeSeries({
         name: "test",
-        events: test_obj[k],
+        events: timeRangeData[k],
       })
   );
 }
 
-function date_range_overlaps(
-  a_start: Date,
-  a_end: Date,
-  b_start: Date,
-  b_end: Date
-) {
-  if (a_start < b_start && b_start < a_end) return true; // b starts in a
-  if (a_start < b_end && b_end < a_end) return true; // b ends in a
-  if (b_start < a_start && a_end < b_end) return true; // a in b
+function dateRangeOverlaps(
+  aStart: Date,
+  aEnd: Date,
+  bStart: Date,
+  bEnd: Date
+): boolean {
+  if (aStart < bStart && bStart < aEnd) return true; // b starts in a
+  if (aStart < bEnd && bEnd < aEnd) return true; // b ends in a
+  if (bStart < aStart && aEnd < bEnd) return true; // a in b
   return false;
 }
 

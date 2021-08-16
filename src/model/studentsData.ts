@@ -23,6 +23,7 @@ import { StudentClass, SeriesId } from "../classes/student";
 import { StudentStats } from "../classes/studentStats";
 import { LightBoxData } from "../classes/lightbox";
 import SHEET_KEY from "../static/sheetKey";
+import GoogleSheetData from "classes/GoogleSheetData";
 
 export interface GalleryImage {
   src: string;
@@ -72,11 +73,14 @@ export interface MapDataModel {
   studentStats: StudentStats | undefined;
   /**List of all the students from all course years */
   studentsClass: StudentClass[];
-  /** */
-  studentGoogleSheets: GoogleSheet<RawStudentRowValues>[];
+  /**Google sheet file containing spreadsheet sheets for students years 2016, 2018, 2020, as well as the timeline events */
+  studentGoogleSheets: GoogleSheetData | undefined;
+  // studentGoogleSheets: GoogleSheet<RawStudentRowValues>[];
 
   //COMPUTED FROM EXTERNAL DATA
+  /**Images which meet the active filter criteria and should be displayed in the image gallery*/
   computedActiveImages: Computed<MapDataModel, GalleryImage[]>;
+  /**All the available images */
   computedAvailableGalleryImages: Computed<MapDataModel, GalleryImage[]>;
 
   //THUNKS - FETCH EXTERNAL
@@ -89,7 +93,9 @@ export interface MapDataModel {
   //STORE RAW GOOGLE SHEETS INFO FOR DEBUGGING
   setStudentGoogleSheets: Action<
     MapDataModel,
-    GoogleSheet<RawStudentRowValues>[]
+    GoogleSheetData
+    // GoogleSheet<RawStudentRowValues>[]
+    // GoogleSheet<RawStudentRowValues>[]
   >;
   mapSpreadsheet: RawStudentRowValues[];
 
@@ -134,9 +140,57 @@ const studentsData: MapDataModel = {
   loaded: false,
   mapSpreadsheet: [],
   studentStats: undefined,
-  studentGoogleSheets: [],
+  studentGoogleSheets: undefined,
   setAvailableStudents: action((state, payload) => {
     state.studentsClass = payload;
+  }),
+  fetchStudentSheets: thunk(async (actions, _payload) => {
+    // const key = process.env.REACT_APP_API_KEY as string;
+    const xxTest = GoogleSheetData.prototype
+      .loadSheets(SHEET_KEY, process.env.REACT_APP_API_KEY as string)
+      .then((response) => {
+        Promise.all(response).then((responseData) => {
+          console.log(responseData);
+          const studentsGoogleSheet = new GoogleSheetData(
+            "Students Sheet",
+            SHEET_KEY,
+            responseData
+          );
+          const students2016 = studentsGoogleSheet.getSheetRows(1);
+          const students2018 = studentsGoogleSheet.getSheetRows(2);
+          const students2020 = studentsGoogleSheet.getSheetRows(3);
+          //if you wanted to add 2022
+          //const students2022 = studentsGoogleSheet.getSheetRows(4);
+          const allStudents = [
+            ...students2016,
+            ...students2018,
+            ...students2020,
+            //...students2022
+          ];
+          const convertedStudents = allStudents.map((student) => {
+            return {
+              author: student.author,
+              year: student.year,
+              title: student.title,
+              info: student.info,
+              topic: student.topic,
+              discipline: student.discipline,
+              theme: student.theme,
+              series0101: student.series0101,
+              series0102: student.series0102,
+              series0201: student.series0201,
+              series0202: student.series0202,
+              series0301: student.series0301,
+              series0302: student.series0302,
+              thumbnail: student.thumbnail,
+              subtopic: student.subtopic,
+            } as RawStudentRowValues;
+          });
+          actions.processRawStudentSheets([convertedStudents]);
+          actions.setStudentGoogleSheets(studentsGoogleSheet);
+          // console.log(allStudents);
+        });
+      });
   }),
   processRawStudentSheets: thunk(async (actions, payload) => {
     const allRows = payload.flat();
@@ -181,22 +235,7 @@ const studentsData: MapDataModel = {
   computedAvailableGalleryImages: computed((state) => {
     return state.studentsClass.map((s) => s.getGalleryImages()).flat();
   }),
-  fetchStudentSheets: thunk(async (actions, _payload) => {
-    const test2016 = getSheet<RawStudentRowValues>(SHEET_KEY, 2);
-    const test2018 = getSheet<RawStudentRowValues>(SHEET_KEY, 3);
-    const test2020 = getSheet<RawStudentRowValues>(SHEET_KEY, 4);
-    const studentSheetRequests = [test2016, test2018, test2020];
-    const sheetRequestResults =
-      ingestPromises<GoogleSheet<RawStudentRowValues>>(studentSheetRequests);
-    sheetRequestResults
-      .then((results) => {
-        const succesfulSheets = results.results;
-        const studentRowValues = results.results.map((r) => r.data);
-        actions.setStudentGoogleSheets(succesfulSheets);
-        actions.processRawStudentSheets(studentRowValues);
-      })
-      .catch((err) => {});
-  }),
+
   setStudentGoogleSheets: action((state, sheets) => {
     state.studentGoogleSheets = sheets;
   }),

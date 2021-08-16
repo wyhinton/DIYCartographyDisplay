@@ -11,6 +11,7 @@ const ImageSlider = ({ images }: ImagerSliderProps) => {
 
   const slickSlide = {
     height: "100%",
+    // paddingRight: "1em",
   } as React.CSSProperties;
 
   const slickProps = {
@@ -45,6 +46,7 @@ const ImageSlider = ({ images }: ImagerSliderProps) => {
                 display: "flex",
                 justifyContent: "center",
                 width: "100%",
+                // paddingRight: "1em",
               }}
             >
               <div key={i} style={slickSlide}>

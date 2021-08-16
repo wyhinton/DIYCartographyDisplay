@@ -23,7 +23,7 @@ function getYearBreakdown(students: StudentClass[]) {
   const yearGroups = groupBy(students, (s) => s.year);
   const yearBreakdown = {};
   for (const [key, value] of Object.entries(yearGroups)) {
-    let studentsByDiscipline = groupBy(
+    const studentsByDiscipline = groupBy(
       value as StudentClass[],
       (s) => s.discipline
     );
@@ -45,7 +45,6 @@ function getYearBreakdown(students: StudentClass[]) {
       fieldsToFieldLengths(studentsByDiscipline);
     //for each year, insert this counter object
     (yearBreakdown as any)[key] = disciplinesByStudentCount as YearGroup;
-    console.log(yearBreakdown);
   }
   return yearBreakdown;
 }
@@ -55,12 +54,12 @@ function getTopicBreakdown(students: StudentClass[]) {
   const studentMapStats = {};
   for (const [key, value] of Object.entries(topicGroups)) {
     let subtopicGroup = groupBy(value as StudentClass[], (s) => s.subtopic);
-    const all_subtopics = subtopicsFromTopic(
+    const allSubtopics = subtopicsFromTopic(
       Topic[key as unknown as keyof typeof Topic]
     );
 
     subtopicGroup = fieldsToFieldLengths(subtopicGroup);
-    all_subtopics.forEach((st) => {
+    allSubtopics.forEach((st) => {
       if (!(st in subtopicGroup)) {
         (subtopicGroup as any)[st] = 0;
       }
@@ -110,25 +109,6 @@ function subtopicsFromTopic(topic: Topic): MapSubTopic[] {
       break;
   }
   return topicSubtopics;
-}
-
-export interface TagStats {
-  BE: any;
-  EE: any;
-  NE: any;
-  PE: any;
-  SE: any;
-}
-
-export interface ThemeStats {
-  EQUITY: number;
-  ACCESS: number;
-  DIVERSITY: number;
-}
-
-export interface YearDisciplineStats {
-  sixteen: YearGroup;
-  eighteen: YearGroup;
 }
 
 export interface YearGroup {

@@ -9,18 +9,15 @@ import Title from "./Components/Title";
 import Toolbar from "./Components/Toolbar";
 import { ThemeProvider, defaultTheme } from "evergreen-ui";
 import { merge } from "lodash";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useStoreActions, useStoreState } from "./hooks";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
-import { useTheme, Theme } from "@material-ui/core/styles";
+import { useTheme } from "@material-ui/core/styles";
 
 const App = (): JSX.Element => {
   const theme = useTheme();
   const fetchStudentSpreadsheet = useStoreActions(
     (actions) => actions.studentsModel.fetchStudentSheets
-  );
-  const fetchEventSpreadsheet = useStoreActions(
-    (actions) => actions.timeline.fetchEventSpreadsheet
   );
   const dataLoaded = useStoreState((state) => state.studentsModel.loaded);
   const isBelowMedium = useMediaQuery(theme.breakpoints.down("md"));
@@ -34,7 +31,6 @@ const App = (): JSX.Element => {
     },
   });
   useEffect(() => {
-    fetchEventSpreadsheet();
     fetchStudentSpreadsheet();
   });
 

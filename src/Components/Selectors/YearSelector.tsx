@@ -87,6 +87,13 @@ const YearSelector = (): JSX.Element => {
         >
           {makeYearChunks("2020", yearDataState?.["2020"])}
         </SelectorGroup>
+        {/* <SelectorGroup
+          title={"2022"}
+          size={3}
+          filter={FilterGroup.STUDENTS_2022}
+        >
+          {makeYearChunks("2022", yearDataState?.["2022"])}
+        </SelectorGroup> */}
       </SelectorParent>
     </>
   );

@@ -18,9 +18,7 @@ const LightBox = ({ show, onClick }: LightBoxProps): JSX.Element => {
   const activeLightbox = useStoreState(
     (state) => state.studentsModel.activeLightBoxData
   );
-  useEffect(() => {
-    console.log(activeLightbox);
-  }, [activeLightbox.author]);
+  useEffect(() => {}, [activeLightbox.author]);
 
   const galleryStyle = {
     height: "100%",

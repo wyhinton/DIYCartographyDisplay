@@ -1,6 +1,6 @@
 import { EventLevel } from "../enums";
 import GetSheetDone from "get-sheet-done";
-
+import { GoogleSpreadsheet } from "google-spreadsheet";
 export interface EventRowValues {
   start: Date;
   end: Date;
@@ -26,26 +26,6 @@ export function getSheet<T>(
   sheetNumber: number
 ): Promise<GoogleSheet<T>> {
   return new Promise<GoogleSheet<T>>(function (resolve, reject) {
-    var options = {
-      // method: "post",
-      // contentType: "application/json",
-      // payload: JSON.stringify(ObjectToSend),
-      muteHttpExceptions: true,
-    };
-
-    const test = fetch(
-      "https://spreadsheets.google.com/feeds/list/" +
-        key +
-        "/od6/public/values?alt=json"
-      // options
-    );
-    const url =
-      "https://spreadsheets.google.com/feeds/list/" +
-      key +
-      "/od6/public/values?alt=json";
-    // const fffff = fetchRetry(url, 10, 300);
-    // console.log(fffff);
-    // console.log(test);
     GetSheetDone.labeledCols(key, sheetNumber)
       .then((sheet: any) => {
         resolve(sheet);
