@@ -285,7 +285,7 @@ const studentsData: MapDataModel = {
     const selectedStudent = state.studentsClass.filter(
       (s) => s.author === tagData.author
     )[0];
-    state.activeLightBoxData.setStudent(selectedStudent);
+    state.activeLightBoxData.setStudent(selectedStudent, item.src);
   }),
   setLoaded: action((state, contentIsLoaded) => {
     state.loaded = contentIsLoaded;

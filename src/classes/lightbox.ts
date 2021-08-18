@@ -29,8 +29,10 @@ export class LightBoxData {
    * Year of the student
    */
   year!: string;
-  /**Disciplien of the student */
+  /**Discipline of the student */
   discipline!: string;
+  /**First image in the gallery to show */
+  startImageIndex: number;
 
   constructor() {
     this.images = [];
@@ -39,13 +41,18 @@ export class LightBoxData {
     this.title = "";
     this.year = "";
     this.discipline = "";
+    this.startImageIndex = 0;
   }
-  setStudent(student: StudentClass): void {
+  setStudent(student: StudentClass, clickedImgSrc: string): void {
     this.images = student.getLightboxImages();
     this.author = student.author;
     this.title = student.title;
     this.description = student.description;
     this.year = student.year;
     this.discipline = student.discipline;
+    this.startImageIndex = this.images
+      .map((img) => img.src)
+      .indexOf(clickedImgSrc);
+    console.log(this.startImageIndex);
   }
 }

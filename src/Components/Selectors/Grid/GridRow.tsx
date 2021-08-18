@@ -56,6 +56,7 @@ const GridRow = ({ count, icon, filterCode }: GridRowProps) => {
         onMouseEnter={() => setIsHovered(!isHovered)}
         onMouseLeave={() => setIsHovered(!isHovered)}
         onMouseUp={() => {
+          // setIsHovered(true);
           setFilterAction(filterCode);
         }}
       >

@@ -1,17 +1,18 @@
 import ReactSlick from "react-slick";
 import type { LightboxImage } from "classes/lightbox";
-import Magnifier from "react-magnifier";
+import Magnifier from "../Magnifier/Magnifier";
+// import Magnifier from "react-magnifier";
 import { useTheme } from "@material-ui/core/styles";
 
 interface ImagerSliderProps {
   images: LightboxImage[];
+  startImageIndex: number;
 }
-const ImageSlider = ({ images }: ImagerSliderProps) => {
+const ImageSlider = ({ images, startImageIndex }: ImagerSliderProps) => {
   const theme = useTheme();
 
   const slickSlide = {
     height: "100%",
-    // paddingRight: "1em",
   } as React.CSSProperties;
 
   const slickProps = {
@@ -35,9 +36,9 @@ const ImageSlider = ({ images }: ImagerSliderProps) => {
           slidesToScroll: 1,
           centerMode: true,
           centerPadding: 0,
+          initialSlide: startImageIndex + 1,
         }}
         {...slickProps}
-        // {...rsProps}
       >
         {images.map((img, i) => (
           <>
@@ -46,7 +47,6 @@ const ImageSlider = ({ images }: ImagerSliderProps) => {
                 display: "flex",
                 justifyContent: "center",
                 width: "100%",
-                // paddingRight: "1em",
               }}
             >
               <div key={i} style={slickSlide}>

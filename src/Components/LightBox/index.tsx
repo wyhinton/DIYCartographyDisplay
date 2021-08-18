@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import ReactDom from "react-dom";
 import { withStyles } from "@material-ui/core/styles";
-import { CrossIcon } from "evergreen-ui";
 import Backdrop from "@material-ui/core/Backdrop";
 import Grid from "@material-ui/core/Grid";
 import { useStoreState } from "../../hooks";
@@ -55,30 +54,34 @@ const LightBox = ({ show, onClick }: LightBoxProps): JSX.Element => {
       transition: "opacity 1s",
     },
   })(Backdrop);
-
+  const { author, title, discipline, year, description, startImageIndex } = {
+    ...activeLightbox,
+  };
   return ReactDom.createPortal(
     <>
       <LimitedBackdrop open={show} transitionDuration={1000}>
         <div
           style={backDropContainer}
           onMouseUp={() => {
-            console.log("got click");
             onClick;
           }}
         >
           <Header
-            author={activeLightbox.author}
-            title={activeLightbox.title}
-            discipline={activeLightbox.discipline}
-            year={activeLightbox.year}
+            author={author}
+            title={title}
+            discipline={discipline}
+            year={year}
             onClick={onClick}
           />
           <Grid container spacing={3} style={mainGrid}>
             <Grid item xs={2} onClick={onClick}>
-              <MapDescription description={activeLightbox.description} />
+              <MapDescription description={description} />
             </Grid>
             <Grid item xs={9} style={galleryStyle}>
-              <ImageSlider images={activeLightbox.images} />
+              <ImageSlider
+                images={activeLightbox.images}
+                startImageIndex={startImageIndex}
+              />
             </Grid>
           </Grid>
         </div>
