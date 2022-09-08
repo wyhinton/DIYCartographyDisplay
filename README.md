@@ -13,7 +13,7 @@ This website offers NCSU design college an opportunity to display innovative wor
 inspiration and reference for future classes.
 
 Live demo:
-[https://studentmapdisplay.web.app/](https://studentmapdisplay.web.app/)
+[https://diycartography-da58b.web.app/](https://diycartography-da58b.web.app/)
 
 ## Quick Start
 
